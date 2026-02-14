@@ -1,0 +1,22 @@
+{
+  "schema_version": "halo-receipt/v0",
+  "canonicalization_version": "halo-c14n/v1",
+  "receipt_id": "demo-0001",
+  "created_at": "2026-02-09T00:00:00Z",
+  "subject": {
+    "artifact_type": "document",
+    "artifact_name": "demo_memo.txt",
+    "byte_length": 304,
+    "sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "signing": {
+    "namespace": "halo-receipt",
+    "signer_id": "demo-signer",
+    "public_key_hint": "ssh-ed25519 AAAA... (placeholder)"
+  },
+  "notes": [
+    "This is a minimal demo exhibit for Lantern.",
+    "It is not a verified signature artifact.",
+    "Replace with a real HALO receipt to cryptographically verify in HALO-RECEIPTS."
+  ]
+}

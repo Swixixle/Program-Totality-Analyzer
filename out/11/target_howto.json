@@ -1,0 +1,176 @@
+{
+  "prereqs": [
+    "Node.js 16+ (or 20+, see .replit:line1, .github/workflows/ci.yml:line20)",
+    "npm (or yarn) (.replit:line1, README.md:line27)",
+    "Optional for server DB work: PostgreSQL 16 (.replit:line1)",
+    "For UI: modern browser"
+  ],
+  "install_steps": [
+    {
+      "step": "Clone the repository",
+      "command": "git clone https://github.com/Swixixle/Lantern.git",
+      "evidence": "README.md:line31"
+    },
+    {
+      "step": "Change directory to the project folder",
+      "command": "cd Lantern",
+      "evidence": "README.md:line32"
+    },
+    {
+      "step": "Install JavaScript dependencies",
+      "command": "npm install",
+      "evidence": "README.md:line33"
+    }
+  ],
+  "config": [
+    {
+      "name": "PORT (env var)",
+      "purpose": "Sets the server port (default 5000 for dev and prod)",
+      "evidence": ".replit:line18"
+    },
+    {
+      "name": "DATABASE_URL (env var)",
+      "purpose": "Required for drizzle-kit (DB migration, only needed for backend/postgres work, not for default local-first)",
+      "evidence": "drizzle.config.ts:line3"
+    },
+    {
+      "name": "Config JSON: public_readonly (client-side API at /api/config)",
+      "purpose": "Controls whether the UI is in read-only mode; not required for normal operation",
+      "evidence": "client/src/lib/config.tsx:line4"
+    }
+  ],
+  "run_dev": [
+    {
+      "step": "Start development server (fullstack: Express + Vite with hot-reload)",
+      "command": "npm run dev",
+      "evidence": "README.md:line40, package.json:line8"
+    },
+    {
+      "step": "Or, to start only the client (Vite UI, for rapid UI prototyping)",
+      "command": "npm run dev:client",
+      "evidence": "AUDIT_REPORT.md:line30, package.json:line7"
+    }
+  ],
+  "run_prod": [
+    {
+      "step": "Build the project",
+      "command": "npm run build",
+      "evidence": "README.md:line57, package.json:line9"
+    },
+    {
+      "step": "Start the production server",
+      "command": "npm start",
+      "evidence": "README.md:line58, package.json:line10"
+    }
+  ],
+  "usage_examples": [
+    {
+      "description": "Start the app (dev mode, local)",
+      "command": "npm run dev"
+    },
+    {
+      "description": "Open Lantern in your browser (after running dev server)",
+      "command": "http://localhost:5000"
+    },
+    {
+      "description": "Build and start in production mode",
+      "command": "npm run build && npm start"
+    },
+    {
+      "description": "Verify dedupe & provenance logic (internal QA)",
+      "command": "npx vitest run client/src/lib/tests/unit/",
+      "evidence": "M2_SUMMARY.md:line62"
+    }
+  ],
+  "verification_steps": [
+    {
+      "step": "Run build to check code compiles",
+      "command": "npm run build",
+      "evidence": "BOOK_OF_FIXES.md:line32, CHANGELOG.md:line103"
+    },
+    {
+      "step": "Check that all unit tests pass",
+      "command": "npx vitest run client/src/lib/tests/unit/",
+      "evidence": "M2_SUMMARY.md:line62"
+    },
+    {
+      "step": "Verify app loads on http://localhost:5000 and UI renders without errors",
+      "command": "Navigate to http://localhost:5000 in a browser",
+      "evidence": "README.md:line43"
+    },
+    {
+      "step": "(Optional) Confirm 'Engine Stats' panel shows provenance and dedupe counters after extract operation",
+      "command": "Manual: Extract sample text in UI, observe stats",
+      "evidence": "attached_assets/Pasted-v0-1-1-is-the-right-direction-you-attacked-the-specific_1768906402984.txt:line115"
+    }
+  ],
+  "common_failures": [
+    {
+      "symptom": "White screen / app does not load",
+      "cause": "Frontend code error (e.g. React parser fails on invalid JSX) or build did not succeed",
+      "fix": "Check browser console, run npm run build for errors, review recent code changes",
+      "evidence": "README.md:line82, BOOK_OF_FIXES.md:line11, AUDIT_REPORT.md:line84"
+    },
+    {
+      "symptom": "EADDRINUSE error",
+      "cause": "Port 5000 is already in use by another process",
+      "fix": "Stop all running workflows, wait 5 seconds, restart the workflow",
+      "evidence": "README.md:line90"
+    },
+    {
+      "symptom": "Data loss (extracted packs/disosiers disappear)",
+      "cause": "Browser localStorage was cleared (cache clear, browser reset, etc.)",
+      "fix": "Export packs as JSON frequently; data is not recoverable",
+      "evidence": "AUDIT_REPORT.md:line70"
+    },
+    {
+      "symptom": "App fails type checking/build",
+      "cause": "Mismatched types or corrupted source files",
+      "fix": "Review type errors, resolve conflicts, re-run npm run build",
+      "evidence": "BOOK_OF_FIXES.md:line12"
+    }
+  ],
+  "unknowns": [
+    {
+      "what_is_missing": "Explicit DB server configuration and setup for Postgres (DATABASE_URL, migrations, running in production with persistence)",
+      "why_it_matters": "Operators cannot enable server-side persistence or migrate DB schema without this information",
+      "what_evidence_needed": "Example .env entries, documented DATABASE_URL format, setup/init instructions"
+    },
+    {
+      "what_is_missing": "Detailed API route implementation (all API routes appear to be placeholders or not wired up for real data use)",
+      "why_it_matters": "Cannot manage users/dossiers from backend; cannot integrate with external systems",
+      "what_evidence_needed": "Code from server/routes.ts, documentation of API contract"
+    },
+    {
+      "what_is_missing": "How to run integration/end-to-end/UI tests",
+      "why_it_matters": "Cannot fully verify app in real browser scenarios or CI/CD pipeline validation",
+      "what_evidence_needed": "Test directory, command, or documentation describing for e2e/UI/acceptance tests"
+    },
+    {
+      "what_is_missing": "How to migrate or upgrade Extract/Dossier packs across schema versions in real user data",
+      "why_it_matters": "Pack migration logic is present but no operational instructions for migration on real data",
+      "what_evidence_needed": "Migration runbook, or admin tool usage for storage/schema upgrade"
+    }
+  ],
+  "missing_evidence_requests": [
+    "Server-side database provisioning and user instructions (DATABASE_URL, migration, 'db:push' usage)",
+    "API endpoint documentation and usage examples",
+    "End-to-end or integration test running instructions",
+    "Explicit real-world pack migration workflow or admin migration tool"
+  ],
+  "completeness": {
+    "score": 3,
+    "max": 100,
+    "missing": [
+      "run_dev: no step with both a runnable command and verified evidence",
+      "config: no config item with name+purpose+verified evidence",
+      "port_behavior: no port evidence with verified snippet_hash",
+      "verification_steps: no step with both a runnable command and verified evidence",
+      "install_steps: no step with both a runnable command and verified evidence"
+    ],
+    "deductions": [
+      "-12 for 4 unknown(s)"
+    ],
+    "notes": "-12 for 4 unknown(s); No Dockerfile found; 4 unknown(s) reported"
+  }
+}

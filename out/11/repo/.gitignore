@@ -1,0 +1,15 @@
+node_modules/
+dist/
+uploads/
+attached_assets/
+.DS_Store
+
+.env
+.env.*
+*.pem
+*.key
+
+.replit
+.upm/
+.cache/
+.local/

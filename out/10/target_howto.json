@@ -1,0 +1,116 @@
+{
+  "prereqs": [
+    "Node.js (version 20, per Nix config)",
+    "jq (for JSON manipulation, per Nix config)"
+  ],
+  "install_steps": [
+    {
+      "step": "Provision Node.js 20 and jq dependencies",
+      "command": null,
+      "evidence": "replit.nix:L3-L4"
+    },
+    {
+      "step": "No explicit installation of Node.js packages or builds required (schema files and JS script assumed present)",
+      "command": null,
+      "evidence": "README.md:L32-L35"
+    }
+  ],
+  "config": [
+    {
+      "name": "run = \"node validate-schema.js\" (.replit)",
+      "purpose": "Specifies the development/launch command for the Replit environment",
+      "evidence": ".replit:L1"
+    },
+    {
+      "name": "[nix] channel = \"stable-23_11\"",
+      "purpose": "Defines NixOS package channel used for the dev environment in Replit",
+      "evidence": ".replit:L4"
+    },
+    {
+      "name": "[deployment] run = [\"sh\", \"-c\", \"node validate-schema.js\"]",
+      "purpose": "Defines deployment run command for Replit environments",
+      "evidence": ".replit:L6-L7"
+    }
+  ],
+  "run_dev": [
+    {
+      "step": "Validate the ELI schema and example output using the validation script",
+      "command": "node validate-schema.js",
+      "evidence": "README.md:L27"
+    },
+    {
+      "step": "Replit: Click Run button to validate schema and sample output",
+      "command": "Run button (triggers node validate-schema.js via .replit)",
+      "evidence": "README.md:L14-L18"
+    }
+  ],
+  "run_prod": [
+    {
+      "step": "Production execution is not supported; ELI defines only schemas/contracts and validation, not a production service",
+      "command": "unknown",
+      "evidence": "SECURITY.md:L24"
+    }
+  ],
+  "usage_examples": [
+    {
+      "description": "Validate the schema locally via CLI",
+      "command": "node validate-schema.js"
+    }
+  ],
+  "verification_steps": [
+    {
+      "step": "Check that examples/eli-output.sample.json conforms to contracts/eli-output.schema.json",
+      "command": "node validate-schema.js",
+      "evidence": "README.md:L27"
+    },
+    {
+      "step": "The script emits whether schema validation passes or fails. Observe the output for validation status.",
+      "command": "node validate-schema.js",
+      "evidence": "README.md:L20"
+    }
+  ],
+  "common_failures": [
+    {
+      "symptom": "Validation script reports schema errors",
+      "cause": "Example output file does not match the defined schema",
+      "fix": "Update the example output or schema to be consistent"
+    },
+    {
+      "symptom": "Error: node: command not found",
+      "cause": "Node.js is not installed or not available in PATH",
+      "fix": "Install Node.js version 20"
+    }
+  ],
+  "unknowns": [
+    {
+      "what_is_missing": "Exact contents of validate-schema.js (the schema validation logic/script)",
+      "why_it_matters": "Without this, step-by-step debugging or extension of validation is impossible",
+      "what_evidence_needed": "The actual file validate-schema.js"
+    },
+    {
+      "what_is_missing": "Whether there are extra environment variables, or optional config files for advanced validation",
+      "why_it_matters": "May affect extensibility or deployment in CI/CD contexts",
+      "what_evidence_needed": "Presence of a .env, config.json, or related source code"
+    }
+  ],
+  "missing_evidence_requests": [
+    "validate-schema.js is not present, so the exact logic of validation and its options are unknown",
+    "No evidence of additional configuration (environment variables, advanced settings) beyond what is present in .replit and replit.nix",
+    "No documentation on extending or modifying validation behavior"
+  ],
+  "completeness": {
+    "score": 9,
+    "max": 100,
+    "missing": [
+      "run_dev: no step with both a runnable command and verified evidence",
+      "config: no config item with name+purpose+verified evidence",
+      "port_behavior: no port evidence with verified snippet_hash",
+      "verification_steps: no step with both a runnable command and verified evidence",
+      "install_steps: no step with both a runnable command and verified evidence"
+    ],
+    "deductions": [
+      "-6 for 2 unknown(s)"
+    ],
+    "notes": "-6 for 2 unknown(s); No Dockerfile found; 2 unknown(s) reported"
+  }
+}

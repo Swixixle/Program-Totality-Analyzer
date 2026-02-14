@@ -1,0 +1,7 @@
+run = "node validate-schema.js"
+
+[nix]
+channel = "stable-23_11"
+
+[deployment]
+run = ["sh", "-c", "node validate-schema.js"]

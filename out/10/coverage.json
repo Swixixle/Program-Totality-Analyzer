@@ -1,0 +1,16 @@
+{
+  "mode_requested": "github",
+  "mode": "github",
+  "run_id": "a0f2ad944610",
+  "scanned": 12,
+  "skipped": 0,
+  "replit_detected": false,
+  "replit_detection_evidence": [],
+  "is_replit": false,
+  "self_skip": {
+    "enabled": false,
+    "excluded_paths": [],
+    "excluded_file_count": 0,
+    "reason": "Analyzer source files excluded to prevent false-positive pattern matches"
+  }
+}

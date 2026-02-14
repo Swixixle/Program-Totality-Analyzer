@@ -6,6 +6,7 @@ import { z } from "zod";
 import { spawn } from "child_process";
 import path from "path";
 import fs from "fs/promises";
+import { existsSync, readFileSync } from "fs";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -80,6 +81,12 @@ export async function registerRoutes(
       console.error("Error starting Replit analysis:", err);
       res.status(500).json({ message: "Failed to start Replit analysis" });
     }
+  });
+
+  app.get("/api/dossiers/lantern", (_req, res) => {
+    const p = path.join(process.cwd(), "docs/dossiers/lantern_program_totality_dossier.md");
+    if (!existsSync(p)) return res.status(404).json({ error: "Not found" });
+    res.type("text/markdown").send(readFileSync(p, "utf8"));
   });
 
   return httpServer;

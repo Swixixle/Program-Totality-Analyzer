@@ -1,0 +1,2382 @@
+
+--- FILE: components.json ---
+L1: {
+L2:   "$schema": "https://ui.shadcn.com/schema.json",
+L3:   "style": "new-york",
+L4:   "rsc": false,
+L5:   "tsx": true,
+L6:   "tailwind": {
+L7:     "config": "tailwind.config.ts",
+L8:     "css": "client/src/index.css",
+L9:     "baseColor": "neutral",
+L10:     "cssVariables": true,
+L11:     "prefix": ""
+L12:   },
+L13:   "iconLibrary": "lucide",
+L14:   "aliases": {
+L15:     "components": "@/components",
+L16:     "utils": "@/lib/utils",
+L17:     "ui": "@/components/ui",
+L18:     "lib": "@/lib",
+L19:     "hooks": "@/hooks"
+L20:   }
+L21: }
+
+--- FILE: package-lock.json ---
+L1: {
+L2:   "name": "rest-express",
+L3:   "version": "1.0.0",
+L4:   "lockfileVersion": 3,
+L5:   "requires": true,
+L6:   "packages": {
+L7:     "": {
+L8:       "name": "rest-express",
+L9:       "version": "1.0.0",
+L10:       "license": "MIT",
+L11:       "dependencies": {
+L12:         "@hookform/resolvers": "^3.10.0",
+L13:         "@jridgewell/trace-mapping": "^0.3.25",
+L14:         "@radix-ui/react-accordion": "^1.2.12",
+L15:         "@radix-ui/react-alert-dialog": "^1.1.15",
+L16:         "@radix-ui/react-aspect-ratio": "^1.1.8",
+L17:         "@radix-ui/react-avatar": "^1.1.11",
+L18:         "@radix-ui/react-checkbox": "^1.3.3",
+L19:         "@radix-ui/react-collapsible": "^1.1.12",
+L20:         "@radix-ui/react-context-menu": "^2.2.16",
+L21:         "@radix-ui/react-dialog": "^1.1.15",
+L22:         "@radix-ui/react-dropdown-menu": "^2.1.16",
+L23:         "@radix-ui/react-hover-card": "^1.1.15",
+L24:         "@radix-ui/react-label": "^2.1.8",
+L25:         "@radix-ui/react-menubar": "^1.1.16",
+L26:         "@radix-ui/react-navigation-menu": "^1.2.14",
+L27:         "@radix-ui/react-popover": "^1.1.15",
+L28:         "@radix-ui/react-progress": "^1.1.8",
+L29:         "@radix-ui/react-radio-group": "^1.3.8",
+L30:         "@radix-ui/react-scroll-area": "^1.2.10",
+L31:         "@radix-ui/react-select": "^2.2.6",
+L32:         "@radix-ui/react-separator": "^1.1.8",
+L33:         "@radix-ui/react-slider": "^1.3.6",
+L34:         "@radix-ui/react-slot": "^1.2.4",
+L35:         "@radix-ui/react-switch": "^1.2.6",
+L36:         "@radix-ui/react-tabs": "^1.1.13",
+L37:         "@radix-ui/react-toast": "^1.2.7",
+L38:         "@radix-ui/react-toggle": "^1.1.10",
+L39:         "@radix-ui/react-toggle-group": "^1.1.11",
+L40:         "@radix-ui/react-tooltip": "^1.2.8",
+L41:         "@tanstack/react-query": "^5.60.5",
+L42:         "@types/adm-zip": "^0.5.7",
+L43:         "@types/archiver": "^7.0.0",
+L44:         "@types/multer": "^2.0.0",
+L45:         "@types/react-window": "^1.8.8",
+L46:         "adm-zip": "^0.5.16",
+L47:         "archiver": "^7.0.1",
+L48:         "canvas": "^3.2.1",
+L49:         "class-variance-authority": "^0.7.1",
+L50:         "clsx": "^2.1.1",
+L51:         "cmdk": "^1.1.1",
+L52:         "connect-pg-simple": "^10.0.0",
+L53:         "date-fns": "^3.6.0",
+L54:         "drizzle-orm": "^0.39.3",
+L55:         "drizzle-zod": "^0.7.0",
+L56:         "embla-carousel-react": "^8.6.0",
+L57:         "express": "^5.0.1",
+L58:         "express-session": "^1.18.1",
+L59:         "fake-indexeddb": "^6.2.5",
+L60:         "framer-motion": "^12.23.24",
+L61:         "html2canvas": "^1.4.1",
+L62:         "idb": "^8.0.3",
+L63:         "input-otp": "^1.4.2",
+L64:         "jspdf": "^4.0.0",
+L65:         "lucide-react": "^0.545.0",
+L66:         "memorystore": "^1.6.7",
+L67:         "multer": "^2.0.2",
+L68:         "next-themes": "^0.4.6",
+L69:         "passport": "^0.7.0",
+L70:         "passport-local": "^1.0.0",
+L71:         "pdf2json": "^4.0.2",
+L72:         "pdfjs-dist": "^5.4.530",
+L73:         "pg": "^8.16.3",
+L74:         "react": "^19.2.0",
+L75:         "react-day-picker": "^9.11.1",
+L76:         "react-dom": "^19.2.0",
+L77:         "react-hook-form": "^7.66.0",
+L78:         "react-resizable-panels": "^2.1.9",
+L79:         "recharts": "^2.15.4",
+L80:         "sonner": "^2.0.7",
+L81:         "tailwind-merge": "^3.3.1",
+L82:         "tailwindcss-animate": "^1.0.7",
+L83:         "tw-animate-css": "^1.4.0",
+L84:         "uuid": "^13.0.0",
+L85:         "vaul": "^1.1.2",
+L86:         "vitest": "^4.0.17",
+L87:         "wouter": "^3.3.5",
+L88:         "ws": "^8.18.0",
+L89:         "zod": "^3.25.76",
+L90:         "zod-validation-error": "^3.4.0"
+L91:       },
+L92:       "devDependencies": {
+L93:         "@replit/vite-plugin-cartographer": "^0.4.4",
+L94:         "@replit/vite-plugin-dev-banner": "^0.1.1",
+L95:         "@replit/vite-plugin-runtime-error-modal": "^0.0.4",
+L96:         "@tailwindcss/vite": "^4.1.14",
+L97:         "@types/connect-pg-simple": "^7.0.3",
+L98:         "@types/express": "^5.0.0",
+L99:         "@types/express-session": "^1.18.0",
+L100:         "@types/node": "^20.19.0",
+L101:         "@types/passport": "^1.0.16",
+L102:         "@types/passport-local": "^1.0.38",
+L103:         "@types/react": "^19.2.0",
+L104:         "@types/react-dom": "^19.2.0",
+L105:         "@types/ws": "^8.5.13",
+L106:         "@vitejs/plugin-react": "^5.0.4",
+L107:         "autoprefixer": "^10.4.21",
+L108:         "drizzle-kit": "^0.31.4",
+L109:         "esbuild": "^0.25.0",
+L110:         "postcss": "^8.5.6",
+L111:         "tailwindcss": "^4.1.14",
+L112:         "tsx": "^4.20.5",
+L113:         "typescript": "5.6.3",
+L114:         "vite": "^7.1.9"
+L115:       },
+L116:       "optionalDependencies": {
+L117:         "bufferutil": "^4.0.8"
+L118:       }
+L119:     },
+L120:     "node_modules/@babel/code-frame": {
+L121:       "version": "7.28.6",
+L122:       "resolved": "https://registry.npmjs.org/@babel/code-frame/-/code-frame-7.28.6.tgz",
+L123:       "integrity": "sha512-JYgintcMjRiCvS8mMECzaEn+m3PfoQiyqukOMCCVQtoJGYJw8j/8LBJEiqkHLkfwCcs74E3pbAUFNg7d9VNJ+Q==",
+L124:       "dev": true,
+L125:       "license": "MIT",
+L126:       "dependencies": {
+L127:         "@babel/helper-validator-identifier": "^7.28.5",
+L128:         "js-tokens": "^4.0.0",
+L129:         "picocolors": "^1.1.1"
+L130:       },
+L131:       "engines": {
+L132:         "node": ">=6.9.0"
+L133:       }
+L134:     },
+L135:     "node_modules/@babel/compat-data": {
+L136:       "version": "7.28.6",
+L137:       "resolved": "https://registry.npmjs.org/@babel/compat-data/-/compat-data-7.28.6.tgz",
+L138:       "integrity": "sha512-2lfu57JtzctfIrcGMz992hyLlByuzgIk58+hhGCxjKZ3rWI82NnVLjXcaTqkI2NvlcvOskZaiZ5kjUALo3Lpxg==",
+L139:       "dev": true,
+L140:       "license": "MIT",
+L141:       "engines": {
+L142:         "node": ">=6.9.0"
+L143:       }
+L144:     },
+L145:     "node_modules/@babel/core": {
+L146:       "version": "7.28.6",
+L147:       "resolved": "https://registry.npmjs.org/@babel/core/-/core-7.28.6.tgz",
+L148:       "integrity": "sha512-H3mcG6ZDLTlYfaSNi0iOKkigqMFvkTKlGUYlD8GW7nNOYRrevuA46iTypPyv+06V3fEmvvazfntkBU34L0azAw==",
+L149:       "dev": true,
+L150:       "license": "MIT",
+L151:       "dependencies": {
+L152:         "@babel/code-frame": "^7.28.6",
+L153:         "@babel/generator": "^7.28.6",
+L154:         "@babel/helper-compilation-targets": "^7.28.6",
+L155:         "@babel/helper-module-transforms": "^7.28.6",
+L156:         "@babel/helpers": "^7.28.6",
+L157:         "@babel/parser": "^7.28.6",
+L158:         "@babel/template": "^7.28.6",
+L159:         "@babel/traverse": "^7.28.6",
+L160:         "@babel/types": "^7.28.6",
+L161:         "@jridgewell/remapping": "^2.3.5",
+L162:         "convert-source-map": "^2.0.0",
+L163:         "debug": "^4.1.0",
+L164:         "gensync": "^1.0.0-beta.2",
+L165:         "json5": "^2.2.3",
+L166:         "semver": "^6.3.1"
+L167:       },
+L168:       "engines": {
+L169:         "node": ">=6.9.0"
+L170:       },
+L171:       "funding": {
+L172:         "type": "opencollective",
+L173:         "url": "https://opencollective.com/babel"
+L174:       }
+L175:     },
+L176:     "node_modules/@babel/generator": {
+L177:       "version": "7.28.6",
+L178:       "resolved": "https://registry.npmjs.org/@babel/generator/-/generator-7.28.6.tgz",
+L179:       "integrity": "sha512-lOoVRwADj8hjf7al89tvQ2a1lf53Z+7tiXMgpZJL3maQPDxh0DgLMN62B2MKUOFcoodBHLMbDM6WAbKgNy5Suw==",
+L180:       "dev": true,
+L181:       "license": "MIT",
+L182:       "dependencies": {
+L183:         "@babel/parser": "^7.28.6",
+L184:         "@babel/types": "^7.28.6",
+L185:         "@jridgewell/gen-mapping": "^0.3.12",
+L186:         "@jridgewell/trace-mapping": "^0.3.28",
+L187:         "jsesc": "^3.0.2"
+L188:       },
+L189:       "engines": {
+L190:         "node": ">=6.9.0"
+L191:       }
+L192:     },
+L193:     "node_modules/@babel/helper-compilation-targets": {
+L194:       "version": "7.28.6",
+L195:       "resolved": "https://registry.npmjs.org/@babel/helper-compilation-targets/-/helper-compilation-targets-7.28.6.tgz",
+L196:       "integrity": "sha512-JYtls3hqi15fcx5GaSNL7SCTJ2MNmjrkHXg4FSpOA/grxK8KwyZ5bubHsCq8FXCkua6xhuaaBit+3b7+VZRfcA==",
+L197:       "dev": true,
+L198:       "license": "MIT",
+L199:       "dependencies": {
+L200:         "@babel/compat-data": "^7.28.6",
+L201:         "@babel/helper-validator-option": "^7.27.1",
+L202:         "browserslist": "^4.24.0",
+L203:         "lru-cache": "^5.1.1",
+L204:         "semver": "^6.3.1"
+L205:       },
+L206:       "engines": {
+L207:         "node": ">=6.9.0"
+L208:       }
+L209:     },
+L210:     "node_modules/@babel/helper-globals": {
+L211:       "version": "7.28.0",
+L212:       "resolved": "https://registry.npmjs.org/@babel/helper-globals/-/helper-globals-7.28.0.tgz",
+L213:       "integrity": "sha512-+W6cISkXFa1jXsDEdYA8HeevQT/FULhxzR99pxphltZcVaugps53THCeiWA8SguxxpSp3gKPiuYfSWopkLQ4hw==",
+L214:       "dev": true,
+L215:       "license": "MIT",
+L216:       "engines": {
+L217:         "node": ">=6.9.0"
+L218:       }
+L219:     },
+L220:     "node_modules/@babel/helper-module-imports": {
+L221:       "version": "7.28.6",
+L222:       "resolved": "https://registry.npmjs.org/@babel/helper-module-imports/-/helper-module-imports-7.28.6.tgz",
+L223:       "integrity": "sha512-l5XkZK7r7wa9LucGw9LwZyyCUscb4x37JWTPz7swwFE/0FMQAGpiWUZn8u9DzkSBWEcK25jmvubfpw2dnAMdbw==",
+L224:       "dev": true,
+L225:       "license": "MIT",
+L226:       "dependencies": {
+L227:         "@babel/traverse": "^7.28.6",
+L228:         "@babel/types": "^7.28.6"
+L229:       },
+L230:       "engines": {
+L231:         "node": ">=6.9.0"
+L232:       }
+L233:     },
+L234:     "node_modules/@babel/helper-module-transforms": {
+L235:       "version": "7.28.6",
+L236:       "resolved": "https://registry.npmjs.org/@babel/helper-module-transforms/-/helper-module-transforms-7.28.6.tgz",
+L237:       "integrity": "sha512-67oXFAYr2cDLDVGLXTEABjdBJZ6drElUSI7WKp70NrpyISso3plG9SAGEF6y7zbha/wOzUByWWTJvEDVNIUGcA==",
+L238:       "dev": true,
+L239:       "license": "MIT",
+L240:       "dependencies": {
+L241:         "@babel/helper-module-imports": "^7.28.6",
+L242:         "@babel/helper-validator-identifier": "^7.28.5",
+L243:         "@babel/traverse": "^7.28.6"
+L244:       },
+L245:       "engines": {
+L246:         "node": ">=6.9.0"
+L247:       },
+L248:       "peerDependencies": {
+L249:         "@babel/core": "^7.0.0"
+L250:       }
+L251:     },
+L252:     "node_modules/@babel/helper-plugin-utils": {
+L253:       "version": "7.28.6",
+L254:       "resolved": "https://registry.npmjs.org/@babel/helper-plugin-utils/-/helper-plugin-utils-7.28.6.tgz",
+L255:       "integrity": "sha512-S9gzZ/bz83GRysI7gAD4wPT/AI3uCnY+9xn+Mx/KPs2JwHJIz1W8PZkg2cqyt3RNOBM8ejcXhV6y8Og7ly/Dug==",
+L256:       "dev": true,
+L257:       "license": "MIT",
+L258:       "engines": {
+L259:         "node": ">=6.9.0"
+L260:       }
+L261:     },
+L262:     "node_modules/@babel/helper-string-parser": {
+L263:       "version": "7.27.1",
+L264:       "resolved": "https://registry.npmjs.org/@babel/helper-string-parser/-/helper-string-parser-7.27.1.tgz",
+L265:       "integrity": "sha512-qMlSxKbpRlAridDExk92nSobyDdpPijUq2DW6oDnUqd0iOGxmQjyqhMIihI9+zv4LPyZdRje2cavWPbCbWm3eA==",
+L266:       "dev": true,
+L267:       "license": "MIT",
+L268:       "engines": {
+L269:         "node": ">=6.9.0"
+L270:       }
+L271:     },
+L272:     "node_modules/@babel/helper-validator-identifier": {
+L273:       "version": "7.28.5",
+L274:       "resolved": "https://registry.npmjs.org/@babel/helper-validator-identifier/-/helper-validator-identifier-7.28.5.tgz",
+L275:       "integrity": "sha512-qSs4ifwzKJSV39ucNjsvc6WVHs6b7S03sOh2OcHF9UHfVPqWWALUsNUVzhSBiItjRZoLHx7nIarVjqKVusUZ1Q==",
+L276:       "dev": true,
+L277:       "license": "MIT",
+L278:       "engines": {
+L279:         "node": ">=6.9.0"
+L280:       }
+L281:     },
+L282:     "node_modules/@babel/helper-validator-option": {
+L283:       "version": "7.27.1",
+L284:       "resolved": "https://registry.npmjs.org/@babel/helper-validator-option/-/helper-validator-option-7.27.1.tgz",
+L285:       "integrity": "sha512-YvjJow9FxbhFFKDSuFnVCe2WxXk1zWc22fFePVNEaWJEu8IrZVlda6N0uHwzZrUM1il7NC9Mlp4MaJYbYd9JSg==",
+L286:       "dev": true,
+L287:       "license": "MIT",
+L288:       "engines": {
+L289:         "node": ">=6.9.0"
+L290:       }
+L291:     },
+L292:     "node_modules/@babel/helpers": {
+L293:       "version": "7.28.6",
+L294:       "resolved": "https://registry.npmjs.org/@babel/helpers/-/helpers-7.28.6.tgz",
+L295:       "integrity": "sha512-xOBvwq86HHdB7WUDTfKfT/Vuxh7gElQ+Sfti2Cy6yIWNW05P8iUslOVcZ4/sKbE+/jQaukQAdz/gf3724kYdqw==",
+L296:       "dev": true,
+L297:       "license": "MIT",
+L298:       "dependencies": {
+L299:         "@babel/template": "^7.28.6",
+L300:         "@babel/types": "^7.28.6"
+L301:       },
+L302:       "engines": {
+L303:         "node": ">=6.9.0"
+L304:       }
+L305:     },
+L306:     "node_modules/@babel/parser": {
+L307:       "version": "7.28.6",
+L308:       "resolved": "https://registry.npmjs.org/@babel/parser/-/parser-7.28.6.tgz",
+L309:       "integrity": "sha512-TeR9zWR18BvbfPmGbLampPMW+uW1NZnJlRuuHso8i87QZNq2JRF9i6RgxRqtEq+wQGsS19NNTWr2duhnE49mfQ==",
+L310:       "dev": true,
+L311:       "license": "MIT",
+L312:       "dependencies": {
+L313:         "@babel/types": "^7.28.6"
+L314:       },
+L315:       "bin": {
+L316:         "parser": "bin/babel-parser.js"
+L317:       },
+L318:       "engines": {
+L319:         "node": ">=6.0.0"
+L320:       }
+L321:     },
+L322:     "node_modules/@babel/plugin-transform-react-jsx-self": {
+L323:       "version": "7.27.1",
+L324:       "resolved": "https://registry.npmjs.org/@babel/plugin-transform-react-jsx-self/-/plugin-transform-react-jsx-self-7.27.1.tgz",
+L325:       "integrity": "sha512-6UzkCs+ejGdZ5mFFC/OCUrv028ab2fp1znZmCZjAOBKiBK2jXD1O+BPSfX8X2qjJ75fZBMSnQn3Rq2mrBJK2mw==",
+L326:       "dev": true,
+L327:       "license": "MIT",
+L328:       "dependencies": {
+L329:         "@babel/helper-plugin-utils": "^7.27.1"
+L330:       },
+L331:       "engines": {
+L332:         "node": ">=6.9.0"
+L333:       },
+L334:       "peerDependencies": {
+L335:         "@babel/core": "^7.0.0-0"
+L336:       }
+L337:     },
+L338:     "node_modules/@babel/plugin-transform-react-jsx-source": {
+L339:       "version": "7.27.1",
+L340:       "resolved": "https://registry.npmjs.org/@babel/plugin-transform-react-jsx-source/-/plugin-transform-react-jsx-source-7.27.1.tgz",
+L341:       "integrity": "sha512-zbwoTsBruTeKB9hSq73ha66iFeJHuaFkUbwvqElnygoNbj/jHRsSeokowZFN3CZ64IvEqcmmkVe89OPXc7ldAw==",
+L342:       "dev": true,
+L343:       "license": "MIT",
+L344:       "dependencies": {
+L345:         "@babel/helper-plugin-utils": "^7.27.1"
+L346:       },
+L347:       "engines": {
+L348:         "node": ">=6.9.0"
+L349:       },
+L350:       "peerDependencies": {
+L351:         "@babel/core": "^7.0.0-0"
+L352:       }
+L353:     },
+L354:     "node_modules/@babel/runtime": {
+L355:       "version": "7.28.6",
+L356:       "resolved": "https://registry.npmjs.org/@babel/runtime/-/runtime-7.28.6.tgz",
+L357:       "integrity": "sha512-05WQkdpL9COIMz4LjTxGpPNCdlpyimKppYNoJ5Di5EUObifl8t4tuLuUBBZEpoLYOmfvIWrsp9fCl0HoPRVTdA==",
+L358:       "license": "MIT",
+L359:       "engines": {
+L360:         "node": ">=6.9.0"
+L361:       }
+L362:     },
+L363:     "node_modules/@babel/template": {
+L364:       "version": "7.28.6",
+L365:       "resolved": "https://registry.npmjs.org/@babel/template/-/template-7.28.6.tgz",
+L366:       "integrity": "sha512-YA6Ma2KsCdGb+WC6UpBVFJGXL58MDA6oyONbjyF/+5sBgxY/dwkhLogbMT2GXXyU84/IhRw/2D1Os1B/giz+BQ==",
+L367:       "dev": true,
+L368:       "license": "MIT",
+L369:       "dependencies": {
+L370:         "@babel/code-frame": "^7.28.6",
+L371:         "@babel/parser": "^7.28.6",
+L372:         "@babel/types": "^7.28.6"
+L373:       },
+L374:       "engines": {
+L375:         "node": ">=6.9.0"
+L376:       }
+L377:     },
+L378:     "node_modules/@babel/traverse": {
+L379:       "version": "7.28.6",
+L380:       "resolved": "https://registry.npmjs.org/@babel/traverse/-/traverse-7.28.6.tgz",
+L381:       "integrity": "sha512-fgWX62k02qtjqdSNTAGxmKYY/7FSL9WAS1o2Hu5+I5m9T0yxZzr4cnrfXQ/MX0rIifthCSs6FKTlzYbJcPtMNg==",
+L382:       "dev": true,
+L383:       "license": "MIT",
+L384:       "dependencies": {
+L385:         "@babel/code-frame": "^7.28.6",
+L386:         "@babel/generator": "^7.28.6",
+L387:         "@babel/helper-globals": "^7.28.0",
+L388:         "@babel/parser": "^7.28.6",
+L389:         "@babel/template": "^7.28.6",
+L390:         "@babel/types": "^7.28.6",
+L391:         "debug": "^4.3.1"
+L392:       },
+L393:       "engines": {
+L394:         "node": ">=6.9.0"
+L395:       }
+L396:     },
+L397:     "node_modules/@babel/types": {
+L398:       "version": "7.28.6",
+L399:       "resolved": "https://registry.npmjs.org/@babel/types/-/types-7.28.6.tgz",
+L400:       "integrity": "sha512-0ZrskXVEHSWIqZM/sQZ4EV3jZJXRkio/WCxaqKZP1g//CEWEPSfeZFcms4XeKBCHU0ZKnIkdJeU/kF+eRp5lBg==",
+L401:       "dev": true,
+L402:       "license": "MIT",
+L403:       "dependencies": {
+L404:         "@babel/helper-string-parser": "^7.27.1",
+L405:         "@babel/helper-validator-identifier": "^7.28.5"
+L406:       },
+L407:       "engines": {
+L408:         "node": ">=6.9.0"
+L409:       }
+L410:     },
+L411:     "node_modules/@date-fns/tz": {
+L412:       "version": "1.4.1",
+L413:       "resolved": "https://registry.npmjs.org/@date-fns/tz/-/tz-1.4.1.tgz",
+L414:       "integrity": "sha512-P5LUNhtbj6YfI3iJjw5EL9eUAG6OitD0W3fWQcpQjDRc/QIsL0tRNuO1PcDvPccWL1fSTXXdE1ds+l95DV/OFA==",
+L415:       "license": "MIT"
+L416:     },
+L417:     "node_modules/@drizzle-team/brocli": {
+L418:       "version": "0.10.2",
+L419:       "resolved": "https://registry.npmjs.org/@drizzle-team/brocli/-/brocli-0.10.2.tgz",
+L420:       "integrity": "sha512-z33Il7l5dKjUgGULTqBsQBQwckHh5AbIuxhdsIxDDiZAzBOrZO6q9ogcWC65kU382AfynTfgNumVcNIjuIua6w==",
+L421:       "dev": true,
+L422:       "license": "Apache-2.0"
+L423:     },
+L424:     "node_modules/@esbuild-kit/core-utils": {
+L425:       "version": "3.3.2",
+L426:       "resolved": "https://registry.npmjs.org/@esbuild-kit/core-utils/-/core-utils-3.3.2.tgz",
+L427:       "integrity": "sha512-sPRAnw9CdSsRmEtnsl2WXWdyquogVpB3yZ3dgwJfe8zrOzTsV7cJvmwrKVa+0ma5BoiGJ+BoqkMvawbayKUsqQ==",
+L428:       "deprecated": "Merged into tsx: https://tsx.is",
+L429:       "dev": true,
+L430:       "license": "MIT",
+L431:       "dependencies": {
+L432:         "esbuild": "~0.18.20",
+L433:         "source-map-support": "^0.5.21"
+L434:       }
+L435:     },
+L436:     "node_modules/@esbuild-kit/core-utils/node_modules/@esbuild/android-arm": {
+L437:       "version": "0.18.20",
+L438:       "resolved": "https://registry.npmjs.org/@esbuild/android-arm/-/android-arm-0.18.20.tgz",
+L439:       "integrity": "sha512-fyi7TDI/ijKKNZTUJAQqiG5T7YjJXgnzkURqmGj13C6dCqckZBLdl4h7bkhHt/t0WP+zO9/zwroDvANaOqO5Sw==",
+L440:       "cpu": [
+L441:         "arm"
+L442:       ],
+L443:       "dev": true,
+L444:       "license": "MIT",
+L445:       "optional": true,
+L446:       "os": [
+L447:         "android"
+L448:       ],
+L449:       "engines": {
+L450:         "node": ">=12"
+L451:       }
+L452:     },
+L453:     "node_modules/@esbuild-kit/core-utils/node_modules/@esbuild/android-arm64": {
+L454:       "version": "0.18.20",
+L455:       "resolved": "https://registry.npmjs.org/@esbuild/android-arm64/-/android-arm64-0.18.20.tgz",
+L456:       "integrity": "sha512-Nz4rJcchGDtENV0eMKUNa6L12zz2zBDXuhj/Vjh18zGqB44Bi7MBMSXjgunJgjRhCmKOjnPuZp4Mb6OKqtMHLQ==",
+L457:       "cpu": [
+L458:         "arm64"
+L459:       ],
+L460:       "dev": true,
+L461:       "license": "MIT",
+L462:       "optional": true,
+L463:       "os": [
+L464:         "android"
+L465:       ],
+L466:       "engines": {
+L467:         "node": ">=12"
+L468:       }
+L469:     },
+L470:     "node_modules/@esbuild-kit/core-utils/node_modules/@esbuild/android-x64": {
+L471:       "version": "0.18.20",
+L472:       "resolved": "https://registry.npmjs.org/@esbuild/android-x64/-/android-x64-0.18.20.tgz",
+L473:       "integrity": "sha512-8GDdlePJA8D6zlZYJV/jnrRAi6rOiNaCC/JclcXpB+KIuvfBN4owLtgzY2bsxnx666XjJx2kDPUmnTtR8qKQUg==",
+L474:       "cpu": [
+L475:         "x64"
+L476:       ],
+L477:       "dev": true,
+L478:       "license": "MIT",
+L479:       "optional": true,
+L480:       "os": [
+L481:         "android"
+L482:       ],
+L483:       "engines": {
+L484:         "node": ">=12"
+L485:       }
+L486:     },
+L487:     "node_modules/@esbuild-kit/core-utils/node_modules/@esbuild/darwin-arm64": {
+L488:       "version": "0.18.20",
+L489:       "resolved": "https://registry.npmjs.org/@esbuild/darwin-arm64/-/darwin-arm64-0.18.20.tgz",
+L490:       "integrity": "sha512-bxRHW5kHU38zS2lPTPOyuyTm+S+eobPUnTNkdJEfAddYgEcll4xkT8DB9d2008DtTbl7uJag2HuE5NZAZgnNEA==",
+L491:       "cpu": [
+L492:         "arm64"
+L493:       ],
+L494:       "dev": true,
+L495:       "license": "MIT",
+L496:       "optional": true,
+L497:       "os": [
+L498:         "darwin"
+L499:       ],
+L500:       "engines": {
+
+--- FILE: vite-plugin-meta-images.ts ---
+L1: import type { Plugin } from 'vite';
+L2: import fs from 'fs';
+L3: import path from 'path';
+L4: 
+L5: /**
+L6:  * Vite plugin that updates og:image and twitter:image meta tags
+L7:  * to point to the app's opengraph image with the correct Replit domain.
+L8:  */
+L9: export function metaImagesPlugin(): Plugin {
+L10:   return {
+L11:     name: 'vite-plugin-meta-images',
+L12:     transformIndexHtml(html) {
+L13:       const baseUrl = getDeploymentUrl();
+L14:       if (!baseUrl) {
+L15:         log('[meta-images] no Replit deployment domain found, skipping meta tag updates');
+L16:         return html;
+L17:       }
+L18: 
+L19:       // Check if opengraph image exists in public directory
+L20:       const publicDir = path.resolve(process.cwd(), 'client', 'public');
+L21:       const opengraphPngPath = path.join(publicDir, 'opengraph.png');
+L22:       const opengraphJpgPath = path.join(publicDir, 'opengraph.jpg');
+L23:       const opengraphJpegPath = path.join(publicDir, 'opengraph.jpeg');
+L24: 
+L25:       let imageExt: string | null = null;
+L26:       if (fs.existsSync(opengraphPngPath)) {
+L27:         imageExt = 'png';
+L28:       } else if (fs.existsSync(opengraphJpgPath)) {
+L29:         imageExt = 'jpg';
+L30:       } else if (fs.existsSync(opengraphJpegPath)) {
+L31:         imageExt = 'jpeg';
+L32:       }
+L33: 
+L34:       if (!imageExt) {
+L35:         log('[meta-images] OpenGraph image not found, skipping meta tag updates');
+L36:         return html;
+L37:       }
+L38: 
+L39:       const imageUrl = `${baseUrl}/opengraph.${imageExt}`;
+L40: 
+L41:       log('[meta-images] updating meta image tags to:', imageUrl);
+L42: 
+L43:       html = html.replace(
+L44:         /<meta\s+property="og:image"\s+content="[^"]*"\s*\/>/g,
+L45:         `<meta property="og:image" content="${imageUrl}" />`
+L46:       );
+L47: 
+L48:       html = html.replace(
+L49:         /<meta\s+name="twitter:image"\s+content="[^"]*"\s*\/>/g,
+L50:         `<meta name="twitter:image" content="${imageUrl}" />`
+L51:       );
+L52: 
+L53:       return html;
+L54:     },
+L55:   };
+L56: }
+L57: 
+L58: function getDeploymentUrl(): string | null {
+L59:   if (process.env.REPLIT_INTERNAL_APP_DOMAIN) {
+L60:     const url = `https://${process.env.REPLIT_INTERNAL_APP_DOMAIN}`;
+L61:     log('[meta-images] using internal app domain:', url);
+L62:     return url;
+L63:   }
+L64: 
+L65:   if (process.env.REPLIT_DEV_DOMAIN) {
+L66:     const url = `https://${process.env.REPLIT_DEV_DOMAIN}`;
+L67:     log('[meta-images] using dev domain:', url);
+L68:     return url;
+L69:   }
+L70: 
+L71:   return null;
+L72: }
+L73: 
+L74: function log(...args: any[]): void {
+L75:   if (process.env.NODE_ENV === 'production') {
+L76:     console.log(...args);
+L77:   }
+L78: }
+
+--- FILE: client/src/App.tsx ---
+L1: import { useState, useEffect } from "react";
+L2: import { Switch, Route, Link } from "wouter";
+L3: import { queryClient } from "./lib/queryClient";
+L4: import { QueryClientProvider } from "@tanstack/react-query";
+L5: import { Toaster } from "@/components/ui/toaster";
+L6: import { ConfigProvider, useReadOnlyMode } from "./lib/config";
+L7: import { AuthProvider, useAuth, apiGet } from "./lib/auth";
+L8: import { TutorialProvider, useTutorial } from "./lib/tutorial";
+L9: import { TutorialOverlay } from "./components/TutorialOverlay";
+L10: import { Input } from "@/components/ui/input";
+L11: import { Label } from "@/components/ui/label";
+L12: import { Lock, Loader2, LogOut, GraduationCap } from "lucide-react";
+L13: import ClaimSpace from "@/pages/claim-space";
+L14: import AnchorView from "@/pages/anchor-view";
+L15: import Constraints from "@/pages/constraints";
+L16: import Snapshots from "@/pages/snapshots";
+L17: import SnapshotDetail from "@/pages/snapshot-detail";
+L18: import Library from "@/pages/library";
+L19: import Cases from "@/pages/cases";
+L20: import Dashboard from "@/pages/dashboard";
+L21: import LanternCore from "@/pages/lantern-core";
+L22: import LanternExtract from "@/pages/lantern-extract";
+L23: import DossierEditor from "@/pages/dossier-editor";
+L24: import DossierReport from "@/pages/dossier-report";
+L25: import DossierComparison from "@/pages/dossier-comparison";
+L26: import HowItWorks from "@/pages/how-it-works";
+L27: import Intake from "@/pages/intake";
+L28: import AnchorBrowser from "@/pages/anchor-browser";
+L29: import EvidencePacket from "@/pages/evidence-packet";
+L30: import Ledger from "@/pages/ledger";
+L31: import Sources from "@/pages/sources";
+L32: import Review from "@/pages/review";
+L33: import AnchorProof from "@/pages/anchor-proof";
+L34: import ReviewBundle from "@/pages/review-bundle";
+L35: import ReviewAuditLines from "@/pages/review-audit-lines";
+L36: import VerifiedRecord from "@/pages/verified-record";
+L37: import IncidentReport from "@/pages/incident-report";
+L38: import NotFound from "@/pages/not-found";
+L39: import { Button } from "@/components/ui/button";
+L40: import { Menu, X, BookOpen, Home, FileSearch, GitCompare, FolderOpen, Layers, AlertTriangle, Camera, FileUp, ScrollText, Eye, FileText, Anchor } from "lucide-react";
+L41: import { useSearch } from "wouter";
+L42: 
+L43: function AuthGate({ children }: { children: React.ReactNode }) {
+L44:   const { isAuthenticated, setApiKey, logout } = useAuth();
+L45:   const { isReadOnly, loading: configLoading } = useReadOnlyMode();
+L46:   const [keyInput, setKeyInput] = useState("");
+L47:   const [checking, setChecking] = useState(false);
+L48:   const [error, setError] = useState<string | null>(null);
+L49:   const [autoLoggingIn, setAutoLoggingIn] = useState(false);
+L50:   const [autoLoginAttempted, setAutoLoginAttempted] = useState(false);
+L51: 
+L52:   useEffect(() => {
+L53:     if (!isAuthenticated && !autoLoginAttempted && !configLoading && !isReadOnly) {
+L54:       setAutoLoginAttempted(true);
+L55:       setAutoLoggingIn(true);
+L56:       fetch("/api/auth/demo-key")
+L57:         .then(res => res.ok ? res.json() : null)
+L58:         .then(data => {
+L59:           if (data?.key) {
+L60:             setApiKey(data.key);
+L61:           }
+L62:         })
+L63:         .catch(() => {})
+L64:         .finally(() => setAutoLoggingIn(false));
+L65:     }
+L66:   }, [isAuthenticated, autoLoginAttempted, configLoading, isReadOnly, setApiKey]);
+L67: 
+L68:   const handleDemoLogin = async () => {
+L69:     setAutoLoggingIn(true);
+L70:     setError(null);
+L71:     try {
+L72:       const res = await fetch("/api/auth/demo-key");
+L73:       if (res.ok) {
+L74:         const data = await res.json();
+L75:         if (data.key) {
+L76:           setApiKey(data.key);
+L77:         }
+L78:       } else {
+L79:         setError("Demo login not available");
+L80:       }
+L81:     } catch {
+L82:       setError("Failed to connect");
+L83:     }
+L84:     setAutoLoggingIn(false);
+L85:   };
+L86: 
+L87:   if (configLoading || autoLoggingIn) {
+L88:     return (
+L89:       <div className="min-h-screen flex items-center justify-center bg-background">
+L90:         <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+L91:       </div>
+L92:     );
+L93:   }
+L94: 
+L95:   if (isReadOnly) {
+L96:     return <>{children}</>;
+L97:   }
+L98: 
+L99:   if (!isAuthenticated) {
+L100:     const handleSubmit = async (e: React.FormEvent) => {
+L101:       e.preventDefault();
+L102:       if (!keyInput.trim()) return;
+L103: 
+L104:       setChecking(true);
+L105:       setError(null);
+L106:       
+L107:       setApiKey(keyInput.trim());
+L108:       
+L109:       const result = await apiGet("/api/auth/status");
+L110:       
+L111:       if (!result.ok) {
+L112:         setApiKey(null);
+L113:         setError("Invalid API key");
+L114:         setChecking(false);
+L115:         return;
+L116:       }
+L117:       
+L118:       setChecking(false);
+L119:     };
+L120: 
+L121:     return (
+L122:       <div className="min-h-screen flex items-center justify-center bg-background p-4">
+L123:         <div className="w-full max-w-md">
+L124:           <div className="text-center mb-8">
+L125:             <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
+L126:               <Lock className="w-8 h-8 text-primary" />
+L127:             </div>
+L128:             <h1 className="text-2xl font-bold">Lantern</h1>
+L129:             <p className="text-muted-foreground mt-2">Enter your API key to access the platform</p>
+L130:           </div>
+L131:           
+L132:           <form onSubmit={handleSubmit} className="space-y-4">
+L133:             <div>
+L134:               <Label htmlFor="apiKey">API Key</Label>
+L135:               <Input
+L136:                 id="apiKey"
+L137:                 type="password"
+L138:                 value={keyInput}
+L139:                 onChange={(e) => setKeyInput(e.target.value)}
+L140:                 placeholder="lantern-..."
+L141:                 className="mt-1"
+L142:                 data-testid="input-api-key"
+L143:                 autoFocus
+L144:               />
+L145:             </div>
+L146:             
+L147:             {error && (
+L148:               <p className="text-sm text-red-500" data-testid="auth-error">{error}</p>
+L149:             )}
+L150:             
+L151:             <Button 
+L152:               type="submit" 
+L153:               className="w-full" 
+L154:               disabled={checking || !keyInput.trim()}
+L155:               data-testid="button-login"
+L156:             >
+L157:               {checking ? (
+L158:                 <>
+L159:                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+L160:                   Verifying...
+L161:                 </>
+L162:               ) : (
+L163:                 "Access Platform"
+L164:               )}
+L165:             </Button>
+L166:             
+L167:             <div className="relative">
+L168:               <div className="absolute inset-0 flex items-center">
+L169:                 <span className="w-full border-t" />
+L170:               </div>
+L171:               <div className="relative flex justify-center text-xs uppercase">
+L172:                 <span className="bg-background px-2 text-muted-foreground">Or</span>
+L173:               </div>
+L174:             </div>
+L175:             
+L176:             <Button 
+L177:               type="button"
+L178:               variant="outline"
+L179:               className="w-full" 
+L180:               onClick={handleDemoLogin}
+L181:               disabled={autoLoggingIn}
+L182:               data-testid="button-demo-login"
+L183:             >
+L184:               {autoLoggingIn ? (
+L185:                 <>
+L186:                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+L187:                   Loading Demo...
+L188:                 </>
+L189:               ) : (
+L190:                 "Demo Login (Investor Preview)"
+L191:               )}
+L192:             </Button>
+L193:           </form>
+L194:         </div>
+L195:       </div>
+L196:     );
+L197:   }
+L198: 
+L199:   return <>{children}</>;
+L200: }
+L201: 
+L202: function LogoutButton() {
+L203:   const { isAuthenticated, logout } = useAuth();
+L204:   const { isReadOnly } = useReadOnlyMode();
+L205:   
+L206:   if (isReadOnly || !isAuthenticated) return null;
+L207:   
+L208:   return (
+L209:     <button
+L210:       onClick={logout}
+L211:       className="fixed top-4 left-4 z-50 p-2 bg-background/80 backdrop-blur border border-border/50 rounded-lg print:hidden flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+L212:       title="Logout"
+L213:       data-testid="button-logout"
+L214:     >
+L215:       <LogOut className="w-4 h-4" />
+L216:     </button>
+L217:   );
+L218: }
+L219: 
+L220: function TutorialButton() {
+L221:   const { isAuthenticated } = useAuth();
+L222:   const { isReadOnly } = useReadOnlyMode();
+L223:   const { startTutorial, hasCompletedTutorial, isActive } = useTutorial();
+L224:   
+L225:   useEffect(() => {
+L226:     if (isAuthenticated && !hasCompletedTutorial && !isActive) {
+L227:       const timer = setTimeout(() => {
+L228:         startTutorial();
+L229:       }, 500);
+L230:       return () => clearTimeout(timer);
+L231:     }
+L232:   }, [isAuthenticated, hasCompletedTutorial, isActive, startTutorial]);
+L233:   
+L234:   if (isReadOnly || !isAuthenticated || isActive) return null;
+L235:   
+L236:   return (
+L237:     <button
+L238:       onClick={startTutorial}
+L239:       className="fixed top-4 left-14 z-50 p-2 bg-background/80 backdrop-blur border border-border/50 rounded-lg print:hidden flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+L240:       title="Start Tutorial"
+L241:       data-testid="button-tutorial"
+L242:     >
+L243:       <GraduationCap className="w-4 h-4" />
+L244:     </button>
+L245:   );
+L246: }
+L247: 
+L248: function ReadOnlyNav({ corpusId }: { corpusId: string | null }) {
+L249:   if (!corpusId) return null;
+L250:   
+L251:   return (
+L252:     <nav 
+L253:       className="fixed top-10 left-0 right-0 z-30 bg-background/95 backdrop-blur border-b border-border py-2 px-4 print:hidden"
+L254:       data-testid="readonly-nav"
+L255:     >
+L256:       <div className="max-w-4xl mx-auto flex items-center gap-4 text-sm">
+L257:         <Link href={`/?corpusId=${corpusId}`}>
+L258:           <Button variant="ghost" size="sm" className="text-xs">
+L259:             <Layers className="w-3 h-3 mr-1" />
+L260:             Claim Space
+L261:           </Button>
+L262:         </Link>
+L263:         <Link href={`/sources?corpusId=${corpusId}`}>
+L264:           <Button variant="ghost" size="sm" className="text-xs">
+L265:             <FileText className="w-3 h-3 mr-1" />
+L266:             Sources
+L267:           </Button>
+L268:         </Link>
+L269:         <Link href={`/anchors/browse?corpusId=${corpusId}`}>
+L270:           <Button variant="ghost" size="sm" className="text-xs">
+L271:             <Anchor className="w-3 h-3 mr-1" />
+L272:             Anchors
+L273:           </Button>
+L274:         </Link>
+L275:         <Link href={`/ledger?corpusId=${corpusId}`}>
+L276:           <Button variant="ghost" size="sm" className="text-xs">
+L277:             <ScrollText className="w-3 h-3 mr-1" />
+L278:             Ledger
+L279:           </Button>
+L280:         </Link>
+L281:         <Link href={`/snapshots?corpusId=${corpusId}`}>
+L282:           <Button variant="ghost" size="sm" className="text-xs">
+L283:             <Camera className="w-3 h-3 mr-1" />
+L284:             Snapshots
+L285:           </Button>
+L286:         </Link>
+L287:       </div>
+L288:     </nav>
+L289:   );
+L290: }
+L291: 
+L292: function Router() {
+L293:   const [menuOpen, setMenuOpen] = useState(false);
+L294:   const { isReadOnly } = useReadOnlyMode();
+L295:   const searchString = useSearch();
+L296:   const params = new URLSearchParams(searchString);
+L297:   const corpusIdFromQuery = params.get("corpusId");
+L298: 
+L299:   return (
+L300:     <div className="relative">
+L301:       {/* v1.11 Review Mode Banner */}
+L302:       {isReadOnly && (
+L303:         <div 
+L304:           className="fixed top-0 left-0 right-0 z-40 bg-amber-600 text-white text-center py-2 px-4 font-medium print:hidden"
+L305:           data-testid="banner-review-mode"
+L306:         >
+L307:           <Eye className="w-4 h-4 inline-block mr-2" />
+L308:           Review Mode (Read-Only)
+L309:         </div>
+L310:       )}
+L311:       
+L312:       {/* v1.12 Read-Only Navigation */}
+L313:       {isReadOnly && <ReadOnlyNav corpusId={corpusIdFromQuery} />}
+L314:       
+L315:       {/* Hamburger Menu Button - hidden in read-only mode */}
+L316:       {!isReadOnly && (
+L317:         <button 
+L318:           onClick={() => setMenuOpen(!menuOpen)}
+L319:           className="fixed top-4 right-4 z-50 p-2 bg-background/80 backdrop-blur border border-border/50 rounded-lg print:hidden"
+L320:           aria-label="Menu"
+L321:           data-testid="button-menu"
+L322:         >
+L323:           {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+L324:         </button>
+L325:       )}
+L326: 
+L327:       {/* Menu Panel - hidden in read-only mode */}
+L328:       {menuOpen && !isReadOnly && (
+L329:         <div className="fixed top-16 right-4 z-50 bg-background border border-border rounded-lg shadow-lg p-2 min-w-[200px] print:hidden">
+L330:           <nav className="flex flex-col gap-1">
+L331:             <Link href="/intake" onClick={() => setMenuOpen(false)}>
+L332:               <Button variant="ghost" size="sm" className="w-full justify-start text-sm">
+L333:                 <FileUp className="w-4 h-4 mr-2" />
+L334:                 Corpus Intake
+L335:               </Button>
+L336:             </Link>
+L337:             <Link href="/" onClick={() => setMenuOpen(false)}>
+L338:               <Button variant="ghost" size="sm" className="w-full justify-start text-sm">
+L339:                 <Layers className="w-4 h-4 mr-2" />
+L340:                 Claim Space
+L341:               </Button>
+L342:             </Link>
+L343:             <Link href="/constraints" onClick={() => setMenuOpen(false)}>
+L344:               <Button variant="ghost" size="sm" className="w-full justify-start text-sm">
+L345:                 <AlertTriangle className="w-4 h-4 mr-2" />
+L346:                 Constraints & Friction
+L347:               </Button>
+L348:             </Link>
+L349:             <Link href="/snapshots" onClick={() => setMenuOpen(false)}>
+L350:               <Button variant="ghost" size="sm" className="w-full justify-start text-sm">
+L351:                 <Camera className="w-4 h-4 mr-2" />
+L352:                 Snapshot & Export
+L353:               </Button>
+L354:             </Link>
+L355:             <Link href="/ledger" onClick={() => setMenuOpen(false)}>
+L356:               <Button variant="ghost" size="sm" className="w-full justify-start text-sm">
+L357:                 <ScrollText className="w-4 h-4 mr-2" />
+L358:                 Revision Ledger
+L359:               </Button>
+L360:             </Link>
+L361:             <Link href="/library" onClick={() => setMenuOpen(false)}>
+L362:               <Button variant="ghost" size="sm" className="w-full justify-start text-sm">
+L363:                 <Home className="w-4 h-4 mr-2" />
+L364:                 Library
+L365:               </Button>
+L366:             </Link>
+L367:             <Link href="/extract" onClick={() => setMenuOpen(false)}>
+L368:               <Button variant="ghost" size="sm" className="w-full justify-start text-sm">
+L369:                 <FileSearch className="w-4 h-4 mr-2" />
+L370:                 Extract
+L371:               </Button>
+L372:             </Link>
+L373:             <Link href="/compare" onClick={() => setMenuOpen(false)}>
+L374:               <Button variant="ghost" size="sm" className="w-full justify-start text-sm">
+L375:                 <GitCompare className="w-4 h-4 mr-2" />
+L376:                 Compare
+L377:               </Button>
+L378:             </Link>
+L379:             <Link href="/cases" onClick={() => setMenuOpen(false)}>
+L380:               <Button variant="ghost" size="sm" className="w-full justify-start text-sm">
+L381:                 <FolderOpen className="w-4 h-4 mr-2" />
+L382:                 Cases
+L383:               </Button>
+L384:             </Link>
+L385:             <div className="border-t border-border my-1" />
+L386:             <Link href="/reference" onClick={() => setMenuOpen(false)}>
+L387:               <Button variant="ghost" size="sm" className="w-full justify-start text-sm text-muted-foreground">
+L388:                 <BookOpen className="w-4 h-4 mr-2" />
+L389:                 How Lantern Works
+L390:               </Button>
+L391:             </Link>
+L392:           </nav>
+L393:         </div>
+L394:       )}
+L395: 
+L396:       <Switch>
+L397:         <Route path="/review/:corpusId/bundle" component={ReviewBundle} />
+L398:         <Route path="/review/:corpusId/audit_lines" component={ReviewAuditLines} />
+L399:         <Route path="/review/:corpusId" component={Review} />
+L400:         <Route path="/intake" component={Intake} />
+L401:         <Route path="/" component={ClaimSpace} />
+L402:         <Route path="/sources" component={Sources} />
+L403:         <Route path="/anchors/browse" component={AnchorBrowser} />
+L404:         <Route path="/packets/:packetId" component={EvidencePacket} />
+L405:         <Route path="/ledger" component={Ledger} />
+L406:         <Route path="/anchors" component={AnchorView} />
+L407:         <Route path="/anchors/proof" component={AnchorProof} />
+L408:         <Route path="/constraints" component={Constraints} />
+L409:         <Route path="/snapshots" component={Snapshots} />
+L410:         <Route path="/snapshots/:snapshot_id" component={SnapshotDetail} />
+L411:         <Route path="/verified-record" component={VerifiedRecord} />
+L412:         <Route path="/incident-report" component={IncidentReport} />
+L413:         <Route path="/incident-report/:reportId" component={IncidentReport} />
+L414:         <Route path="/library" component={Library} />
+L415:         <Route path="/extract" component={LanternExtract} />
+L416:         <Route path="/dossier/:id" component={DossierEditor} />
+L417:         <Route path="/dossier/:id/report" component={DossierReport} />
+L418:         <Route path="/compare" component={DossierComparison} />
+L419:         <Route path="/cases" component={Cases} />
+L420:         <Route path="/reference" component={HowItWorks} />
+L421:         <Route path="/legacy" component={Dashboard} />
+L422:         <Route path="/legacy/core" component={LanternCore} />
+L423:         <Route component={NotFound} />
+L424:       </Switch>
+L425:     </div>
+L426:   );
+L427: }
+L428: 
+L429: function App() {
+L430:   return (
+L431:     <QueryClientProvider client={queryClient}>
+L432:       <ConfigProvider>
+L433:         <AuthProvider>
+L434:           <TutorialProvider>
+L435:             <Toaster />
+L436:             <AuthGate>
+L437:               <LogoutButton />
+L438:               <TutorialButton />
+L439:               <TutorialOverlay />
+L440:               <Router />
+L441:             </AuthGate>
+L442:           </TutorialProvider>
+L443:         </AuthProvider>
+L444:       </ConfigProvider>
+L445:     </QueryClientProvider>
+L446:   );
+L447: }
+L448: 
+L449: export default App;
+
+--- FILE: client/src/App.tsx.backup ---
+L1: import { useState } from "react";
+L2: import { Switch, Route, Link } from "wouter";
+L3: import { queryClient } from "./lib/queryClient";
+L4: import { QueryClientProvider } from "@tanstack/react-query";
+L5: import { Toaster } from "@/components/ui/toaster";
+L6: import Library from "@/pages/library";
+L7: import Dashboard from "@/pages/dashboard";
+L8: import LanternCore from "@/pages/lantern-core";
+L9: import LanternExtract from "@/pages/lantern-extract";
+L10: import DossierEditor from "@/pages/dossier-editor";
+L11: import DossierReport from "@/pages/dossier-report";
+L12: import DossierComparison from "@/pages/dossier-comparison";
+L13: import HowItWorks from "@/pages/how-it-works";
+L14: import NotFound from "@/pages/not-found";
+L15: import { Button } from "@/components/ui/button";
+L16: import { Menu, X, BookOpen, Home, FileSearch, GitCompare } from "lucide-react";
+L17: 
+L18: function Router() {
+L19:   const [menuOpen, setMenuOpen] = useState(false);
+L20: 
+L21:   return (
+L22:     <div className="relative">
+L23:       {/* Hamburger Menu Button */}
+L24:       <button 
+L25:         onClick={() => setMenuOpen(!menuOpen)}
+L26:         className="fixed top-4 right-4 z-50 p-2 bg-background/80 backdrop-blur border border-border/50 rounded-lg print:hidden"
+L27:         aria-label="Menu"
+L28:         data-testid="button-menu"
+L29:       >
+L30:         {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+L31:       </button>
+L32: 
+L33:       {/* Menu Panel */}
+L34:       {menuOpen && (
+L35:         <div className="fixed top-16 right-4 z-50 bg-background border border-border rounded-lg shadow-lg p-2 min-w-[200px] print:hidden">
+L36:           <nav className="flex flex-col gap-1">
+L37:             <Link href="/" onClick={() => setMenuOpen(false)}>
+L38:               <Button variant="ghost" size="sm" className="w-full justify-start text-sm">
+L39:                 <Home className="w-4 h-4 mr-2" />
+L40:                 Library
+L41:               </Button>
+L42:             </Link>
+L43:             <Link href="/extract" onClick={() => setMenuOpen(false)}>
+L44:               <Button variant="ghost" size="sm" className="w-full justify-start text-sm">
+L45:                 <FileSearch className="w-4 h-4 mr-2" />
+L46:                 Extract
+L47:               </Button>
+L48:             </Link>
+L49:             <Link href="/compare" onClick={() => setMenuOpen(false)}>
+L50:               <Button variant="ghost" size="sm" className="w-full justify-start text-sm">
+L51:                 <GitCompare className="w-4 h-4 mr-2" />
+L52:                 Compare
+L53:               </Button>
+L54:             </Link>
+L55:             <div className="border-t border-border my-1" />
+L56:             <Link href="/reference" onClick={() => setMenuOpen(false)}>
+L57:               <Button variant="ghost" size="sm" className="w-full justify-start text-sm text-muted-foreground">
+L58:                 <BookOpen className="w-4 h-4 mr-2" />
+L59:                 How Lantern Works
+L60:               </Button>
+L61:             </Link>
+L62:           </nav>
+L63:         </div>
+L64:       )}
+L65: 
+L66:       <Switch>
+L67:         <Route path="/" component={Library} />
+L68:         <Route path="/extract" component={LanternExtract} />
+L69:         <Route path="/dossier/:id" component={DossierEditor} />
+L70:         <Route path="/dossier/:id/report" component={DossierReport} />
+L71:         <Route path="/compare" component={DossierComparison} />
+L72:         <Route path="/reference" component={HowItWorks} />
+L73:         <Route path="/legacy" component={Dashboard} />
+L74:         <Route path="/legacy/core" component={LanternCore} />
+L75:         <Route component={NotFound} />
+L76:       </Switch>
+L77:     </div>
+L78:   );
+L79: }
+L80: 
+L81: function App() {
+L82:   return (
+L83:     <QueryClientProvider client={queryClient}>
+L84:       <Toaster />
+L85:       <Router />
+L86:     </QueryClientProvider>
+L87:   );
+L88: }
+L89: 
+L90: export default App;
+
+--- FILE: client/src/main.tsx ---
+L1: console.log("BOOT-PROBE: main.tsx executed");
+L2: console.log("BOOT-PROBE: main.tsx path =", import.meta.url);
+L3: 
+L4: const boot = document.getElementById("boot-probe");
+L5: if (boot) boot.textContent = "BOOT-PROBE: main.tsx executed";
+L6: 
+L7: import React from "react";
+L8: import { createRoot } from "react-dom/client";
+L9: import App from "./App";
+L10: import "./index.css";
+L11: 
+L12: const rootEl = document.getElementById("root");
+L13: if (!rootEl) {
+L14:   console.error("BOOT-PROBE: #root element not found");
+L15: } else {
+L16:   rootEl.innerHTML = `
+L17:     <div style="padding:16px;font:16px monospace;color:#0f0;background:#000">
+L18:       BOOT-PROBE: root mounted (no React) - testing...
+L19:     </div>
+L20:   `;
+L21:   console.log("BOOT-PROBE: root mounted (no React)");
+L22:   
+L23:   setTimeout(() => {
+L24:     createRoot(rootEl).render(
+L25:       <React.StrictMode>
+L26:         <App />
+L27:       </React.StrictMode>
+L28:     );
+L29:     console.log("BOOT-PROBE: React render called");
+L30:   }, 100);
+L31: }
+
+--- FILE: client/src/components/AssumptionsForm.tsx ---
+L1: import { Input } from "@/components/ui/input";
+L2: import { Label } from "@/components/ui/label";
+L3: import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+L4: import { PlanInputs } from "@/lib/sovereigntyEngine";
+L5: import { Button } from "@/components/ui/button";
+L6: import { RefreshCw } from "lucide-react";
+L7: 
+L8: interface AssumptionsFormProps {
+L9:   inputs: PlanInputs;
+L10:   onChange: (newInputs: PlanInputs) => void;
+L11: }
+L12: 
+L13: export function AssumptionsForm({ inputs, onChange }: AssumptionsFormProps) {
+L14:   const handleChange = (field: keyof PlanInputs, value: number) => {
+L15:     onChange({
+L16:       ...inputs,
+L17:       [field]: value
+L18:     });
+L19:   };
+L20: 
+L21:   return (
+L22:     <Card className="h-full border-border bg-card/50 backdrop-blur-sm">
+L23:       <CardHeader className="flex flex-row items-center justify-between pb-2">
+L24:         <CardTitle className="font-mono text-sm uppercase tracking-widest text-muted-foreground">
+L25:           Assumptions & Inputs
+L26:         </CardTitle>
+L27:         <RefreshCw className="w-4 h-4 text-muted-foreground opacity-50" />
+L28:       </CardHeader>
+L29:       <CardContent className="grid gap-4">
+L30:         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+L31:           <div className="space-y-2">
+L32:             <Label htmlFor="homePrice" className="text-xs font-mono uppercase text-muted-foreground">Home Price ($)</Label>
+L33:             <Input 
+L34:               id="homePrice" 
+L35:               type="number" 
+L36:               value={inputs.homePrice} 
+L37:               onChange={(e) => handleChange('homePrice', Number(e.target.value))}
+L38:               className="font-mono bg-background/50 border-muted"
+L39:             />
+L40:           </div>
+L41:           
+L42:           <div className="space-y-2">
+L43:             <Label htmlFor="downPaymentPct" className="text-xs font-mono uppercase text-muted-foreground">Down Payment (%)</Label>
+L44:             <Input 
+L45:               id="downPaymentPct" 
+L46:               type="number" 
+L47:               value={inputs.downPaymentPct} 
+L48:               onChange={(e) => handleChange('downPaymentPct', Number(e.target.value))}
+L49:               className="font-mono bg-background/50 border-muted"
+L50:             />
+L51:           </div>
+L52: 
+L53:           <div className="space-y-2">
+L54:             <Label htmlFor="startingSavings" className="text-xs font-mono uppercase text-muted-foreground">Starting Savings ($)</Label>
+L55:             <Input 
+L56:               id="startingSavings" 
+L57:               type="number" 
+L58:               value={inputs.startingSavings} 
+L59:               onChange={(e) => handleChange('startingSavings', Number(e.target.value))}
+L60:               className="font-mono bg-background/50 border-muted"
+L61:             />
+L62:           </div>
+L63: 
+L64:           <div className="space-y-2">
+L65:             <Label htmlFor="effectiveTaxRate" className="text-xs font-mono uppercase text-muted-foreground">Tax Rate (0-1)</Label>
+L66:             <Input 
+L67:               id="effectiveTaxRate" 
+L68:               type="number" 
+L69:               step="0.01"
+L70:               value={inputs.effectiveTaxRate} 
+L71:               onChange={(e) => handleChange('effectiveTaxRate', Number(e.target.value))}
+L72:               className="font-mono bg-background/50 border-muted"
+L73:             />
+L74:           </div>
+L75: 
+L76:           <div className="space-y-2">
+L77:             <Label htmlFor="monthlyPersonalExpenses" className="text-xs font-mono uppercase text-muted-foreground">Monthly Personal Burn ($)</Label>
+L78:             <Input 
+L79:               id="monthlyPersonalExpenses" 
+L80:               type="number" 
+L81:               value={inputs.monthlyPersonalExpenses} 
+L82:               onChange={(e) => handleChange('monthlyPersonalExpenses', Number(e.target.value))}
+L83:               className="font-mono bg-background/50 border-muted"
+L84:             />
+L85:           </div>
+L86: 
+L87:           <div className="space-y-2">
+L88:             <Label htmlFor="weeklyCompanyBudget" className="text-xs font-mono uppercase text-muted-foreground">Weekly Company Budget ($)</Label>
+L89:             <Input 
+L90:               id="weeklyCompanyBudget" 
+L91:               type="number" 
+L92:               value={inputs.weeklyCompanyBudget} 
+L93:               onChange={(e) => handleChange('weeklyCompanyBudget', Number(e.target.value))}
+L94:               className="font-mono bg-background/50 border-muted"
+L95:             />
+L96:           </div>
+L97:         </div>
+L98:       </CardContent>
+L99:     </Card>
+L100:   );
+L101: }
+
+--- FILE: client/src/components/CashflowChart.tsx ---
+L1: import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid, Legend } from "recharts";
+L2: import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+L3: import { MonthRow } from "@/lib/sovereigntyEngine";
+L4: 
+L5: interface CashflowChartProps {
+L6:   data: MonthRow[];
+L7: }
+L8: 
+L9: const CustomTooltip = ({ active, payload, label }: any) => {
+L10:   if (active && payload && payload.length) {
+L11:     return (
+L12:       <div className="bg-background border border-border p-3 rounded-none shadow-xl">
+L13:         <p className="font-mono text-sm text-muted-foreground mb-2">{label}</p>
+L14:         {payload.map((entry: any, index: number) => (
+L15:           <div key={index} className="flex items-center gap-2 mb-1">
+L16:             <div className="w-2 h-2" style={{ backgroundColor: entry.color }} />
+L17:             <span className="font-mono text-xs uppercase text-muted-foreground">
+L18:               {entry.name}:
+L19:             </span>
+L20:             <span className="font-mono text-sm font-bold text-foreground">
+L21:               ${entry.value.toLocaleString()}
+L22:             </span>
+L23:           </div>
+L24:         ))}
+L25:       </div>
+L26:     );
+L27:   }
+L28:   return null;
+L29: };
+L30: 
+L31: export function CashflowChart({ data }: CashflowChartProps) {
+L32:   return (
+L33:     <Card className="h-full border-border bg-card/50 backdrop-blur-sm">
+L34:       <CardHeader>
+L35:         <CardTitle className="font-mono text-sm uppercase tracking-widest text-muted-foreground">
+L36:           Cashflow Overview
+L37:         </CardTitle>
+L38:       </CardHeader>
+L39:       <CardContent className="h-[250px]">
+L40:         <ResponsiveContainer width="100%" height="100%">
+L41:           <LineChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+L42:             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" vertical={false} />
+L43:             <XAxis 
+L44:               dataKey="label" 
+L45:               stroke="hsl(var(--muted-foreground))" 
+L46:               tick={{ fontSize: 10, fontFamily: 'var(--font-mono)' }}
+L47:               interval={5}
+L48:             />
+L49:             <YAxis 
+L50:               stroke="hsl(var(--muted-foreground))" 
+L51:               tick={{ fontSize: 10, fontFamily: 'var(--font-mono)' }}
+L52:               tickFormatter={(value) => `$${value / 1000}k`}
+L53:             />
+L54:             <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'hsl(var(--muted-foreground))', strokeWidth: 1, strokeDasharray: '3 3' }} />
+L55:             <Legend wrapperStyle={{ fontSize: '10px', fontFamily: 'var(--font-mono)' }} />
+L56:             
+L57:             <Line 
+L58:               type="monotone" 
+L59:               dataKey="revenue" 
+L60:               name="Revenue"
+L61:               stroke="hsl(var(--chart-1))" 
+L62:               strokeWidth={2}
+L63:               dot={false}
+L64:             />
+L65:             <Line 
+L66:               type="monotone" 
+L67:               dataKey="companyCosts" 
+L68:               name="Co. Costs"
+L69:               stroke="hsl(var(--destructive))" 
+L70:               strokeWidth={2}
+L71:               strokeDasharray="4 4"
+L72:               dot={false}
+L73:             />
+L74:             <Line 
+L75:               type="monotone" 
+L76:               dataKey="personalDrawGross" 
+L77:               name="Personal Draw"
+L78:               stroke="hsl(var(--primary))" 
+L79:               strokeWidth={2}
+L80:               dot={false}
+L81:             />
+L82:           </LineChart>
+L83:         </ResponsiveContainer>
+L84:       </CardContent>
+L85:     </Card>
+L86:   );
+L87: }
+
+--- FILE: client/src/components/FlightPlanTable.tsx ---
+L1: import {
+L2:   Table,
+L3:   TableBody,
+L4:   TableCell,
+L5:   TableHead,
+L6:   TableHeader,
+L7:   TableRow,
+L8: } from "@/components/ui/table";
+L9: import { Badge } from "@/components/ui/badge";
+L10: import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+L11: import { MonthRow } from "@/lib/sovereigntyEngine";
+L12: 
+L13: interface FlightPlanTableProps {
+L14:   data: MonthRow[];
+L15: }
+L16: 
+L17: // Helper to aggregate monthly data into yearly summaries
+L18: function aggregateYears(monthlyData: MonthRow[]) {
+L19:   const years = [];
+L20:   for (let i = 0; i < 5; i++) {
+L21:     const startIdx = i * 12;
+L22:     const endIdx = startIdx + 12;
+L23:     const yearMonths = monthlyData.slice(startIdx, endIdx);
+L24:     
+L25:     if (yearMonths.length === 0) continue;
+L26: 
+L27:     // Sums
+L28:     const revenue = yearMonths.reduce((sum, m) => sum + m.revenue, 0);
+L29:     const draw = yearMonths.reduce((sum, m) => sum + m.personalDrawGross, 0);
+L30:     const savings = yearMonths.reduce((sum, m) => sum + m.personalSavingsDelta, 0);
+L31:     
+L32:     // End of year snapshot
+L33:     const totalSavings = yearMonths[yearMonths.length - 1].totalSavings;
+L34: 
+L35:     let phase = "Cold Build";
+L36:     if (i === 1) phase = "First Proof";
+L37:     if (i === 2) phase = "MVSR Entry";
+L38:     if (i === 3) phase = "Stability";
+L39:     if (i === 4) phase = "Home Buy";
+L40: 
+L41:     years.push({
+L42:       year: i + 1,
+L43:       phase,
+L44:       revenue,
+L45:       draw,
+L46:       savings,
+L47:       totalSavings
+L48:     });
+L49:   }
+L50:   return years;
+L51: }
+L52: 
+L53: export function FlightPlanTable({ data }: FlightPlanTableProps) {
+L54:   const yearlyData = aggregateYears(data);
+L55: 
+L56:   return (
+L57:     <Card className="border-border bg-card/50 backdrop-blur-sm">
+L58:       <CardHeader>
+L59:         <CardTitle className="font-mono text-sm uppercase tracking-widest text-muted-foreground">
+L60:           5-Year Sovereignty Curve Data
+L61:         </CardTitle>
+L62:       </CardHeader>
+L63:       <CardContent>
+L64:         <Table>
+L65:           <TableHeader>
+L66:             <TableRow className="hover:bg-transparent border-muted">
+L67:               <TableHead className="w-[80px] font-mono text-muted-foreground">Year</TableHead>
+L68:               <TableHead className="font-mono text-muted-foreground">Phase</TableHead>
+L69:               <TableHead className="text-right font-mono text-muted-foreground">Revenue</TableHead>
+L70:               <TableHead className="text-right font-mono text-muted-foreground">Draw (Gross)</TableHead>
+L71:               <TableHead className="text-right font-mono text-muted-foreground">Savings</TableHead>
+L72:               <TableHead className="text-right font-mono text-muted-foreground">Total Liquid</TableHead>
+L73:             </TableRow>
+L74:           </TableHeader>
+L75:           <TableBody>
+L76:             {yearlyData.map((row) => (
+L77:               <TableRow key={row.year} className="hover:bg-muted/50 border-muted group transition-colors">
+L78:                 <TableCell className="font-mono font-bold text-muted-foreground group-hover:text-foreground">
+L79:                   0{row.year}
+L80:                 </TableCell>
+L81:                 <TableCell>
+L82:                   <Badge variant="outline" className="font-mono text-xs font-normal border-muted-foreground/30 text-foreground bg-secondary/50">
+L83:                     {row.phase}
+L84:                   </Badge>
+L85:                 </TableCell>
+L86:                 <TableCell className="text-right font-mono text-muted-foreground group-hover:text-amber-500 transition-colors">
+L87:                   ${row.revenue.toLocaleString()}
+L88:                 </TableCell>
+L89:                 <TableCell className="text-right font-mono text-muted-foreground group-hover:text-foreground">
+L90:                   ${row.draw.toLocaleString()}
+L91:                 </TableCell>
+L92:                 <TableCell className="text-right font-mono text-muted-foreground group-hover:text-emerald-500 transition-colors">
+L93:                   ${row.savings.toLocaleString()}
+L94:                 </TableCell>
+L95:                 <TableCell className="text-right font-mono font-bold text-foreground">
+L96:                   ${row.totalSavings.toLocaleString()}
+L97:                 </TableCell>
+L98:               </TableRow>
+L99:             ))}
+L100:           </TableBody>
+L101:         </Table>
+L102:       </CardContent>
+L103:     </Card>
+L104:   );
+L105: }
+
+--- FILE: client/src/components/GapChart.tsx ---
+L1: import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from "recharts";
+L2: import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+L3: import { MonthRow } from "@/lib/sovereigntyEngine";
+L4: 
+L5: interface GapChartProps {
+L6:   data: MonthRow[];
+L7: }
+L8: 
+L9: const CustomTooltip = ({ active, payload, label }: any) => {
+L10:   if (active && payload && payload.length) {
+L11:     return (
+L12:       <div className="bg-background border border-border p-3 rounded-none shadow-xl">
+L13:         <p className="font-mono text-sm text-muted-foreground mb-2">{label}</p>
+L14:         {payload.map((entry: any, index: number) => (
+L15:           <div key={index} className="flex items-center gap-2 mb-1">
+L16:             <div className="w-2 h-2" style={{ backgroundColor: entry.color }} />
+L17:             <span className="font-mono text-xs uppercase text-muted-foreground">
+L18:               {entry.name}:
+L19:             </span>
+L20:             <span className="font-mono text-sm font-bold text-foreground">
+L21:               ${entry.value.toLocaleString()}
+L22:             </span>
+L23:           </div>
+L24:         ))}
+L25:       </div>
+L26:     );
+L27:   }
+L28:   return null;
+L29: };
+L30: 
+L31: export function GapChart({ data }: GapChartProps) {
+L32:   return (
+L33:     <Card className="h-full border-border bg-card/50 backdrop-blur-sm">
+L34:       <CardHeader>
+L35:         <CardTitle className="font-mono text-sm uppercase tracking-widest text-muted-foreground">
+L36:           Gap Remaining
+L37:         </CardTitle>
+L38:       </CardHeader>
+L39:       <CardContent className="h-[250px]">
+L40:         <ResponsiveContainer width="100%" height="100%">
+L41:           <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+L42:             <defs>
+L43:               <linearGradient id="colorGap" x1="0" y1="0" x2="0" y2="1">
+L44:                 <stop offset="5%" stopColor="hsl(var(--chart-4))" stopOpacity={0.3}/>
+L45:                 <stop offset="95%" stopColor="hsl(var(--chart-4))" stopOpacity={0}/>
+L46:               </linearGradient>
+L47:             </defs>
+L48:             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" vertical={false} />
+L49:             <XAxis 
+L50:               dataKey="label" 
+L51:               stroke="hsl(var(--muted-foreground))" 
+L52:               tick={{ fontSize: 10, fontFamily: 'var(--font-mono)' }}
+L53:               interval={5}
+L54:             />
+L55:             <YAxis 
+L56:               stroke="hsl(var(--muted-foreground))" 
+L57:               tick={{ fontSize: 10, fontFamily: 'var(--font-mono)' }}
+L58:               tickFormatter={(value) => `$${value / 1000}k`}
+L59:             />
+L60:             <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'hsl(var(--muted-foreground))', strokeWidth: 1, strokeDasharray: '3 3' }} />
+L61:             
+L62:             <Area 
+L63:               type="monotone" 
+L64:               dataKey="gapRemaining" 
+L65:               name="Gap Remaining"
+L66:               stroke="hsl(var(--chart-4))" 
+L67:               fillOpacity={1} 
+L68:               fill="url(#colorGap)" 
+L69:               strokeWidth={2}
+L70:             />
+L71:           </AreaChart>
+L72:         </ResponsiveContainer>
+L73:       </CardContent>
+L74:     </Card>
+L75:   );
+L76: }
+
+--- FILE: client/src/components/SavingsChart.tsx ---
+L1: import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid, ReferenceLine } from "recharts";
+L2: import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+L3: import { MonthRow } from "@/lib/sovereigntyEngine";
+L4: 
+L5: interface SavingsChartProps {
+L6:   data: MonthRow[];
+L7: }
+L8: 
+L9: const CustomTooltip = ({ active, payload, label }: any) => {
+L10:   if (active && payload && payload.length) {
+L11:     return (
+L12:       <div className="bg-background border border-border p-3 rounded-none shadow-xl">
+L13:         <p className="font-mono text-sm text-muted-foreground mb-2">{label}</p>
+L14:         {payload.map((entry: any, index: number) => (
+L15:           <div key={index} className="flex items-center gap-2 mb-1">
+L16:             <div className="w-2 h-2" style={{ backgroundColor: entry.color }} />
+L17:             <span className="font-mono text-xs uppercase text-muted-foreground">
+L18:               {entry.name}:
+L19:             </span>
+L20:             <span className="font-mono text-sm font-bold text-foreground">
+L21:               ${entry.value.toLocaleString()}
+L22:             </span>
+L23:           </div>
+L24:         ))}
+L25:       </div>
+L26:     );
+L27:   }
+L28:   return null;
+L29: };
+L30: 
+L31: export function SavingsChart({ data }: SavingsChartProps) {
+L32:   const targetDownPayment = data[0]?.targetDownPayment || 0;
+L33: 
+L34:   return (
+L35:     <Card className="h-full border-border bg-card/50 backdrop-blur-sm">
+L36:       <CardHeader>
+L37:         <CardTitle className="font-mono text-sm uppercase tracking-widest text-muted-foreground">
+L38:           Savings Trajectory (60 Months)
+L39:         </CardTitle>
+L40:       </CardHeader>
+L41:       <CardContent className="h-[300px]">
+L42:         <ResponsiveContainer width="100%" height="100%">
+L43:           <LineChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+L44:             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" vertical={false} />
+L45:             <XAxis 
+L46:               dataKey="label" 
+L47:               stroke="hsl(var(--muted-foreground))" 
+L48:               tick={{ fontSize: 10, fontFamily: 'var(--font-mono)' }}
+L49:               interval={5}
+L50:             />
+L51:             <YAxis 
+L52:               stroke="hsl(var(--muted-foreground))" 
+L53:               tick={{ fontSize: 10, fontFamily: 'var(--font-mono)' }}
+L54:               tickFormatter={(value) => `$${value / 1000}k`}
+L55:             />
+L56:             <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'hsl(var(--muted-foreground))', strokeWidth: 1, strokeDasharray: '3 3' }} />
+L57:             
+L58:             <ReferenceLine y={targetDownPayment} stroke="hsl(var(--chart-1))" strokeDasharray="3 3" label={{ position: 'right', value: 'Target', fill: 'hsl(var(--chart-1))', fontSize: 10 }} />
+L59:             
+L60:             <Line 
+L61:               type="monotone" 
+L62:               dataKey="totalSavings" 
+L63:               name="Total Savings"
+L64:               stroke="hsl(var(--chart-2))" 
+L65:               strokeWidth={2}
+L66:               dot={false}
+L67:               activeDot={{ r: 4, strokeWidth: 0 }}
+L68:             />
+L69:           </LineChart>
+L70:         </ResponsiveContainer>
+L71:       </CardContent>
+L72:     </Card>
+L73:   );
+L74: }
+
+--- FILE: client/src/components/SovereigntyChart.tsx ---
+L1: import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid, Area, AreaChart } from "recharts";
+L2: import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+L3: 
+L4: const data = [
+L5:   { year: 1, phase: "Cold Build", revenue: 30000, draw: 0, savings: 0, totalSavings: 15000 },
+L6:   { year: 2, phase: "First Proof", revenue: 100000, draw: 40000, savings: 0, totalSavings: 15000 },
+L7:   { year: 3, phase: "MVSR Entry", revenue: 184000, draw: 112000, savings: 45000, totalSavings: 60000 },
+L8:   { year: 4, phase: "Stability", revenue: 210000, draw: 130000, savings: 58000, totalSavings: 118000 },
+L9:   { year: 5, phase: "Home Buy", revenue: 250000, draw: 160000, savings: 82000, totalSavings: 200000 },
+L10: ];
+L11: 
+L12: const CustomTooltip = ({ active, payload, label }: any) => {
+L13:   if (active && payload && payload.length) {
+L14:     return (
+L15:       <div className="bg-background border border-border p-3 rounded-none shadow-xl">
+L16:         <p className="font-mono text-sm text-muted-foreground mb-2">Year {label}</p>
+L17:         {payload.map((entry: any, index: number) => (
+L18:           <div key={index} className="flex items-center gap-2 mb-1">
+L19:             <div className="w-2 h-2" style={{ backgroundColor: entry.color }} />
+L20:             <span className="font-mono text-xs uppercase text-muted-foreground">
+L21:               {entry.name}:
+L22:             </span>
+L23:             <span className="font-mono text-sm font-bold text-foreground">
+L24:               ${entry.value.toLocaleString()}
+L25:             </span>
+L26:           </div>
+L27:         ))}
+L28:       </div>
+L29:     );
+L30:   }
+L31:   return null;
+L32: };
+L33: 
+L34: export function SovereigntyChart() {
+L35:   return (
+L36:     <Card className="h-full border-border bg-card/50 backdrop-blur-sm">
+L37:       <CardHeader>
+L38:         <CardTitle className="font-mono text-sm uppercase tracking-widest text-muted-foreground">
+L39:           Trajectory Visualization
+L40:         </CardTitle>
+L41:       </CardHeader>
+L42:       <CardContent className="h-[300px]">
+L43:         <ResponsiveContainer width="100%" height="100%">
+L44:           <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+L45:             <defs>
+L46:               <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+L47:                 <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.3}/>
+L48:                 <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0}/>
+L49:               </linearGradient>
+L50:               <linearGradient id="colorSavings" x1="0" y1="0" x2="0" y2="1">
+L51:                 <stop offset="5%" stopColor="hsl(var(--chart-2))" stopOpacity={0.3}/>
+L52:                 <stop offset="95%" stopColor="hsl(var(--chart-2))" stopOpacity={0}/>
+L53:               </linearGradient>
+L54:             </defs>
+L55:             <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" vertical={false} />
+L56:             <XAxis 
+L57:               dataKey="year" 
+L58:               stroke="hsl(var(--muted-foreground))" 
+L59:               tick={{ fontSize: 12, fontFamily: 'var(--font-mono)' }}
+L60:               tickFormatter={(value) => `Y${value}`}
+L61:             />
+L62:             <YAxis 
+L63:               stroke="hsl(var(--muted-foreground))" 
+L64:               tick={{ fontSize: 12, fontFamily: 'var(--font-mono)' }}
+L65:               tickFormatter={(value) => `$${value / 1000}k`}
+L66:             />
+L67:             <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'hsl(var(--muted-foreground))', strokeWidth: 1, strokeDasharray: '3 3' }} />
+L68:             <Area 
+L69:               type="monotone" 
+L70:               dataKey="revenue" 
+L71:               name="Revenue"
+L72:               stroke="hsl(var(--chart-1))" 
+L73:               fillOpacity={1} 
+L74:               fill="url(#colorRevenue)" 
+L75:               strokeWidth={2}
+L76:             />
+L77:             <Area 
+L78:               type="monotone" 
+L79:               dataKey="totalSavings" 
+L80:               name="Total Savings"
+L81:               stroke="hsl(var(--chart-2))" 
+L82:               fillOpacity={1} 
+L83:               fill="url(#colorSavings)" 
+L84:               strokeWidth={2}
+L85:             />
+L86:           </AreaChart>
+L87:         </ResponsiveContainer>
+L88:       </CardContent>
+L89:     </Card>
+L90:   );
+L91: }
+
+--- FILE: client/src/components/Stage1Checklist.tsx ---
+L1: import { useState, useEffect } from "react";
+L2: import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+L3: import { Button } from "@/components/ui/button";
+L4: import { Lock, Unlock, CheckSquare, Square } from "lucide-react";
+L5: import { cn } from "@/lib/utils";
+L6: import { motion, AnimatePresence } from "framer-motion";
+L7: 
+L8: const STAGE_1_ITEMS = [
+L9:   { id: 1, label: "Define the Instrument Core", completed: true },
+L10:   { id: 2, label: "Setup Solo Environment", completed: true },
+L11:   { id: 3, label: "Establish Revenue Pipeline", completed: false },
+L12:   { id: 4, label: "First Working Session", completed: false },
+L13:   { id: 5, label: "Validate 'Cold Build' Metrics", completed: false },
+L14: ];
+L15: 
+L16: export function Stage1Checklist() {
+L17:   const [isLocked, setIsLocked] = useState(true);
+L18:   const [items, setItems] = useState(STAGE_1_ITEMS);
+L19: 
+L20:   useEffect(() => {
+L21:     const unlocked = localStorage.getItem("stage1_unlocked") === "true";
+L22:     if (unlocked) setIsLocked(false);
+L23:     
+L24:     const savedItems = localStorage.getItem("stage1_items");
+L25:     if (savedItems) {
+L26:       try {
+L27:         setItems(JSON.parse(savedItems));
+L28:       } catch (e) {
+L29:         console.error("Failed to parse saved checklist items", e);
+L30:       }
+L31:     }
+L32:   }, []);
+L33: 
+L34:   const handleUnlock = () => {
+L35:     setIsLocked(false);
+L36:     localStorage.setItem("stage1_unlocked", "true");
+L37:   };
+L38: 
+L39:   const toggleItem = (id: number) => {
+L40:     const newItems = items.map(item => 
+L41:       item.id === id ? { ...item, completed: !item.completed } : item
+L42:     );
+L43:     setItems(newItems);
+L44:     localStorage.setItem("stage1_items", JSON.stringify(newItems));
+L45:   };
+L46: 
+L47:   return (
+L48:     <Card className="h-full border-border bg-card/50 backdrop-blur-sm relative overflow-hidden">
+L49:       <CardHeader className="flex flex-row items-center justify-between">
+L50:         <CardTitle className="font-mono text-sm uppercase tracking-widest text-muted-foreground">
+L51:           Stage 1: First Working Instrument
+L52:         </CardTitle>
+L53:         {isLocked ? (
+L54:           <Lock className="w-4 h-4 text-muted-foreground" />
+L55:         ) : (
+L56:           <Unlock className="w-4 h-4 text-emerald-500" />
+L57:         )}
+L58:       </CardHeader>
+L59:       
+L60:       <CardContent className="relative z-10">
+L61:         <AnimatePresence mode="wait">
+L62:           {isLocked ? (
+L63:             <motion.div 
+L64:               initial={{ opacity: 0 }}
+L65:               animate={{ opacity: 1 }}
+L66:               exit={{ opacity: 0 }}
+L67:               className="flex flex-col items-center justify-center py-12 space-y-4"
+L68:             >
+L69:               <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4 border border-muted-foreground/20">
+L70:                 <Lock className="w-8 h-8 text-muted-foreground" />
+L71:               </div>
+L72:               <p className="font-mono text-sm text-center text-muted-foreground max-w-[250px]">
+L73:                 "The gate is locked. You cannot reach Year 3 without a working Stage 1 instrument."
+L74:               </p>
+L75:               <Button 
+L76:                 variant="outline" 
+L77:                 className="mt-4 border-amber-500/50 text-amber-500 hover:bg-amber-500/10 hover:text-amber-400 font-mono text-xs uppercase tracking-wider"
+L78:                 onClick={handleUnlock}
+L79:               >
+L80:                 Access Checklist
+L81:               </Button>
+L82:             </motion.div>
+L83:           ) : (
+L84:             <motion.div
+L85:               initial={{ opacity: 0, y: 10 }}
+L86:               animate={{ opacity: 1, y: 0 }}
+L87:               className="space-y-4"
+L88:             >
+L89:               <p className="text-sm text-muted-foreground mb-6">
+L90:                 Executing the move from "frozen document" to "functioning engine".
+L91:               </p>
+L92:               <div className="space-y-2">
+L93:                 {items.map((item) => (
+L94:                   <div 
+L95:                     key={item.id}
+L96:                     className={cn(
+L97:                       "flex items-center gap-3 p-3 rounded-md border transition-all cursor-pointer group",
+L98:                       item.completed 
+L99:                         ? "bg-emerald-500/10 border-emerald-500/20" 
+L100:                         : "bg-background border-muted hover:border-muted-foreground/50"
+L101:                     )}
+L102:                     onClick={() => toggleItem(item.id)}
+L103:                   >
+L104:                     {item.completed ? (
+L105:                       <CheckSquare className="w-5 h-5 text-emerald-500" />
+L106:                     ) : (
+L107:                       <Square className="w-5 h-5 text-muted-foreground group-hover:text-foreground" />
+L108:                     )}
+L109:                     <span className={cn(
+L110:                       "font-mono text-sm",
+L111:                       item.completed ? "text-emerald-500 line-through opacity-70" : "text-foreground"
+L112:                     )}>
+L113:                       {item.label}
+L114:                     </span>
+L115:                   </div>
+L116:                 ))}
+L117:               </div>
+L118:             </motion.div>
+L119:           )}
+L120:         </AnimatePresence>
+L121:       </CardContent>
+L122: 
+L123:       {/* Background Pattern for locked state */}
+L124:       {isLocked && (
+L125:         <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,transparent,transparent_10px,rgba(0,0,0,0.2)_10px,rgba(0,0,0,0.2)_20px)] pointer-events-none" />
+L126:       )}
+L127:     </Card>
+L128:   );
+L129: }
+
+--- FILE: client/src/components/TutorialOverlay.tsx ---
+L1: import { useEffect, useMemo } from "react";
+L2: import { useLocation, useSearch } from "wouter";
+L3: import { Button } from "@/components/ui/button";
+L4: import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+L5: import { useTutorial, getStepRoute } from "@/lib/tutorial";
+L6: import { ChevronLeft, ChevronRight, X, GraduationCap } from "lucide-react";
+L7: 
+L8: const DEFAULT_CORPUS_ID = "corpus-demo-001";
+L9: 
+L10: export function TutorialOverlay() {
+L11:   const [, navigate] = useLocation();
+L12:   const searchString = useSearch();
+L13:   const {
+L14:     isActive,
+L15:     currentStep,
+L16:     currentStepData,
+L17:     nextStep,
+L18:     prevStep,
+L19:     skipTutorial,
+L20:     totalSteps,
+L21:   } = useTutorial();
+L22: 
+L23:   const corpusId = useMemo(() => {
+L24:     const params = new URLSearchParams(searchString);
+L25:     return params.get("corpusId") || DEFAULT_CORPUS_ID;
+L26:   }, [searchString]);
+L27: 
+L28:   useEffect(() => {
+L29:     if (isActive && currentStepData?.route) {
+L30:       const resolvedRoute = getStepRoute(currentStepData, corpusId);
+L31:       if (resolvedRoute) {
+L32:         navigate(resolvedRoute);
+L33:       }
+L34:     }
+L35:   }, [isActive, currentStepData, corpusId, navigate]);
+L36: 
+L37:   if (!isActive || !currentStepData) return null;
+L38: 
+L39:   const isFirst = currentStep === 0;
+L40:   const isLast = currentStep === totalSteps - 1;
+L41: 
+L42:   return (
+L43:     <>
+L44:       <div 
+L45:         className="fixed inset-0 bg-black/60 z-[100] animate-in fade-in duration-200"
+L46:         data-testid="tutorial-backdrop"
+L47:       />
+L48:       
+L49:       <div className="fixed inset-0 z-[101] flex items-center justify-center p-4">
+L50:         <Card 
+L51:           className="w-full max-w-md shadow-2xl border-primary/20 animate-in zoom-in-95 duration-200"
+L52:           data-testid="tutorial-card"
+L53:         >
+L54:           <CardHeader className="pb-3">
+L55:             <div className="flex items-center justify-between">
+L56:               <div className="flex items-center gap-2">
+L57:                 <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+L58:                   <GraduationCap className="w-4 h-4 text-primary" />
+L59:                 </div>
+L60:                 <CardTitle className="text-lg">{currentStepData.title}</CardTitle>
+L61:               </div>
+L62:               <Button
+L63:                 variant="ghost"
+L64:                 size="icon"
+L65:                 onClick={skipTutorial}
+L66:                 className="h-8 w-8 text-muted-foreground hover:text-foreground"
+L67:                 data-testid="tutorial-skip"
+L68:               >
+L69:                 <X className="w-4 h-4" />
+L70:               </Button>
+L71:             </div>
+L72:           </CardHeader>
+L73:           
+L74:           <CardContent>
+L75:             <p className="text-sm text-muted-foreground leading-relaxed">
+L76:               {currentStepData.description}
+L77:             </p>
+L78:           </CardContent>
+L79:           
+L80:           <CardFooter className="flex items-center justify-between pt-2">
+L81:             <div className="text-xs text-muted-foreground">
+L82:               Step {currentStep + 1} of {totalSteps}
+L83:             </div>
+L84:             
+L85:             <div className="flex gap-2">
+L86:               {!isFirst && (
+L87:                 <Button
+L88:                   variant="outline"
+L89:                   size="sm"
+L90:                   onClick={prevStep}
+L91:                   data-testid="tutorial-prev"
+L92:                 >
+L93:                   <ChevronLeft className="w-4 h-4 mr-1" />
+L94:                   Back
+L95:                 </Button>
+L96:               )}
+L97:               
+L98:               <Button
+L99:                 size="sm"
+L100:                 onClick={nextStep}
+L101:                 className="bg-primary hover:bg-primary/90"
+L102:                 data-testid="tutorial-next"
+L103:               >
+L104:                 {isLast ? (
+L105:                   "Finish"
+L106:                 ) : (
+L107:                   <>
+L108:                     Next
+L109:                     <ChevronRight className="w-4 h-4 ml-1" />
+L110:                   </>
+L111:                 )}
+L112:               </Button>
+L113:             </div>
+L114:           </CardFooter>
+L115:           
+L116:           <div className="px-6 pb-4">
+L117:             <div className="flex gap-1.5">
+L118:               {Array.from({ length: totalSteps }).map((_, i) => (
+L119:                 <div
+L120:                   key={i}
+L121:                   className={`h-1 flex-1 rounded-full transition-colors ${
+L122:                     i <= currentStep ? "bg-primary" : "bg-muted"
+L123:                   }`}
+L124:                 />
+L125:               ))}
+L126:             </div>
+L127:           </div>
+L128:         </Card>
+L129:       </div>
+L130:     </>
+L131:   );
+L132: }
+
+--- FILE: client/src/components/UploadDrawer.tsx ---
+L1: import { useState, useRef, useCallback } from "react";
+L2: import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+L3: import { Button } from "@/components/ui/button";
+L4: import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+L5: import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+L6: import { Label } from "@/components/ui/label";
+L7: import { Input } from "@/components/ui/input";
+L8: import { Badge } from "@/components/ui/badge";
+L9: import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+L10: import { Paperclip, FileText, Camera, ScanLine, Upload, X, Check, AlertTriangle, Loader2 } from "lucide-react";
+L11: 
+L12: type EvidenceType = "document" | "photo" | "scan" | "note" | "other";
+L13: 
+L14: interface UploadFile {
+L15:   file: File;
+L16:   evidenceType: EvidenceType;
+L17:   status: "pending" | "uploading" | "complete" | "error";
+L18:   error?: string;
+L19: }
+L20: 
+L21: interface UploadDrawerProps {
+L22:   caseId: string | null;
+L23:   caseName: string | null;
+L24:   onUploadComplete?: () => void;
+L25: }
+L26: 
+L27: export function UploadDrawer({ caseId, caseName, onUploadComplete }: UploadDrawerProps) {
+L28:   const [open, setOpen] = useState(false);
+L29:   const [files, setFiles] = useState<UploadFile[]>([]);
+L30:   const [evidenceType, setEvidenceType] = useState<EvidenceType>("document");
+L31:   const [isUploading, setIsUploading] = useState(false);
+L32:   const [capturedPhotos, setCapturedPhotos] = useState<Blob[]>([]);
+L33:   const [scanPages, setScanPages] = useState<Blob[]>([]);
+L34:   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
+L35:   const videoRef = useRef<HTMLVideoElement>(null);
+L36:   const fileInputRef = useRef<HTMLInputElement>(null);
+L37: 
+L38:   const handleFileSelect = useCallback((selectedFiles: FileList | null) => {
+L39:     if (!selectedFiles) return;
+L40:     
+L41:     const newFiles: UploadFile[] = Array.from(selectedFiles).map(file => ({
+L42:       file,
+L43:       evidenceType,
+L44:       status: "pending"
+L45:     }));
+L46:     
+L47:     setFiles(prev => [...prev, ...newFiles]);
+L48:   }, [evidenceType]);
+L49: 
+L50:   const handleDrop = useCallback((e: React.DragEvent) => {
+L51:     e.preventDefault();
+L52:     handleFileSelect(e.dataTransfer.files);
+L53:   }, [handleFileSelect]);
+L54: 
+L55:   const removeFile = (index: number) => {
+L56:     setFiles(prev => prev.filter((_, i) => i !== index));
+L57:   };
+L58: 
+L59:   const startCamera = async () => {
+L60:     try {
+L61:       const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+L62:       setCameraStream(stream);
+L63:       if (videoRef.current) {
+L64:         videoRef.current.srcObject = stream;
+L65:       }
+L66:     } catch (err) {
+L67:       console.error("Camera access denied:", err);
+L68:     }
+L69:   };
+L70: 
+L71:   const stopCamera = () => {
+L72:     if (cameraStream) {
+L73:       cameraStream.getTracks().forEach(track => track.stop());
+L74:       setCameraStream(null);
+L75:     }
+L76:   };
+L77: 
+L78:   const capturePhoto = () => {
+L79:     if (!videoRef.current) return;
+L80:     
+L81:     const canvas = document.createElement("canvas");
+L82:     canvas.width = videoRef.current.videoWidth;
+L83:     canvas.height = videoRef.current.videoHeight;
+L84:     const ctx = canvas.getContext("2d");
+L85:     if (ctx) {
+L86:       ctx.drawImage(videoRef.current, 0, 0);
+L87:       canvas.toBlob(blob => {
+L88:         if (blob) {
+L89:           setCapturedPhotos(prev => [...prev, blob]);
+L90:         }
+L91:       }, "image/jpeg", 0.9);
+L92:     }
+L93:   };
+L94: 
+L95:   const captureScanPage = () => {
+L96:     if (!videoRef.current) return;
+L97:     
+L98:     const canvas = document.createElement("canvas");
+L99:     canvas.width = videoRef.current.videoWidth;
+L100:     canvas.height = videoRef.current.videoHeight;
+L101:     const ctx = canvas.getContext("2d");
+L102:     if (ctx) {
+L103:       ctx.drawImage(videoRef.current, 0, 0);
+L104:       canvas.toBlob(blob => {
+L105:         if (blob) {
+L106:           setScanPages(prev => [...prev, blob]);
+L107:         }
+L108:       }, "image/png");
+L109:     }
+L110:   };
+L111: 
+L112:   const uploadFiles = async () => {
+L113:     if (!caseId) return;
+L114:     
+L115:     setIsUploading(true);
+L116:     
+L117:     for (let i = 0; i < files.length; i++) {
+L118:       const uploadFile = files[i];
+L119:       if (uploadFile.status !== "pending") continue;
+L120:       
+L121:       setFiles(prev => prev.map((f, idx) => 
+L122:         idx === i ? { ...f, status: "uploading" } : f
+L123:       ));
+L124:       
+L125:       try {
+L126:         const initRes = await fetch(`/api/cases/${caseId}/uploads/init`, {
+L127:           method: "POST",
+L128:           headers: { "Content-Type": "application/json" },
+L129:           body: JSON.stringify({
+L130:             filename: uploadFile.file.name,
+L131:             mimeType: uploadFile.file.type,
+L132:             evidenceType: uploadFile.evidenceType
+L133:           })
+L134:         });
+L135:         
+L136:         if (!initRes.ok) {
+L137:           throw new Error("Failed to initialize upload");
+L138:         }
+L139:         
+L140:         const { uploadId, uploadUrl } = await initRes.json();
+L141:         
+L142:         const dataRes = await fetch(uploadUrl, {
+L143:           method: "PUT",
+L144:           body: uploadFile.file
+L145:         });
+L146:         
+L147:         if (!dataRes.ok) {
+L148:           throw new Error("Failed to upload file data");
+L149:         }
+L150:         
+L151:         await fetch(`/api/cases/${caseId}/uploads/complete`, {
+L152:           method: "POST",
+L153:           headers: { "Content-Type": "application/json" },
+L154:           body: JSON.stringify({ uploadId })
+L155:         });
+L156:         
+L157:         setFiles(prev => prev.map((f, idx) => 
+L158:           idx === i ? { ...f, status: "complete" } : f
+L159:         ));
+L160:       } catch (err: any) {
+L161:         setFiles(prev => prev.map((f, idx) => 
+L162:           idx === i ? { ...f, status: "error", error: err.message } : f
+L163:         ));
+L164:       }
+L165:     }
+L166:     
+L167:     setIsUploading(false);
+L168:     onUploadComplete?.();
+L169:   };
+L170: 
+L171:   const uploadPhotos = async () => {
+L172:     if (!caseId || capturedPhotos.length === 0) return;
+L173:     
+L174:     setIsUploading(true);
+L175:     
+L176:     for (let i = 0; i < capturedPhotos.length; i++) {
+L177:       const blob = capturedPhotos[i];
+L178:       const filename = `photo_${Date.now()}_${i + 1}.jpg`;
+L179:       
+L180:       try {
+L181:         const initRes = await fetch(`/api/cases/${caseId}/uploads/init`, {
+L182:           method: "POST",
+L183:           headers: { "Content-Type": "application/json" },
+L184:           body: JSON.stringify({
+L185:             filename,
+L186:             mimeType: "image/jpeg",
+L187:             evidenceType: "photo"
+L188:           })
+L189:         });
+L190:         
+L191:         if (!initRes.ok) throw new Error("Failed to initialize upload");
+L192:         
+L193:         const { uploadId, uploadUrl } = await initRes.json();
+L194:         
+L195:         await fetch(uploadUrl, { method: "PUT", body: blob });
+L196:         
+L197:         await fetch(`/api/cases/${caseId}/uploads/complete`, {
+L198:           method: "POST",
+L199:           headers: { "Content-Type": "application/json" },
+L200:           body: JSON.stringify({ uploadId })
+L201:         });
+L202:       } catch (err) {
+L203:         console.error("Photo upload failed:", err);
+L204:       }
+L205:     }
+L206:     
+L207:     setCapturedPhotos([]);
+L208:     setIsUploading(false);
+L209:     stopCamera();
+L210:     onUploadComplete?.();
+L211:   };
+L212: 
+L213:   const uploadScans = async () => {
+L214:     if (!caseId || scanPages.length === 0) return;
+L215:     
+L216:     setIsUploading(true);
+L217:     
+L218:     for (let i = 0; i < scanPages.length; i++) {
+L219:       const blob = scanPages[i];
+L220:       const filename = `scan_page_${i + 1}.png`;
+L221:       
+L222:       try {
+L223:         const initRes = await fetch(`/api/cases/${caseId}/uploads/init`, {
+L224:           method: "POST",
+L225:           headers: { "Content-Type": "application/json" },
+L226:           body: JSON.stringify({
+L227:             filename,
+L228:             mimeType: "image/png",
+L229:             evidenceType: "scan"
+L230:           })
+L231:         });
+L232:         
+L233:         if (!initRes.ok) throw new Error("Failed to initialize upload");
+L234:         
+L235:         const { uploadId, uploadUrl } = await initRes.json();
+L236:         
+L237:         await fetch(uploadUrl, { method: "PUT", body: blob });
+L238:         
+L239:         await fetch(`/api/cases/${caseId}/uploads/complete`, {
+L240:           method: "POST",
+L241:           headers: { "Content-Type": "application/json" },
+L242:           body: JSON.stringify({ uploadId })
+L243:         });
+L244:       } catch (err) {
+L245:         console.error("Scan upload failed:", err);
+L246:       }
+L247:     }
+L248:     
+L249:     setScanPages([]);
+L250:     setIsUploading(false);
+L251:     stopCamera();
+L252:     onUploadComplete?.();
+L253:   };
+L254: 
+L255:   const handleClose = () => {
+L256:     stopCamera();
+L257:     setOpen(false);
+L258:     setFiles([]);
+L259:     setCapturedPhotos([]);
+L260:     setScanPages([]);
+L261:   };
+L262: 
+L263:   if (!caseId) {
+L264:     return (
+L265:       <Sheet open={open} onOpenChange={setOpen}>
+L266:         <SheetTrigger asChild>
+L267:           <Button variant="outline" size="sm" data-testid="button-upload-trigger">
+L268:             <Paperclip className="w-4 h-4 mr-2" />
+L269:             Attach
+L270:           </Button>
+L271:         </SheetTrigger>
+L272:         <SheetContent side="right" className="w-full sm:max-w-lg">
+L273:           <SheetHeader>
+L274:             <SheetTitle>Upload Evidence</SheetTitle>
+L275:           </SheetHeader>
+L276:           <div className="mt-6">
+L277:             <Alert variant="destructive">
+L278:               <AlertTriangle className="h-4 w-4" />
+L279:               <AlertTitle>No Case Selected</AlertTitle>
+L280:               <AlertDescription>
+L281:                 You must select or create a case before uploading evidence.
+L282:                 All evidence must be bound to a case for governance compliance.
+L283:               </AlertDescription>
+L284:             </Alert>
+L285:           </div>
+L286:         </SheetContent>
+L287:       </Sheet>
+L288:     );
+L289:   }
+L290: 
+L291:   return (
+L292:     <Sheet open={open} onOpenChange={(v) => { if (!v) handleClose(); else setOpen(true); }}>
+L293:       <SheetTrigger asChild>
+L294:         <Button variant="outline" size="sm" data-testid="button-upload-trigger">
+L295:           <Paperclip className="w-4 h-4 mr-2" />
+L296:           Attach
+L297:         </Button>
+L298:       </SheetTrigger>
+L299:       <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto">
+L300:         <SheetHeader>
+L301:           <SheetTitle>Upload Evidence</SheetTitle>
+L302:         </SheetHeader>
+L303:         
+L304:         <div className="mt-4 p-3 bg-muted rounded-lg">
+L305:           <div className="text-xs text-muted-foreground uppercase tracking-wide">Attach to Case</div>
+L306:           <div className="font-medium text-sm mt-1">{caseName || "Unnamed Case"}</div>
+L307:           <div className="text-xs text-muted-foreground font-mono mt-0.5">{caseId}</div>
+L308:         </div>
+L309: 
+L310:         <Tabs defaultValue="files" className="mt-6">
+L311:           <TabsList className="grid w-full grid-cols-3">
+L312:             <TabsTrigger value="files" data-testid="tab-files">
+L313:               <FileText className="w-4 h-4 mr-1" />
+L314:               Files
+L315:             </TabsTrigger>
+L316:             <TabsTrigger value="photos" data-testid="tab-photos">
+L317:               <Camera className="w-4 h-4 mr-1" />
+L318:               Photos
+L319:             </TabsTrigger>
+L320:             <TabsTrigger value="scan" data-testid="tab-scan">
+L321:               <ScanLine className="w-4 h-4 mr-1" />
+L322:               Scan
+L323:             </TabsTrigger>
+L324:           </TabsList>
+L325: 
+L326:           <TabsContent value="files" className="mt-4 space-y-4">
+L327:             <div className="space-y-2">
+L328:               <Label>Evidence Type</Label>
+L329:               <Select value={evidenceType} onValueChange={(v) => setEvidenceType(v as EvidenceType)}>
+L330:                 <SelectTrigger data-testid="select-evidence-type">
+L331:                   <SelectValue />
+L332:                 </SelectTrigger>
+L333:                 <SelectContent>
+L334:                   <SelectItem value="document">Document</SelectItem>
+L335:                   <SelectItem value="photo">Photo</SelectItem>
+L336:                   <SelectItem value="scan">Scan</SelectItem>
+L337:                   <SelectItem value="note">Note</SelectItem>
+L338:                   <SelectItem value="other">Other</SelectItem>
+L339:                 </SelectContent>
+L340:               </Select>
+L341:             </div>
+L342: 
+L343:             <div
+L344:               className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:border-primary transition-colors"
+L345:               onDragOver={(e) => e.preventDefault()}
+L346:               onDrop={handleDrop}
+L347:               onClick={() => fileInputRef.current?.click()}
+L348:               data-testid="dropzone-files"
+L349:             >
+L350:               <Upload className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
+L351:               <p className="text-sm text-muted-foreground">
+L352:                 Drag & drop files here, or click to browse
+L353:               </p>
+L354:               <p className="text-xs text-muted-foreground mt-1">
+L355:                 PDF, DOCX, TXT, JPG, PNG
+L356:               </p>
+L357:               <input
+L358:                 ref={fileInputRef}
+L359:                 type="file"
+L360:                 multiple
+L361:                 accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif"
+L362:                 className="hidden"
+L363:                 onChange={(e) => handleFileSelect(e.target.files)}
+L364:                 data-testid="input-file"
+L365:               />
+L366:             </div>
+L367: 
+L368:             {files.length > 0 && (
+L369:               <div className="space-y-2">
+L370:                 <Label>Selected Files</Label>
+L371:                 <div className="space-y-2 max-h-40 overflow-y-auto">
+L372:                   {files.map((f, i) => (
+L373:                     <div key={i} className="flex items-center justify-between p-2 bg-muted rounded text-sm">
+L374:                       <div className="flex items-center gap-2 truncate">
+L375:                         {f.status === "uploading" && <Loader2 className="w-4 h-4 animate-spin" />}
+L376:                         {f.status === "complete" && <Check className="w-4 h-4 text-green-500" />}
+L377:                         {f.status === "error" && <X className="w-4 h-4 text-red-500" />}
+L378:                         <span className="truncate">{f.file.name}</span>
+L379:                         <Badge variant="secondary" className="text-xs">{f.evidenceType}</Badge>
+L380:                       </div>
+L381:                       {f.status === "pending" && (
+L382:                         <Button variant="ghost" size="sm" onClick={() => removeFile(i)}>
+L383:                           <X className="w-4 h-4" />
+L384:                         </Button>
+L385:                       )}
+L386:                     </div>
+L387:                   ))}
+L388:

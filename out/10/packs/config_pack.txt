@@ -1,0 +1,17 @@
+
+--- FILE: .replit ---
+L1: run = "node validate-schema.js"
+L2: 
+L3: [nix]
+L4: channel = "stable-23_11"
+L5: 
+L6: [deployment]
+L7: run = ["sh", "-c", "node validate-schema.js"]
+
+--- FILE: replit.nix ---
+L1: { pkgs }: {
+L2:   deps = [
+L3:     pkgs.nodejs_20
+L4:     pkgs.jq
+L5:   ];
+L6: }

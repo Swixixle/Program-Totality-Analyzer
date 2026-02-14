@@ -1,0 +1,174 @@
+Yes — make a GitHub entry for this, and **yes** you should “set it up functionally” so Lantern can reliably produce / render this dossier without the UI crashing.
+
+Below are **direct, copy-paste instructions** for the Replit agent (or Copilot) to finish this cleanly.
+
+---
+
+## Instructions to Replit Agent (copy/paste)
+
+### Goal
+
+1. Fix the UI crash (`analysis.howto.map is not a function`) permanently.
+2. Make Lantern store this dossier as a **first-class artifact** in-repo (`docs/dossiers/lantern_program_totality_dossier.md`).
+3. Ensure the server/API returns a stable `analysis` shape and the UI renders it.
+
+---
+
+## A) Fix the UI: normalize `analysis.howto` (array OR object)
+
+**File:** `client/src/pages/project-details.tsx`
+**Change:** Replace any code that does `(analysis.howto as any[]).map(...)` with this:
+
+```tsx
+const howto = analysis?.howto as any;
+
+const howtoSteps: any[] = Array.isArray(howto)
+  ? howto
+  : howto && typeof howto === "object"
+  ? [
+      ...(howto.install_steps ?? []).map((s: any) => ({ section: "Install", ...s })),
+      ...(howto.run_dev ?? []).map((s: any) => ({ section: "Run (Dev)", ...s })),
+      ...(howto.run_prod ?? []).map((s: any) => ({ section: "Run (Prod)", ...s })),
+      ...(howto.verification_steps ?? []).map((s: any) => ({ section: "Verify", ...s })),
+      ...(howto.common_failures ?? []).map((s: any) => ({ section: "Failures", ...s })),
+    ]
+  : [];
+```
+
+Then render with:
+
+```tsx
+{howtoSteps.map((step: any, i: number) => (
+  <div key={i}>
+    {step.section && <div className="text-xs opacity-70">{step.section}</div>}
+    {/* existing step rendering here */}
+  </div>
+))}
+```
+
+This removes the overlay and supports both schemas.
+
+---
+
+## B) Add a stable type for `analysis.howto` (stop “any”)
+
+**Create file:** `client/src/types/analysis.ts`
+
+```ts
+export type Evidence =
+  | { path: string; line_start: number; line_end: number; snippet_hash: string; display?: string }
+  | { kind: "file_exists"; path: string; snippet_hash: string; display?: string };
+
+export type HowtoStep = {
+  step?: string;
+  command?: string | null;
+  evidence?: Evidence | null;
+  symptom?: string;
+  cause?: string;
+  fix?: string;
+  description?: string;
+};
+
+export type HowtoObject = {
+  prereqs?: string[];
+  install_steps?: HowtoStep[];
+  config?: { name: string; purpose: string; evidence?: Evidence | null }[];
+  run_dev?: HowtoStep[];
+  run_prod?: HowtoStep[];
+  usage_examples?: { description: string; command: string }[];
+  verification_steps?: HowtoStep[];
+  common_failures?: { symptom: string; cause: string; fix: string; evidence?: Evidence | null }[];
+  unknowns?: any[];
+  missing_evidence_requests?: string[];
+  replit_execution_profile?: any;
+};
+
+export type Analysis = {
+  howto?: HowtoObject | HowtoStep[];
+  // keep whatever else you already return (claims, coverage, etc.)
+};
+```
+
+Then in the UI page, type `analysis` as `Analysis`.
+
+---
+
+## C) Put this dossier into the repo as an artifact
+
+**Create file:** `docs/dossiers/lantern_program_totality_dossier.md`
+
+Paste the exact dossier text you posted (keep headings + tables).
+At the top add:
+
+```md
+---
+title: Lantern Program Totality Dossier
+generated_by: PTA / Lantern
+mode: deterministic+curated
+date: 2026-02-14
+---
+```
+
+---
+
+## D) Make the server serve it (optional but recommended)
+
+If you want this dossier visible in the app:
+
+1. **Add route**: `GET /api/dossiers/lantern` returning the markdown contents.
+
+**File:** `server/routes.ts` (or wherever your express router is)
+
+```ts
+import fs from "fs";
+import path from "path";
+
+app.get("/api/dossiers/lantern", (_req, res) => {
+  const p = path.join(process.cwd(), "docs/dossiers/lantern_program_totality_dossier.md");
+  if (!fs.existsSync(p)) return res.status(404).json({ error: "Not found" });
+  res.type("text/markdown").send(fs.readFileSync(p, "utf8"));
+});
+```
+
+2. In UI, add a “Dossier” tab that fetches and displays markdown (or just add a link/download button).
+
+---
+
+## E) Add the GitHub entry (do this)
+
+### Commit checklist
+
+Run these commands from repo root:
+
+```bash
+git status
+git add client/src/pages/project-details.tsx client/src/types/analysis.ts docs/dossiers/lantern_program_totality_dossier.md server/routes.ts
+git commit -m "Lantern: stabilize analysis howto rendering + add Program Totality Dossier artifact"
+git push
+```
+
+### Release note (optional)
+
+Tag a release if you want:
+
+```bash
+git tag -a v0.1.0 -m "Lantern dossier + stable analysis howto rendering"
+git push --tags
+```
+
+---
+
+## F) Smoke test (must pass)
+
+Agent should run:
+
+```bash
+npm run build
+npm run dev
+```
+
+Then open the Project Details page where it previously crashed and confirm no overlay.
+
+---
+
+If you want, paste your current `analysis` JSON shape (just the top-level keys + `howto` section), and I’ll give you the **exact** UI rendering block tailored to your existing layout (cards/sections/etc.) without changing your design.

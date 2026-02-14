@@ -1,0 +1,42 @@
+{
+  "prereqs": [],
+  "install_steps": [],
+  "config": [],
+  "run_dev": [],
+  "run_prod": [],
+  "usage_examples": [],
+  "verification_steps": [],
+  "common_failures": [],
+  "unknowns": [
+    {
+      "what_is_missing": "No evidence provided for any prerequisites, installation steps, configuration, running in development or production, usage examples, verification steps, or common failures.",
+      "why_it_matters": "Cannot construct a valid operator manual without explicit evidence for each instruction or requirement. Risk of improper setup or operation.",
+      "what_evidence_needed": "Source files or documentation specifying requirements, installation instructions, configuration variables/files, commands to run in different environments, example usage, verification steps, and descriptions of common failure scenarios."
+    }
+  ],
+  "missing_evidence_requests": [
+    "Complete evidence for prerequisites/tools/runtimes required.",
+    "Source for installation steps and commands.",
+    "Configuration variables, files, and their purposes.",
+    "How to run in development and production.",
+    "Example commands or API calls for usage.",
+    "Verification/health check steps and methods.",
+    "Known failure modes, causes, and fixes."
+  ],
+  "completeness": {
+    "score": 0,
+    "max": 100,
+    "missing": [
+      "run_dev: no step with both a runnable command and verified evidence",
+      "config: no config item with name+purpose+verified evidence",
+      "port_behavior: no port evidence with verified snippet_hash",
+      "verification_steps: no step with both a runnable command and verified evidence",
+      "usage_examples: no examples with meaningful descriptions",
+      "install_steps: no step with both a runnable command and verified evidence"
+    ],
+    "deductions": [
+      "-3 for 1 unknown(s)"
+    ],
+    "notes": "-3 for 1 unknown(s); No Dockerfile found; 1 unknown(s) reported"
+  }
+}

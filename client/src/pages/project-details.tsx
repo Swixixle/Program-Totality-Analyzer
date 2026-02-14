@@ -81,7 +81,7 @@ export default function ProjectDetails() {
                 {analysis?.unknowns && (() => {
                   const raw = analysis.unknowns as any;
                   const items: string[] = Array.isArray(raw)
-                    ? raw.map((u: any) => typeof u === "string" ? u : u.description || u.item || JSON.stringify(u))
+                    ? raw.map((u: any) => typeof u === "string" ? u : u.what_is_missing || u.description || u.item || JSON.stringify(u))
                     : [];
                   if (!items.length) return null;
                   return (
@@ -147,8 +147,8 @@ export default function ProjectDetails() {
                                   ...(howto.prereqs ?? []).map((s: any) => ({ section: "Prerequisites", title: s.name || s.runtime, description: s.version || s.command || "", evidence: s.evidence })),
                                   ...(howto.install_steps ?? []).map((s: any) => ({ section: "Install", title: s.command || s.title, description: s.description || "", code: s.command, evidence: s.evidence })),
                                   ...(howto.config ?? []).map((s: any) => ({ section: "Configuration", title: s.name || s.key, description: s.description || s.source || "", evidence: s.evidence })),
-                                  ...(howto.run_dev ? [howto.run_dev] : []).map((s: any) => ({ section: "Run (Dev)", title: s.command || "Dev Server", description: s.description || "", code: s.command, evidence: s.evidence })),
-                                  ...(howto.run_prod ? [howto.run_prod] : []).map((s: any) => ({ section: "Run (Prod)", title: s.command || "Production", description: s.description || "", code: s.command, evidence: s.evidence })),
+                                  ...(howto.run_dev ? (Array.isArray(howto.run_dev) ? howto.run_dev : [howto.run_dev]) : []).map((s: any) => ({ section: "Run (Dev)", title: s.command || "Dev Server", description: s.description || "", code: s.command, evidence: s.evidence })),
+                                  ...(howto.run_prod ? (Array.isArray(howto.run_prod) ? howto.run_prod : [howto.run_prod]) : []).map((s: any) => ({ section: "Run (Prod)", title: s.command || "Production", description: s.description || "", code: s.command, evidence: s.evidence })),
                                 ]
                               : [];
 

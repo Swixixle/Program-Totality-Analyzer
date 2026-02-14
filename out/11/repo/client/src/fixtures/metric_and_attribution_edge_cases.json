@@ -1,0 +1,44 @@
+[
+  {
+    "id": "metric_ranges_ratios",
+    "text": "The company expects revenue of $5–7 million in Q4, representing a margin of 10-12%. This is a 3-to-1 improvement over last year. We are seeing 50 cases per 100,000 residents. The stock trades at roughly $40 per share.",
+    "expected_metrics": [
+      { "value": "$5–7 million", "metric_kind": "range", "range_low": 5000000, "range_high": 7000000, "unit": "USD" },
+      { "value": "10-12%", "metric_kind": "range", "range_low": 10, "range_high": 12, "unit": "percent" },
+      { "value": "3-to-1", "metric_kind": "ratio", "unit": "unknown" },
+      { "value": "50 cases per 100,000", "metric_kind": "rate", "unit": "unknown" },
+      { "value": "$40 per share", "metric_kind": "rate", "unit": "USD" }
+    ]
+  },
+  {
+    "id": "attribution_forward_scan_positive",
+    "text": "\"We are cautiously optimistic,\" the CEO said. \"This is a transition year.\" added Smith. \"I disagree.\" Jones countered.",
+    "expected_quotes": [
+      { "quote": "We are cautiously optimistic", "speaker": "CEO" },
+      { "quote": "This is a transition year", "speaker": "Smith" },
+      { "quote": "I disagree", "speaker": "Jones" }
+    ]
+  },
+  {
+    "id": "attribution_forward_scan_negative",
+    "text": "\"The market is volatile.\" The weather was cold yesterday. Smith went to the store.",
+    "expected_quotes": [
+      { "quote": "The market is volatile", "speaker": null }
+    ]
+  },
+  {
+    "id": "attribution_forward_scan_negative_no_verb",
+    "text": "\"I disagree.\" The market is volatile. Johnson later apologized.",
+    "expected_quotes": [
+      { "quote": "I disagree", "speaker": null }
+    ]
+  },
+  {
+    "id": "entity_family_context",
+    "text": "Apple Inc reported earnings. I ate an apple for lunch. The Big Apple is busy.",
+    "expected_entities": [
+      { "text": "Apple Inc", "type": "org" },
+      { "text": "Big Apple", "type": "location" }
+    ]
+  }
+]

@@ -1,0 +1,368 @@
+
+--- FILE: validate-schema.js ---
+L1: #!/usr/bin/env node
+L2: 
+L3: const fs = require('fs');
+L4: const path = require('path');
+L5: 
+L6: // Simple JSON Schema validator
+L7: function validateSchema(data, schema) {
+L8:   const errors = [];
+L9:   
+L10:   function validate(data, schema, path = '') {
+L11:     // Check type first
+L12:     if (schema.type) {
+L13:       const actualType = Array.isArray(data) ? 'array' : typeof data;
+L14:       const expectedType = schema.type;
+L15:       
+L16:       if (expectedType === 'object' && actualType !== 'object') {
+L17:         errors.push(`Field ${path} must be an object, got ${actualType}`);
+L18:         return;
+L19:       }
+L20:       if (expectedType === 'string' && actualType !== 'string') {
+L21:         errors.push(`Field ${path} must be a string, got ${actualType}`);
+L22:         return;
+L23:       }
+L24:       if (expectedType === 'number' && actualType !== 'number') {
+L25:         errors.push(`Field ${path} must be a number, got ${actualType}`);
+L26:         return;
+L27:       }
+L28:       if (expectedType === 'array' && actualType !== 'array') {
+L29:         errors.push(`Field ${path} must be an array, got ${actualType}`);
+L30:         return;
+L31:       }
+L32:       if (expectedType === 'boolean' && actualType !== 'boolean') {
+L33:         errors.push(`Field ${path} must be a boolean, got ${actualType}`);
+L34:         return;
+L35:       }
+L36:     }
+L37:     
+L38:     // Check required fields
+L39:     if (schema.required && Array.isArray(schema.required)) {
+L40:       for (const field of schema.required) {
+L41:         if (!(field in data)) {
+L42:           errors.push(`Missing required field: ${path}.${field}`);
+L43:         }
+L44:       }
+L45:     }
+L46:     
+L47:     // Check object properties
+L48:     if (schema.type === 'object' && schema.properties) {
+L49:       for (const [key, value] of Object.entries(data)) {
+L50:         if (schema.properties[key]) {
+L51:           validate(value, schema.properties[key], `${path}.${key}`);
+L52:         } else if (schema.additionalProperties === false) {
+L53:           errors.push(`Unexpected field: ${path}.${key}`);
+L54:         }
+L55:       }
+L56:     }
+L57:     
+L58:     // Check string patterns
+L59:     if (schema.type === 'string' && schema.pattern) {
+L60:       const regex = new RegExp(schema.pattern);
+L61:       if (!regex.test(data)) {
+L62:         errors.push(`Field ${path} does not match pattern ${schema.pattern}: ${data}`);
+L63:       }
+L64:     }
+L65:     
+L66:     // Check const values
+L67:     if (schema.const !== undefined && data !== schema.const) {
+L68:       errors.push(`Field ${path} must be ${schema.const}, got ${data}`);
+L69:     }
+L70:     
+L71:     // Check enum values
+L72:     if (schema.enum && !schema.enum.includes(data)) {
+L73:       errors.push(`Field ${path} must be one of ${schema.enum.join(', ')}, got ${data}`);
+L74:     }
+L75:     
+L76:     // Check arrays
+L77:     if (schema.type === 'array') {
+L78:       if (schema.minItems && data.length < schema.minItems) {
+L79:         errors.push(`Array ${path} must have at least ${schema.minItems} items`);
+L80:       }
+L81:       if (schema.items) {
+L82:         data.forEach((item, i) => validate(item, schema.items, `${path}[${i}]`));
+L83:       }
+L84:     }
+L85:     
+L86:     // Check number constraints
+L87:     if (schema.type === 'number') {
+L88:       if (schema.minimum !== undefined && data < schema.minimum) {
+L89:         errors.push(`Field ${path} must be >= ${schema.minimum}, got ${data}`);
+L90:       }
+L91:       if (schema.maximum !== undefined && data > schema.maximum) {
+L92:         errors.push(`Field ${path} must be <= ${schema.maximum}, got ${data}`);
+L93:       }
+L94:     }
+L95:   }
+L96:   
+L97:   validate(data, schema);
+L98:   return errors;
+L99: }
+L100: 
+L101: console.log('========================================');
+L102: console.log('ELI Schema Validator');
+L103: console.log('========================================\n');
+L104: 
+L105: // Load schema
+L106: const schemaPath = path.join(__dirname, 'contracts', 'eli-output.schema.json');
+L107: const samplePath = path.join(__dirname, 'examples', 'eli-output.sample.json');
+L108: 
+L109: console.log('Loading schema:', schemaPath);
+L110: console.log('Loading sample:', samplePath);
+L111: console.log();
+L112: 
+L113: try {
+L114:   const schema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'));
+L115:   const sample = JSON.parse(fs.readFileSync(samplePath, 'utf8'));
+L116:   
+L117:   console.log('Schema version:', schema.title);
+L118:   console.log('Sample schema version:', sample.schema_version);
+L119:   console.log();
+L120:   
+L121:   const errors = validateSchema(sample, schema);
+L122:   
+L123:   if (errors.length === 0) {
+L124:     console.log('✓ Validation PASSED');
+L125:     console.log('\nThe sample ELI output conforms to the schema.');
+L126:     console.log('\nSample content preview:');
+L127:     console.log('  - Decision verdict:', sample.decision.verdict);
+L128:     console.log('  - Confidence:', sample.decision.confidence);
+L129:     console.log('  - Evidence items:', sample.evidence.length);
+L130:     console.log('  - Safety flags:', sample.safety.high_risk_flag ? 'HIGH RISK' : 'normal');
+L131:   } else {
+L132:     console.log('✗ Validation FAILED');
+L133:     console.log('\nErrors found:');
+L134:     errors.forEach(err => console.log('  -', err));
+L135:     process.exit(1);
+L136:   }
+L137:   
+L138:   console.log('\n========================================');
+L139:   console.log('ELI Framework Information');
+L140:   console.log('========================================');
+L141:   console.log('ELI separates cryptographic proof from inference.');
+L142:   console.log('It produces justified, auditable claims from signed artifacts.');
+L143:   console.log('\nFor more information, see README.md');
+L144:   console.log('========================================\n');
+L145:   
+L146: } catch (error) {
+L147:   console.error('Error:', error.message);
+L148:   process.exit(1);
+L149: }
+
+--- FILE: contracts/eli-output.schema.json ---
+L1: {
+L2:   "$schema": "https://json-schema.org/draft/2020-12/schema",
+L3:   "$id": "https://eli.local/contracts/eli-output.schema.json",
+L4:   "title": "ELI Output (signable artifact) v0.1",
+L5:   "type": "object",
+L6:   "additionalProperties": false,
+L7:   "required": [
+L8:     "schema_version",
+L9:     "created_at",
+L10:     "eli",
+L11:     "subject",
+L12:     "inputs",
+L13:     "decision",
+L14:     "evidence",
+L15:     "safety"
+L16:   ],
+L17:   "properties": {
+L18:     "schema_version": {
+L19:       "type": "string",
+L20:       "const": "0.1"
+L21:     },
+L22:     "created_at": {
+L23:       "type": "string",
+L24:       "format": "date-time"
+L25:     },
+L26:     "eli": {
+L27:       "type": "object",
+L28:       "additionalProperties": false,
+L29:       "required": ["engine", "mode", "policy_hash"],
+L30:       "properties": {
+L31:         "engine": { "type": "string" },
+L32:         "mode": {
+L33:           "type": "string",
+L34:           "enum": ["advisory", "gatekeeper"]
+L35:         },
+L36:         "policy_hash": {
+L37:           "type": "object",
+L38:           "additionalProperties": false,
+L39:           "required": ["alg", "value"],
+L40:           "properties": {
+L41:             "alg": { "type": "string", "const": "sha256" },
+L42:             "value": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+L43:           }
+L44:         }
+L45:       }
+L46:     },
+L47:     "subject": {
+L48:       "type": "object",
+L49:       "additionalProperties": false,
+L50:       "required": ["type", "content_type", "byte_length"],
+L51:       "properties": {
+L52:         "type": { "type": "string" },
+L53:         "content_type": { "type": "string" },
+L54:         "byte_length": { "type": "integer", "minimum": 0 }
+L55:       }
+L56:     },
+L57:     "inputs": {
+L58:       "type": "object",
+L59:       "additionalProperties": false,
+L60:       "required": ["sources", "redactions"],
+L61:       "properties": {
+L62:         "sources": {
+L63:           "type": "array",
+L64:           "minItems": 1,
+L65:           "items": {
+L66:             "type": "object",
+L67:             "additionalProperties": false,
+L68:             "required": ["kind", "content_hash"],
+L69:             "properties": {
+L70:               "kind": { "type": "string" },
+L71:               "content_hash": {
+L72:                 "type": "object",
+L73:                 "additionalProperties": false,
+L74:                 "required": ["alg", "value"],
+L75:                 "properties": {
+L76:                   "alg": { "type": "string", "const": "sha256" },
+L77:                   "value": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+L78:                 }
+L79:               }
+L80:             }
+L81:           }
+L82:         },
+L83:         "redactions": {
+L84:           "type": "object",
+L85:           "additionalProperties": false,
+L86:           "required": ["phi_present", "phi_fields"],
+L87:           "properties": {
+L88:             "phi_present": { "type": "boolean" },
+L89:             "phi_fields": {
+L90:               "type": "array",
+L91:               "items": { "type": "string" }
+L92:             }
+L93:           }
+L94:         }
+L95:       }
+L96:     },
+L97:     "decision": {
+L98:       "type": "object",
+L99:       "additionalProperties": false,
+L100:       "required": ["verdict", "confidence", "rationale_codes"],
+L101:       "properties": {
+L102:         "verdict": {
+L103:           "type": "string",
+L104:           "enum": ["proceed", "park", "discard", "needs-expert"]
+L105:         },
+L106:         "confidence": {
+L107:           "type": "number",
+L108:           "minimum": 0,
+L109:           "maximum": 1
+L110:         },
+L111:         "rationale_codes": {
+L112:           "type": "array",
+L113:           "minItems": 1,
+L114:           "items": { "type": "string" }
+L115:         }
+L116:       }
+L117:     },
+L118:     "evidence": {
+L119:       "type": "array",
+L120:       "minItems": 1,
+L121:       "items": {
+L122:         "type": "object",
+L123:         "additionalProperties": false,
+L124:         "required": ["id", "claim", "support", "counter", "notes"],
+L125:         "properties": {
+L126:           "id": { "type": "string" },
+L127:           "claim": { "type": "string" },
+L128:           "support": {
+L129:             "type": "array",
+L130:             "items": { "type": "string" }
+L131:           },
+L132:           "counter": {
+L133:             "type": "array",
+L134:             "items": { "type": "string" }
+L135:           },
+L136:           "notes": { "type": "string" }
+L137:         }
+L138:       }
+L139:     },
+L140:     "safety": {
+L141:       "type": "object",
+L142:       "additionalProperties": false,
+L143:       "required": ["high_risk_flag", "blocks", "warnings"],
+L144:       "properties": {
+L145:         "high_risk_flag": { "type": "boolean" },
+L146:         "blocks": {
+L147:           "type": "array",
+L148:           "items": { "type": "string" }
+L149:         },
+L150:         "warnings": {
+L151:           "type": "array",
+L152:           "items": { "type": "string" }
+L153:         }
+L154:       }
+L155:     }
+L156:   }
+L157: }
+
+--- FILE: examples/eli-output.sample.json ---
+L1: {
+L2:   "schema_version": "0.1",
+L3:   "created_at": "2026-02-08T15:30:00Z",
+L4:   "eli": {
+L5:     "engine": "ELI-core",
+L6:     "mode": "advisory",
+L7:     "policy_hash": {
+L8:       "alg": "sha256",
+L9:       "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+L10:     }
+L11:   },
+L12:   "subject": {
+L13:     "type": "clinical_question",
+L14:     "content_type": "text/plain",
+L15:     "byte_length": 128
+L16:   },
+L17:   "inputs": {
+L18:     "sources": [
+L19:       {
+L20:         "kind": "clinician_form",
+L21:         "content_hash": {
+L22:           "alg": "sha256",
+L23:           "value": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+L24:         }
+L25:       }
+L26:     ],
+L27:     "redactions": {
+L28:       "phi_present": true,
+L29:       "phi_fields": ["name", "dob"]
+L30:     }
+L31:   },
+L32:   "decision": {
+L33:     "verdict": "needs-expert",
+L34:     "confidence": 0.42,
+L35:     "rationale_codes": ["INSUFFICIENT_CONTEXT", "HIGH_RISK_DOMAIN"]
+L36:   },
+L37:   "evidence": [
+L38:     {
+L39:       "id": "E1",
+L40:       "claim": "Available inputs insufficient for safe autonomous decision",
+L41:       "support": [
+L42:         "Missing imaging",
+L43:         "Incomplete lab values"
+L44:       ],
+L45:       "counter": [
+L46:         "Some historical notes available"
+L47:       ],
+L48:       "notes": "Escalation recommended per safety policy"
+L49:     }
+L50:   ],
+L51:   "safety": {
+L52:     "high_risk_flag": true,
+L53:     "blocks": ["AUTONOMOUS_DIAGNOSIS"],
+L54:     "warnings": ["Clinical judgment required"]
+L55:   }
+L56: }

@@ -1,0 +1,82 @@
+[
+  {
+    "description": "All-caps headline",
+    "text": "APPLE INC RELEASES NEW IPHONE ON TUESDAY.",
+    "expected": {
+      "entities": ["APPLE INC"], 
+      "quotes": [],
+      "metrics": [],
+      "timeline": []
+    }
+  },
+  {
+    "description": "Abbreviations",
+    "text": "The U.S. government met. Dr. Smith attended.",
+    "expected": {
+      "entities": ["U.S.", "Dr. Smith"],
+      "quotes": [],
+      "metrics": [],
+      "timeline": []
+    }
+  },
+  {
+    "description": "Multiple quotes, multiple speakers",
+    "text": "Alice said, \"Hello world.\" Bob replied, \"Goodbye.\"",
+    "expected": {
+      "entities": ["Alice", "Bob"],
+      "quotes": ["Hello world.", "Goodbye."],
+      "metrics": [],
+      "timeline": []
+    }
+  },
+  {
+    "description": "Numbers in words",
+    "text": "The project cost three million dollars.",
+    "expected": {
+      "entities": [],
+      "quotes": [],
+      "metrics": ["three million dollars"], 
+      "timeline": []
+    }
+  },
+  {
+    "description": "Tables pasted as text",
+    "text": "Year Revenue\n2023 $10M\n2024 $12M",
+    "expected": {
+      "entities": [],
+      "quotes": [],
+      "metrics": ["$10M", "$12M"],
+      "timeline": ["2023", "2024"]
+    }
+  },
+  {
+    "description": "Dates without years + relative dates",
+    "text": "On Jan. 5, we launch. It happens next Tuesday.",
+    "expected": {
+      "entities": [],
+      "quotes": [],
+      "metrics": [],
+      "timeline": ["Jan. 5"]
+    }
+  },
+  {
+    "description": "Legal/medical text",
+    "text": "The Plaintiff argues Section 4 applies.",
+    "expected": {
+      "entities": ["Plaintiff"], 
+      "quotes": [],
+      "metrics": [],
+      "timeline": []
+    }
+  },
+  {
+    "description": "Long narrative repeated entities",
+    "text": "Tesla is growing. Tesla hired new engineers. Tesla stock is up.",
+    "expected": {
+      "entities": ["Tesla"],
+      "quotes": [],
+      "metrics": [],
+      "timeline": []
+    }
+  }
+]

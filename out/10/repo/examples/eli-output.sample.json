@@ -1,0 +1,56 @@
+{
+  "schema_version": "0.1",
+  "created_at": "2026-02-08T15:30:00Z",
+  "eli": {
+    "engine": "ELI-core",
+    "mode": "advisory",
+    "policy_hash": {
+      "alg": "sha256",
+      "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  },
+  "subject": {
+    "type": "clinical_question",
+    "content_type": "text/plain",
+    "byte_length": 128
+  },
+  "inputs": {
+    "sources": [
+      {
+        "kind": "clinician_form",
+        "content_hash": {
+          "alg": "sha256",
+          "value": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        }
+      }
+    ],
+    "redactions": {
+      "phi_present": true,
+      "phi_fields": ["name", "dob"]
+    }
+  },
+  "decision": {
+    "verdict": "needs-expert",
+    "confidence": 0.42,
+    "rationale_codes": ["INSUFFICIENT_CONTEXT", "HIGH_RISK_DOMAIN"]
+  },
+  "evidence": [
+    {
+      "id": "E1",
+      "claim": "Available inputs insufficient for safe autonomous decision",
+      "support": [
+        "Missing imaging",
+        "Incomplete lab values"
+      ],
+      "counter": [
+        "Some historical notes available"
+      ],
+      "notes": "Escalation recommended per safety policy"
+    }
+  ],
+  "safety": {
+    "high_risk_flag": true,
+    "blocks": ["AUTONOMOUS_DIAGNOSIS"],
+    "warnings": ["Clinical judgment required"]
+  }
+}

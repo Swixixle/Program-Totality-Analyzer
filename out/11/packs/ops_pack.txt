@@ -1,0 +1,2132 @@
+
+--- FILE: attached_assets/Pasted-Confirmed-You-now-have-a-clean-circuit-output-Replit-su_1768995918678.txt ---
+L1: Confirmed. You now have a clean circuit output: **Replit summary + Gemini redline + Grok certification**. I’m going to do two things:
+L2: 
+L3: 1. **Arbitrate the disagreement** (Gemini wants more verification; Grok says fully certified) using the thinking contract.
+L4: 2. Produce the **single consolidated directive** you will send to the Replit Agent next (Packet 2).
+L5: 
+L6: ---
+L7: 
+L8: # 1) Arbitration under the Thinking Contract
+L9: 
+L10: ### What’s disputed
+L11: 
+L12: * **Gemini** flags “intelligent merging” as high interpretive risk and wants raw code + smoke logs before allowing M2 segmentation to proceed.
+L13: * **Grok** says evidence appendix already exists and certifies that dedupe is binary (skip/replace) and round-trip is lossless.
+L14: 
+L15: ### What the contract requires
+L16: 
+L17: Under your governance rules, *any* claim of “intelligent merging” must be verified because it can silently mutate packs (offset drift = fatal). Even if Grok is correct, Gemini’s demand is low-cost and high-safety.
+L18: 
+L19: ### Ruling
+L20: 
+L21: **We proceed with sentence segmentation, but only after one last verification step that costs ~5 minutes and closes the merging risk permanently.**
+L22: 
+L23: This is not a stall. It’s a final seal.
+L24: 
+L25: **Decision:**
+L26: 
+L27: * Remediation: **CERTIFIED** (storage default restored and gated properly)
+L28: * “Intelligent merging” risk: **must be closed with raw code + a single dedupe test assertion** (binary policy)
+L29: 
+L30: After that, M2 segmentation proceeds with no further storage talk.
+L31: 
+L32: ---
+L33: 
+L34: # 2) Consolidated Packet 2 directive to the Replit Agent (send this)
+L35: 
+L36: ## Message to Replit Agent (copy/paste)
+L37: 
+L38: Remediation is certified. Before we proceed, we must close one remaining redline: the phrase “intelligent merging” has interpretive-risk implications. This is a final verification seal.
+L39: 
+L40: ### A) Final verification seal (required, small)
+L41: 
+L42: 1. Paste the **exact dedupe/import logic** from `client/src/pages/lantern-extract.tsx` (only the functions that:
+L43: 
+L44:    * parse import JSON
+L45:    * dedupe by `pack_id`
+L46:    * decide skip/replace
+L47:    * save library)
+L48: 
+L49: 2. Add/confirm a unit test that enforces **binary dedupe policy**:
+L50: 
+L51:    * If incoming pack_id matches an existing pack_id:
+L52: 
+L53:      * policy must be either **SKIP** or **REPLACE ENTIRE PACK**
+L54:      * no field-level merge
+L55:      * no offset repair
+L56:      * no partial combines
+L57:    * Test must assert deep equality of the preserved pack object (or the replaced object) and confirm offsets unchanged.
+L58: 
+L59: 3. Paste smoke/test output showing this test passes (along with the existing persistence smoke if convenient).
+L60: 
+L61: Once this is provided, the “merging” concern is formally closed.
+L62: 
+L63: ---
+L64: 
+L65: ### B) Proceed to M2 Priority #1: Sentence Segmentation (after A is delivered)
+L66: 
+L67: Implement a deterministic rule-based sentence segmenter:
+L68: 
+L69: Deliver as Packet 1:
+L70: 
+L71: 1. `client/src/lib/heuristics/segmenters/sentenceSegmenter.ts` (full)
+L72: 2. abbreviation whitelist (40–60 entries) and matching rules
+L73: 3. decimals/currency non-splitting rules
+L74: 4. quote-spanning continuity logic
+L75: 5. 8–10 before/after fixture-style examples
+L76: 6. pre/post metrics (Precision, Recall, F1 + discard count)
+L77: 
+L78: Constraints remain:
+L79: 
+L80: * no persistence work
+L81: * no backend
+L82: * no LLM/ML
+L83: * offsets must remain exact
+L84: 
+L85: Proceed.
+L86: 
+L87: ---
+L88: 
+L89: # 3) Optional: Gemini’s adversarial edge-case list (answering their question)
+L90: 
+L91: Yes—have Gemini prepare it, but only after we receive the segmenter Packet 1. Otherwise Gemini will generate cases that don’t map to the implemented rules.
+L92: 
+L93: When the segmenter arrives, instruct Gemini to attack with:
+L94: 
+L95: * Unicode dashes: `– — - -` in ranges and hyphenated words
+L96: * Ellipses: `...` and `…`
+L97: * Nested quotes: `"He said, 'No.'"` and `'He said, "No."'`
+L98: * Abbrev collisions: `St.` (Street vs Saint), `No.` (number vs sentence end)
+L99: * Initialisms: `U.S.A.` with trailing punctuation
+L100: * Decimal adjacency: `3.14...` followed by newline
+L101: * Currency formats: `$1,200.50` / `€1.200,50`
+L102: * Weird spacing: `Dr . Smith` (should still split correctly, if you choose to support)
+L103: 
+L104: ---
+L105: 
+L106: # 4) What you do next
+L107: 
+L108: Send the Packet 2 directive above to the Replit Agent.
+L109: 
+L110: When the agent returns:
+L111: 
+L112: * dedupe/import functions + unit test proof, and
+L113: * the sentence segmenter packet,
+L114: 
+L115: paste them here. I’ll certify the dedupe seal, then certify/patch the segmenter, then issue M2 Priority #2 (entity tiering) with fixtures.
+L116: 
+L117: This keeps the circuit disciplined and prevents a quiet integrity failure later.
+
+--- FILE: attached_assets/Pasted-v0-1-1-is-the-right-direction-you-attacked-the-specific_1768906402984.txt ---
+L1: v0.1.1 is the right direction: you attacked the specific failure modes (sentence breaks, stop-entities, quote attribution, metric normalization) and you expanded fixtures to the exact edge cases that will otherwise ambush you later. The next iteration should be about closing correctness gaps and making regressions unmissable.
+L2: 
+L3: What to do next (v0.1.2 target)
+L4: 
+L5: 1) Enforce provenance integrity as a hard gate
+L6: 
+L7: You now have start/end offsets. Treat them as non-negotiable.
+L8: 
+L9: Add an internal validator that runs on every extraction result:
+L10: 	•	0 <= start < end <= text.length
+L11: 	•	text.slice(start, end) equals the emitted surface_text (byte-for-byte)
+L12: 	•	Sentence bounds (if you store them) contain the extracted span
+L13: 
+L14: If any item fails:
+L15: 	•	drop the item
+L16: 	•	increment a dropped_invalid_provenance counter
+L17: 	•	expose counters in the UI “Engine Stats” panel (read-only)
+L18: 
+L19: This prevents the most dangerous class of silent corruption.
+L20: 
+L21: ⸻
+L22: 
+L23: 2) Add deterministic dedupe and occurrence tracking
+L24: 
+L25: Right now, repeated entities and dates will produce clutter and degrade curation.
+L26: 
+L27: Implement canonical keys and merge logic:
+L28: 	•	Entities
+L29: 	•	key = type + "::" + normalizeEntity(text)
+L30: 	•	keep first provenance, add occurrences[] with additional offsets/sentences
+L31: 	•	Quotes
+L32: 	•	key = normalized quote text (trim, normalize quotes, collapse spaces)
+L33: 	•	if speakers differ, keep speaker=null and store candidates in speaker_candidates[]
+L34: 	•	Metrics
+L35: 	•	key = normalized_number + unit + sentence_index (or sentence hash)
+L36: 	•	Timeline
+L37: 	•	key = raw_date_text + sentence_index (timeline is sentence-coupled)
+L38: 
+L39: Expose “collapsed duplicates: N” in stats.
+L40: 
+L41: ⸻
+L42: 
+L43: 3) Strengthen all-caps headline defense (fixture-driven)
+L44: 
+L45: Your advanced fixture includes all-caps; that’s good. The usual heuristic failure is:
+L46: 	•	THIS IS A HEADLINE produces 10 fake ORGs
+L47: 
+L48: Rule:
+L49: 	•	If a line (or sentence) has caps ratio > 0.7 and no lowercase tokens, treat it as “headline-like”
+L50: 	•	Conservative/Balanced: do not emit entities from that segment unless they match a strong ORG suffix (INC, LLC) or are repeated later in normal case
+L51: 	•	Broad: allow but down-rank confidence
+L52: 
+L53: This one rule will buy you a lot of credibility.
+L54: 
+L55: ⸻
+L56: 
+L57: 4) Quotes: prevent “speaker overreach”
+L58: 
+L59: Your current approach is correct (speaker only if nearby verb + entity). The upgrade is to prevent false matches.
+L60: 
+L61: Add:
+L62: 	•	Attribution verb must be within ±120 chars AND within the same sentence (or adjacent sentence) as the quote boundary.
+L63: 	•	If multiple candidates match, do not choose—set speaker=null, store candidates.
+L64: 
+L65: This keeps Extract from turning into an implicit interpreter.
+L66: 
+L67: ⸻
+L68: 
+L69: 5) Metrics: tighten normalization and store raw components
+L70: 
+L71: Normalization is useful, but debugging is impossible without the parse trace.
+L72: 
+L73: For each metric store:
+L74: 	•	raw_value_text (exact substring)
+L75: 	•	parsed_number
+L76: 	•	scale (1, 1e3, 1e6, 1e9)
+L77: 	•	unit
+L78: 	•	normalized_number = parsed_number * scale
+L79: 	•	parse_notes (e.g., “comma-stripped”, “billion-word-scale”)
+L80: 
+L81: Mode gating:
+L82: 	•	Conservative: require explicit unit/currency/% symbol
+L83: 	•	Balanced: allow magnitude words
+L84: 	•	Broad: allow approximate qualifiers (“about”, “roughly”) but preserve them in qualifier
+L85: 
+L86: ⸻
+L87: 
+L88: Test harness: make it executable and scoring-based
+L89: 
+L90: Fixtures are necessary but not sufficient. Right now you need a single command that yields a clear go/no-go.
+L91: 
+L92: Add npm run extract:test
+L93: 
+L94: It should:
+L95: 	1.	Load each fixture
+L96: 	2.	Run engine in all three modes
+L97: 	3.	Validate provenance (hard fail)
+L98: 	4.	Output a report per stream:
+L99: 
+L100: 	•	emitted count
+L101: 	•	duplicates collapsed
+L102: 	•	invalid dropped
+L103: 	•	(later) precision/recall once you create expected outputs
+L104: 
+L105: Even without gold labels, provenance + determinism + duplicate control are immediate quality gates.
+L106: 
+L107: Add determinism check
+L108: 
+L109: Run the same fixture 5 times; assert identical JSON output (after key-sorting). Hard fail if drift occurs.
+L110: 
+L111: ⸻
+L112: 
+L113: UI: one addition only (do not overbuild)
+L114: 
+L115: Add a small “Engine Stats” panel showing:
+L116: 	•	engine version
+L117: 	•	items emitted per stream
+L118: 	•	duplicates collapsed
+L119: 	•	invalid provenance dropped
+L120: 	•	headline segments suppressed
+L121: 
+L122: This makes tuning transparent without adding new UX complexity.
+L123: 
+L124: ⸻
+L125: 
+L126: Persistence: still PARK
+L127: 
+L128: You are not yet at the point where storage helps more than it hurts. Once:
+L129: 	•	provenance validator is green
+L130: 	•	dedupe is in
+L131: 	•	tests run in one command
+L132: 
+L133: …then you can add minimal SQLite pack storage as a contained enhancement.
+L134: 
+L135: ⸻
+L136: 
+L137: Primary failure mode to keep watching
+L138: 
+L139: If you ever find yourself thinking:
+L140: 
+L141: “We could just guess the speaker/date/unit…”
+L142: 
+L143: stop. That is the exact boundary where Extract becomes untrustworthy.
+L144: 
+L145: ⸻
+L146: 
+L147: Classification: PROCEED.
+
+--- FILE: client/src/pages/incident-report.tsx ---
+L1: import { useState, useEffect } from "react";
+L2: import { useLocation, useRoute } from "wouter";
+L3: import { Button } from "@/components/ui/button";
+L4: import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+L5: import { Input } from "@/components/ui/input";
+L6: import { Label } from "@/components/ui/label";
+L7: import { Textarea } from "@/components/ui/textarea";
+L8: import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+L9: import { Switch } from "@/components/ui/switch";
+L10: import { Badge } from "@/components/ui/badge";
+L11: import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+L12: import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+L13: import { 
+L14:   FileText, 
+L15:   AlertTriangle, 
+L16:   CheckCircle, 
+L17:   Lock, 
+L18:   Plus, 
+L19:   Trash2, 
+L20:   Download, 
+L21:   Shield,
+L22:   Clock,
+L23:   FileWarning,
+L24:   Hash
+L25: } from "lucide-react";
+L26: import { useAuth } from "@/lib/auth";
+L27: 
+L28: interface EvidenceInput {
+L29:   description: string;
+L30:   source_type: string;
+L31:   time_anchor: string;
+L32:   confidence: "high" | "medium" | "low";
+L33: }
+L34: 
+L35: interface TimelineInput {
+L36:   timestamp: string;
+L37:   event_label: string;
+L38:   what_happened: string;
+L39:   source_refs: string[];
+L40:   verification_status: "verified" | "partial" | "disputed";
+L41: }
+L42: 
+L43: interface ActionItemInput {
+L44:   description: string;
+L45:   owner_role: string;
+L46:   due_date?: string;
+L47:   verification_method?: string;
+L48: }
+L49: 
+L50: interface RefusalEntry {
+L51:   reason_code: string;
+L52:   attempted_content: string;
+L53:   allowed_rewrite: string | null;
+L54:   disposition: string;
+L55: }
+L56: 
+L57: interface GeneratedReport {
+L58:   case_id: string;
+L59:   status: string;
+L60:   decision_under_review: {
+L61:     decision_point: string;
+L62:     window_start: string;
+L63:     window_end: string;
+L64:     decision_maker_role: string;
+L65:     setting?: string;
+L66:   };
+L67:   finalization: {
+L68:     immutable_state: string;
+L69:     artifact_hash: string | null;
+L70:   };
+L71:   refusal_log: RefusalEntry[];
+L72: }
+L73: 
+L74: const STATUS_COLORS: Record<string, string> = {
+L75:   ADMISSIBLE: "bg-green-500",
+L76:   REJECTED: "bg-red-500",
+L77:   SCRAPBOOKED: "bg-yellow-500",
+L78:   PENDING_TIME: "bg-orange-500",
+L79:   QUARANTINED: "bg-purple-500",
+L80:   DISPUTED: "bg-blue-500"
+L81: };
+L82: 
+L83: export default function IncidentReportPage() {
+L84:   const { apiKey } = useAuth();
+L85:   const [, navigate] = useLocation();
+L86:   const [match, params] = useRoute("/incident-report/:reportId");
+L87:   
+L88:   const [activeTab, setActiveTab] = useState("create");
+L89:   const [loading, setLoading] = useState(false);
+L90:   const [error, setError] = useState<string | null>(null);
+L91:   const [success, setSuccess] = useState<string | null>(null);
+L92:   
+L93:   const [formData, setFormData] = useState({
+L94:     organization: "",
+L95:     scope_variant: "SCOPE_V1" as "SCOPE_V1" | "SCOPE_V2" | "SCOPE_V3",
+L96:     decision_point: "",
+L97:     window_start: "",
+L98:     window_end: "",
+L99:     decision_maker_role: "",
+L100:     setting: "",
+L101:     narrative_input: ""
+L102:   });
+L103:   
+L104:   const [constraints, setConstraints] = useState({
+L105:     time_pressure: false,
+L106:     competing_demands: false,
+L107:     resource_limits: false,
+L108:     guideline_ambiguity: false,
+L109:     handoffs_fragmentation: false,
+L110:     irreversibility: false,
+L111:     signal_quality_limits: false
+L112:   });
+L113:   
+L114:   const [admittedEvidence, setAdmittedEvidence] = useState<EvidenceInput[]>([]);
+L115:   const [missingPending, setMissingPending] = useState<EvidenceInput[]>([]);
+L116:   const [excludedOutcome, setExcludedOutcome] = useState<EvidenceInput[]>([]);
+L117:   const [timelineEvents, setTimelineEvents] = useState<TimelineInput[]>([]);
+L118:   const [actionItems, setActionItems] = useState<ActionItemInput[]>([]);
+L119:   const [improvementNotes, setImprovementNotes] = useState<string[]>([]);
+L120:   
+L121:   const [generatedReport, setGeneratedReport] = useState<GeneratedReport | null>(null);
+L122:   const [reportId, setReportId] = useState<string | null>(null);
+L123:   const [markdown, setMarkdown] = useState<string | null>(null);
+L124:   const [refusals, setRefusals] = useState<any[]>([]);
+L125:   
+L126:   const [reports, setReports] = useState<any[]>([]);
+L127:   
+L128:   useEffect(() => {
+L129:     if (activeTab === "list") {
+L130:       fetchReports();
+L131:     }
+L132:   }, [activeTab]);
+L133:   
+L134:   useEffect(() => {
+L135:     if (match && params?.reportId) {
+L136:       fetchReport(params.reportId);
+L137:       setActiveTab("view");
+L138:     }
+L139:   }, [match, params?.reportId]);
+L140:   
+L141:   const fetchReports = async () => {
+L142:     try {
+L143:       const res = await fetch("/api/reports", {
+L144:         headers: apiKey ? { Authorization: `Bearer ${apiKey}` } : {}
+L145:       });
+L146:       if (res.ok) {
+L147:         const data = await res.json();
+L148:         setReports(data.reports || []);
+L149:       }
+L150:     } catch (err) {
+L151:       console.error("Failed to fetch reports:", err);
+L152:     }
+L153:   };
+L154:   
+L155:   const fetchReport = async (id: string) => {
+L156:     try {
+L157:       const res = await fetch(`/api/report/${id}`, {
+L158:         headers: apiKey ? { Authorization: `Bearer ${apiKey}` } : {}
+L159:       });
+L160:       if (res.ok) {
+L161:         const data = await res.json();
+L162:         setGeneratedReport(data.report);
+L163:         setMarkdown(data.markdown);
+L164:         setReportId(id);
+L165:       }
+L166:     } catch (err) {
+L167:       console.error("Failed to fetch report:", err);
+L168:     }
+L169:   };
+L170:   
+L171:   const handleGenerate = async () => {
+L172:     setLoading(true);
+L173:     setError(null);
+L174:     setSuccess(null);
+L175:     
+L176:     try {
+L177:       const payload = {
+L178:         ...formData,
+L179:         environment: "demo" as const,
+L180:         constraints,
+L181:         admitted_evidence: admittedEvidence,
+L182:         missing_pending: missingPending,
+L183:         excluded_outcome_info: excludedOutcome,
+L184:         timeline_events: timelineEvents,
+L185:         action_items: actionItems,
+L186:         improvement_notes: improvementNotes
+L187:       };
+L188:       
+L189:       const res = await fetch("/api/report/generate", {
+L190:         method: "POST",
+L191:         headers: {
+L192:           "Content-Type": "application/json",
+L193:           ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {})
+L194:         },
+L195:         body: JSON.stringify(payload)
+L196:       });
+L197:       
+L198:       const data = await res.json();
+L199:       
+L200:       if (data.success) {
+L201:         setGeneratedReport(data.report);
+L202:         setReportId(data.report_id);
+L203:         setMarkdown(data.markdown);
+L204:         setRefusals(data.refusals || []);
+L205:         setSuccess(`Report generated successfully. Status: ${data.report.status}`);
+L206:         setActiveTab("view");
+L207:       } else {
+L208:         setError(data.errors?.join(", ") || "Failed to generate report");
+L209:         if (data.report) {
+L210:           setGeneratedReport(data.report);
+L211:           setRefusals(data.refusals || []);
+L212:         }
+L213:       }
+L214:     } catch (err: any) {
+L215:       setError(err.message || "Failed to generate report");
+L216:     } finally {
+L217:       setLoading(false);
+L218:     }
+L219:   };
+L220:   
+L221:   const handleFinalize = async () => {
+L222:     if (!reportId) return;
+L223:     
+L224:     setLoading(true);
+L225:     setError(null);
+L226:     
+L227:     try {
+L228:       const res = await fetch(`/api/report/${reportId}/finalize`, {
+L229:         method: "POST",
+L230:         headers: {
+L231:           "Content-Type": "application/json",
+L232:           ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {})
+L233:         }
+L234:       });
+L235:       
+L236:       const data = await res.json();
+L237:       
+L238:       if (data.success) {
+L239:         setGeneratedReport(data.report);
+L240:         setSuccess(`Report finalized. Hash: ${data.artifact_hash.slice(0, 16)}...`);
+L241:       } else {
+L242:         setError(data.message || "Failed to finalize report");
+L243:       }
+L244:     } catch (err: any) {
+L245:       setError(err.message || "Failed to finalize report");
+L246:     } finally {
+L247:       setLoading(false);
+L248:     }
+L249:   };
+L250:   
+L251:   const addEvidenceItem = (type: "admitted" | "missing" | "excluded") => {
+L252:     const newItem: EvidenceInput = {
+L253:       description: "",
+L254:       source_type: "",
+L255:       time_anchor: "",
+L256:       confidence: "medium"
+L257:     };
+L258:     
+L259:     if (type === "admitted") {
+L260:       setAdmittedEvidence([...admittedEvidence, newItem]);
+L261:     } else if (type === "missing") {
+L262:       setMissingPending([...missingPending, newItem]);
+L263:     } else {
+L264:       setExcludedOutcome([...excludedOutcome, newItem]);
+L265:     }
+L266:   };
+L267:   
+L268:   const updateEvidenceItem = (
+L269:     type: "admitted" | "missing" | "excluded",
+L270:     index: number,
+L271:     field: keyof EvidenceInput,
+L272:     value: string
+L273:   ) => {
+L274:     const update = (items: EvidenceInput[]) => {
+L275:       const updated = [...items];
+L276:       updated[index] = { ...updated[index], [field]: value };
+L277:       return updated;
+L278:     };
+L279:     
+L280:     if (type === "admitted") {
+L281:       setAdmittedEvidence(update(admittedEvidence));
+L282:     } else if (type === "missing") {
+L283:       setMissingPending(update(missingPending));
+L284:     } else {
+L285:       setExcludedOutcome(update(excludedOutcome));
+L286:     }
+L287:   };
+L288:   
+L289:   const removeEvidenceItem = (type: "admitted" | "missing" | "excluded", index: number) => {
+L290:     if (type === "admitted") {
+L291:       setAdmittedEvidence(admittedEvidence.filter((_, i) => i !== index));
+L292:     } else if (type === "missing") {
+L293:       setMissingPending(missingPending.filter((_, i) => i !== index));
+L294:     } else {
+L295:       setExcludedOutcome(excludedOutcome.filter((_, i) => i !== index));
+L296:     }
+L297:   };
+L298:   
+L299:   const addTimelineEvent = () => {
+L300:     setTimelineEvents([...timelineEvents, {
+L301:       timestamp: "",
+L302:       event_label: "",
+L303:       what_happened: "",
+L304:       source_refs: [],
+L305:       verification_status: "partial"
+L306:     }]);
+L307:   };
+L308:   
+L309:   const updateTimelineEvent = (index: number, field: keyof TimelineInput, value: any) => {
+L310:     const updated = [...timelineEvents];
+L311:     updated[index] = { ...updated[index], [field]: value };
+L312:     setTimelineEvents(updated);
+L313:   };
+L314:   
+L315:   const removeTimelineEvent = (index: number) => {
+L316:     setTimelineEvents(timelineEvents.filter((_, i) => i !== index));
+L317:   };
+L318:   
+L319:   const addActionItem = () => {
+L320:     setActionItems([...actionItems, {
+L321:       description: "",
+L322:       owner_role: "",
+L323:       due_date: "",
+L324:       verification_method: ""
+L325:     }]);
+L326:   };
+L327:   
+L328:   const renderEvidenceSection = (
+L329:     title: string,
+L330:     type: "admitted" | "missing" | "excluded",
+L331:     items: EvidenceInput[]
+L332:   ) => (
+L333:     <div className="space-y-4">
+L334:       <div className="flex justify-between items-center">
+L335:         <Label className="text-base font-medium">{title}</Label>
+L336:         <Button 
+L337:           type="button" 
+L338:           variant="outline" 
+L339:           size="sm"
+L340:           onClick={() => addEvidenceItem(type)}
+L341:           data-testid={`btn-add-${type}-evidence`}
+L342:         >
+L343:           <Plus className="w-4 h-4 mr-1" /> Add
+L344:         </Button>
+L345:       </div>
+L346:       
+L347:       {items.map((item, index) => (
+L348:         <div key={index} className="p-3 border rounded-lg space-y-2 bg-muted/30">
+L349:           <div className="flex justify-end">
+L350:             <Button
+L351:               type="button"
+L352:               variant="ghost"
+L353:               size="sm"
+L354:               onClick={() => removeEvidenceItem(type, index)}
+L355:               data-testid={`btn-remove-${type}-${index}`}
+L356:             >
+L357:               <Trash2 className="w-4 h-4 text-destructive" />
+L358:             </Button>
+L359:           </div>
+L360:           <Input
+L361:             placeholder="Description"
+L362:             value={item.description}
+L363:             onChange={(e) => updateEvidenceItem(type, index, "description", e.target.value)}
+L364:             data-testid={`input-${type}-description-${index}`}
+L365:           />
+L366:           <div className="grid grid-cols-2 gap-2">
+L367:             <Input
+L368:               placeholder="Source type (e.g., EHR note)"
+L369:               value={item.source_type}
+L370:               onChange={(e) => updateEvidenceItem(type, index, "source_type", e.target.value)}
+L371:               data-testid={`input-${type}-source-${index}`}
+L372:             />
+L373:             <Input
+L374:               placeholder="Time anchor"
+L375:               value={item.time_anchor}
+L376:               onChange={(e) => updateEvidenceItem(type, index, "time_anchor", e.target.value)}
+L377:               data-testid={`input-${type}-time-${index}`}
+L378:             />
+L379:           </div>
+L380:           {type === "admitted" && (
+L381:             <Select
+L382:               value={item.confidence}
+L383:               onValueChange={(v) => updateEvidenceItem(type, index, "confidence", v)}
+L384:             >
+L385:               <SelectTrigger data-testid={`select-${type}-confidence-${index}`}>
+L386:                 <SelectValue placeholder="Confidence level" />
+L387:               </SelectTrigger>
+L388:               <SelectContent>
+L389:                 <SelectItem value="high">High</SelectItem>
+L390:                 <SelectItem value="medium">Medium</SelectItem>
+L391:                 <SelectItem value="low">Low</SelectItem>
+L392:               </SelectContent>
+L393:             </Select>
+L394:           )}
+L395:         </div>
+L396:       ))}
+L397:     </div>
+L398:   );
+L399:   
+L400:   return (
+L401:     <div className="container max-w-6xl mx-auto py-8 px-4">
+L402:       <div className="mb-8">
+L403:         <h1 className="text-3xl font-bold mb-2">Incident Report Generator</h1>
+L404:         <p className="text-muted-foreground">
+L405:           Generate decision-time anchored, non-punitive post-incident review records
+L406:         </p>
+L407:       </div>
+L408:       
+L409:       {error && (
+L410:         <Alert variant="destructive" className="mb-6">
+L411:           <AlertTriangle className="h-4 w-4" />
+L412:           <AlertTitle>Error</AlertTitle>
+L413:           <AlertDescription>{error}</AlertDescription>
+L414:         </Alert>
+L415:       )}
+L416:       
+L417:       {success && (
+L418:         <Alert className="mb-6 border-green-500 bg-green-50 dark:bg-green-900/20">
+L419:           <CheckCircle className="h-4 w-4 text-green-500" />
+L420:           <AlertTitle>Success</AlertTitle>
+L421:           <AlertDescription>{success}</AlertDescription>
+L422:         </Alert>
+L423:       )}
+L424:       
+L425:       <Tabs value={activeTab} onValueChange={setActiveTab}>
+L426:         <TabsList className="mb-6">
+L427:           <TabsTrigger value="create" data-testid="tab-create">Create Report</TabsTrigger>
+L428:           <TabsTrigger value="view" data-testid="tab-view">View Report</TabsTrigger>
+L429:           <TabsTrigger value="list" data-testid="tab-list">All Reports</TabsTrigger>
+L430:         </TabsList>
+L431:         
+L432:         <TabsContent value="create">
+L433:           <div className="grid gap-6">
+L434:             <Card>
+L435:               <CardHeader>
+L436:                 <CardTitle className="flex items-center gap-2">
+L437:                   <FileText className="w-5 h-5" />
+L438:                   Decision Under Review
+L439:                 </CardTitle>
+L440:                 <CardDescription>
+L441:                   Define the specific decision point being reviewed
+L442:                 </CardDescription>
+L443:               </CardHeader>
+L444:               <CardContent className="space-y-4">
+L445:                 <div className="grid gap-4 md:grid-cols-2">
+L446:                   <div className="space-y-2">
+L447:                     <Label>Decision Point *</Label>
+L448:                     <Input
+L449:                       placeholder="e.g., Discharge from ED after imaging"
+L450:                       value={formData.decision_point}
+L451:                       onChange={(e) => setFormData({ ...formData, decision_point: e.target.value })}
+L452:                       data-testid="input-decision-point"
+L453:                     />
+L454:                   </div>
+L455:                   <div className="space-y-2">
+L456:                     <Label>Decision Maker Role *</Label>
+L457:                     <Input
+L458:                       placeholder="e.g., ED Attending"
+L459:                       value={formData.decision_maker_role}
+L460:                       onChange={(e) => setFormData({ ...formData, decision_maker_role: e.target.value })}
+L461:                       data-testid="input-decision-maker"
+L462:                     />
+L463:                   </div>
+L464:                 </div>
+L465:                 
+L466:                 <div className="grid gap-4 md:grid-cols-2">
+L467:                   <div className="space-y-2">
+L468:                     <Label>Window Start *</Label>
+L469:                     <Input
+L470:                       placeholder="e.g., 2024-01-15T14:30:00"
+L471:                       value={formData.window_start}
+L472:                       onChange={(e) => setFormData({ ...formData, window_start: e.target.value })}
+L473:                       data-testid="input-window-start"
+L474:                     />
+L475:                   </div>
+L476:                   <div className="space-y-2">
+L477:                     <Label>Window End *</Label>
+L478:                     <Input
+L479:                       placeholder="e.g., 2024-01-15T16:00:00"
+L480:                       value={formData.window_end}
+L481:                       onChange={(e) => setFormData({ ...formData, window_end: e.target.value })}
+L482:                       data-testid="input-window-end"
+L483:                     />
+L484:                   </div>
+L485:                 </div>
+L486:                 
+L487:                 <div className="grid gap-4 md:grid-cols-2">
+L488:                   <div className="space-y-2">
+L489:                     <Label>Organization</Label>
+L490:                     <Input
+L491:                       placeholder="Optional"
+L492:                       value={formData.organization}
+L493:                       onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
+L494:                       data-testid="input-organization"
+L495:                     />
+L496:                   </div>
+L497:                   <div className="space-y-2">
+L498:                     <Label>Setting</Label>
+L499:                     <Input
+L500:                       placeholder="e.g., Emergency Department"
+
+--- FILE: server/incidentReportGenerator.ts ---
+L1: import { createHash } from "crypto";
+L2: import {
+L3:   IncidentReport,
+L4:   IncidentReportSchema,
+L5:   GenerateReportInput,
+L6:   GenerateReportResult,
+L7:   RefusalResult,
+L8:   ReportStatus,
+L9:   EvidenceItem,
+L10:   TimelineEvent,
+L11:   RefusalLogEntry,
+L12:   ActionItem,
+L13:   GovernanceConstraint,
+L14:   ImprovementOpportunity,
+L15:   PROHIBITED_TERMS,
+L16:   SCOPE_LIMITS_VARIANTS,
+L17:   DISALLOWED_CLAIMS,
+L18:   REASON_CODES,
+L19: } from "../shared/incidentReport";
+L20: 
+L21: function generateId(prefix: string): string {
+L22:   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+L23: }
+L24: 
+L25: function deepSortKeys(obj: unknown): unknown {
+L26:   if (obj === null || typeof obj !== 'object') {
+L27:     return obj;
+L28:   }
+L29:   
+L30:   if (Array.isArray(obj)) {
+L31:     return obj.map(deepSortKeys);
+L32:   }
+L33:   
+L34:   const sortedKeys = Object.keys(obj as object).sort();
+L35:   const result: Record<string, unknown> = {};
+L36:   for (const key of sortedKeys) {
+L37:     result[key] = deepSortKeys((obj as Record<string, unknown>)[key]);
+L38:   }
+L39:   return result;
+L40: }
+L41: 
+L42: function canonicalJson(obj: unknown): string {
+L43:   const sorted = deepSortKeys(obj);
+L44:   return JSON.stringify(sorted);
+L45: }
+L46: 
+L47: function computeHash(content: string): string {
+L48:   return createHash("sha256").update(content).digest("hex");
+L49: }
+L50: 
+L51: function detectProhibitedTerms(text: string): string[] {
+L52:   const lower = text.toLowerCase();
+L53:   return PROHIBITED_TERMS.filter(term => lower.includes(term.toLowerCase()));
+L54: }
+L55: 
+L56: function scanForEvaluativeLanguage(text: string): RefusalResult | null {
+L57:   const prohibited = detectProhibitedTerms(text);
+L58:   if (prohibited.length > 0) {
+L59:     return {
+L60:       status: "refused",
+L61:       reason_code: REASON_CODES.R003.code,
+L62:       what_happened: `Evaluative language detected: "${prohibited.join('", "')}"`,
+L63:       why_it_matters: "Evaluative terms introduce hindsight bias and may expose the organization to liability.",
+L64:       how_to_proceed: "Rewrite using neutral, observable language only.",
+L65:       original_content: text
+L66:     };
+L67:   }
+L68:   return null;
+L69: }
+L70: 
+L71: const OUTCOME_PATTERNS = [
+L72:   /patient (died|expired|passed away)/i,
+L73:   /resulted in/i,
+L74:   /led to (harm|injury|death)/i,
+L75:   /adverse outcome/i,
+L76:   /in retrospect/i,
+L77:   /looking back/i,
+L78:   /if only/i,
+L79:   /we now know/i,
+L80:   /after the fact/i,
+L81:   /subsequent (deterioration|decline)/i,
+L82:   /ultimately/i,
+L83:   /turned out/i
+L84: ];
+L85: 
+L86: function scanForOutcomeKnowledge(text: string): RefusalResult | null {
+L87:   for (const pattern of OUTCOME_PATTERNS) {
+L88:     if (pattern.test(text)) {
+L89:       return {
+L90:         status: "quarantined",
+L91:         reason_code: REASON_CODES.R004.code,
+L92:         what_happened: "Outcome knowledge contamination detected in decision-time context.",
+L93:         why_it_matters: "Outcome-derived information cannot appear in sections evaluating decision-time conditions.",
+L94:         how_to_proceed: "Move this information to the System Learning section or exclude entirely.",
+L95:         original_content: text
+L96:       };
+L97:     }
+L98:   }
+L99:   return null;
+L100: }
+L101: 
+L102: function hasOutcomeKnowledge(text: string): boolean {
+L103:   for (const pattern of OUTCOME_PATTERNS) {
+L104:     if (pattern.test(text)) {
+L105:       return true;
+L106:     }
+L107:   }
+L108:   return false;
+L109: }
+L110: 
+L111: function sanitizeDecisionTimeContent(text: string, refusals: RefusalResult[]): { sanitized: string; quarantined: boolean } {
+L112:   const prohibited = detectProhibitedTerms(text);
+L113:   const hasOutcome = hasOutcomeKnowledge(text);
+L114:   
+L115:   if (prohibited.length > 0) {
+L116:     refusals.push({
+L117:       status: "rewritten",
+L118:       reason_code: REASON_CODES.R003.code,
+L119:       what_happened: `Evaluative language detected: "${prohibited.join('", "')}"`,
+L120:       why_it_matters: "Evaluative terms introduce hindsight bias.",
+L121:       how_to_proceed: "Content has been redacted.",
+L122:       original_content: text
+L123:     });
+L124:     
+L125:     let sanitized = text;
+L126:     for (const term of prohibited) {
+L127:       const regex = new RegExp(term, "gi");
+L128:       sanitized = sanitized.replace(regex, "[REDACTED]");
+L129:     }
+L130:     return { sanitized, quarantined: hasOutcome };
+L131:   }
+L132:   
+L133:   if (hasOutcome) {
+L134:     refusals.push({
+L135:       status: "quarantined",
+L136:       reason_code: REASON_CODES.R004.code,
+L137:       what_happened: "Outcome knowledge contamination detected.",
+L138:       why_it_matters: "Outcome-derived information cannot appear in decision-time sections.",
+L139:       how_to_proceed: "Content has been quarantined.",
+L140:       original_content: text
+L141:     });
+L142:     return { sanitized: "[OUTCOME CONTENT QUARANTINED]", quarantined: true };
+L143:   }
+L144:   
+L145:   return { sanitized: text, quarantined: false };
+L146: }
+L147: 
+L148: function sanitizeText(text: string, refusals: RefusalResult[]): string {
+L149:   const evalCheck = scanForEvaluativeLanguage(text);
+L150:   if (evalCheck) {
+L151:     refusals.push(evalCheck);
+L152:   }
+L153:   
+L154:   const prohibited = detectProhibitedTerms(text);
+L155:   if (prohibited.length > 0) {
+L156:     let sanitized = text;
+L157:     for (const term of prohibited) {
+L158:       const regex = new RegExp(term, "gi");
+L159:       sanitized = sanitized.replace(regex, "[REDACTED]");
+L160:     }
+L161:     return sanitized;
+L162:   }
+L163:   return text;
+L164: }
+L165: 
+L166: function enforceProhibitedContentRemoval(report: IncidentReport): IncidentReport {
+L167:   const checkAndRedact = (text: string): string => {
+L168:     const prohibited = detectProhibitedTerms(text);
+L169:     if (prohibited.length === 0) return text;
+L170:     
+L171:     let result = text;
+L172:     for (const term of prohibited) {
+L173:       const regex = new RegExp(term, "gi");
+L174:       result = result.replace(regex, "[REDACTED]");
+L175:     }
+L176:     return result;
+L177:   };
+L178:   
+L179:   return {
+L180:     ...report,
+L181:     decision_under_review: {
+L182:       ...report.decision_under_review,
+L183:       decision_point: checkAndRedact(report.decision_under_review.decision_point),
+L184:       setting: report.decision_under_review.setting ? checkAndRedact(report.decision_under_review.setting) : undefined
+L185:     },
+L186:     evidence_snapshot: {
+L187:       admitted: report.evidence_snapshot.admitted.map(e => ({
+L188:         ...e,
+L189:         description: checkAndRedact(e.description)
+L190:       })),
+L191:       missing_or_pending: report.evidence_snapshot.missing_or_pending.map(e => ({
+L192:         ...e,
+L193:         description: checkAndRedact(e.description)
+L194:       })),
+L195:       excluded_outcome_info: report.evidence_snapshot.excluded_outcome_info.map(e => ({
+L196:         ...e,
+L197:         description: checkAndRedact(e.description)
+L198:       }))
+L199:     },
+L200:     timeline: report.timeline.map(t => ({
+L201:       ...t,
+L202:       event_label: checkAndRedact(t.event_label),
+L203:       what_happened: checkAndRedact(t.what_happened)
+L204:     })),
+L205:     claim_boundaries: {
+L206:       ...report.claim_boundaries,
+L207:       permitted_statements: report.claim_boundaries.permitted_statements.map(checkAndRedact)
+L208:     },
+L209:     governance_output: {
+L210:       ...report.governance_output,
+L211:       constraints: report.governance_output.constraints.map(c => ({
+L212:         ...c,
+L213:         statement: checkAndRedact(c.statement)
+L214:       }))
+L215:     },
+L216:     system_learning: {
+L217:       ...report.system_learning,
+L218:       notes: report.system_learning.notes.map(checkAndRedact),
+L219:       improvement_opportunities: report.system_learning.improvement_opportunities.map(o => ({
+L220:         ...o,
+L221:         description: checkAndRedact(o.description)
+L222:       })),
+L223:       candidate_mitigations: report.system_learning.candidate_mitigations.map(checkAndRedact)
+L224:     },
+L225:     action_items: report.action_items.map(a => ({
+L226:       ...a,
+L227:       description: checkAndRedact(a.description)
+L228:     }))
+L229:   };
+L230: }
+L231: 
+L232: function validateDecisionTarget(input: GenerateReportInput): RefusalResult | null {
+L233:   if (!input.decision_point || input.decision_point.trim() === "") {
+L234:     return {
+L235:       status: "refused",
+L236:       reason_code: REASON_CODES.P003.code,
+L237:       what_happened: "Decision target is undefined or empty.",
+L238:       why_it_matters: "A report cannot be generated without a clearly defined decision point.",
+L239:       how_to_proceed: "Provide a specific decision point (e.g., 'Discharge from ED after imaging')."
+L240:     };
+L241:   }
+L242:   return null;
+L243: }
+L244: 
+L245: function validateTimelineOrdering(events: TimelineEvent[]): { valid: boolean; disputed: string[] } {
+L246:   const disputed: string[] = [];
+L247:   
+L248:   for (let i = 1; i < events.length; i++) {
+L249:     const prev = events[i - 1];
+L250:     const curr = events[i];
+L251:     
+L252:     if (prev.verification_status === "disputed" || curr.verification_status === "disputed") {
+L253:       disputed.push(`Timeline ordering disputed between "${prev.event_label}" and "${curr.event_label}"`);
+L254:     }
+L255:   }
+L256:   
+L257:   return { valid: disputed.length === 0, disputed };
+L258: }
+L259: 
+L260: function generatePermittedStatements(evidence: EvidenceItem[]): string[] {
+L261:   const statements: string[] = [];
+L262:   
+L263:   for (const item of evidence) {
+L264:     if (item.confidence === "high") {
+L265:       statements.push(`The record supports that ${item.description} was documented at ${item.time_anchor}.`);
+L266:     } else if (item.confidence === "medium") {
+L267:       statements.push(`The record indicates that ${item.description} was available at ${item.time_anchor}, with partial verification.`);
+L268:     }
+L269:   }
+L270:   
+L271:   return statements;
+L272: }
+L273: 
+L274: function generateGovernanceConstraints(
+L275:   constraints: GenerateReportInput["constraints"],
+L276:   evidenceRefs: string[]
+L277: ): GovernanceConstraint[] {
+L278:   const result: GovernanceConstraint[] = [];
+L279:   
+L280:   if (constraints.time_pressure) {
+L281:     result.push({
+L282:       constraint_id: generateId("GC"),
+L283:       statement: "Certainty regarding foreseeability is limited given documented time pressure constraints.",
+L284:       evidence_refs: evidenceRefs.filter(r => r.includes("time"))
+L285:     });
+L286:   }
+L287:   
+L288:   if (constraints.resource_limits) {
+L289:     result.push({
+L290:       constraint_id: generateId("GC"),
+L291:       statement: "Resource availability at decision time limits claims about alternative actions.",
+L292:       evidence_refs: evidenceRefs
+L293:     });
+L294:   }
+L295:   
+L296:   if (constraints.signal_quality_limits) {
+L297:     result.push({
+L298:       constraint_id: generateId("GC"),
+L299:       statement: "Signal quality limitations at decision time constrain retrospective evaluation.",
+L300:       evidence_refs: evidenceRefs
+L301:     });
+L302:   }
+L303:   
+L304:   if (constraints.guideline_ambiguity) {
+L305:     result.push({
+L306:       constraint_id: generateId("GC"),
+L307:       statement: "Guideline ambiguity at decision time precludes claims of protocol deviation.",
+L308:       evidence_refs: evidenceRefs
+L309:     });
+L310:   }
+L311:   
+L312:   result.push({
+L313:     constraint_id: generateId("GC"),
+L314:     statement: "This review does not establish negligence, intent, or standard-of-care compliance.",
+L315:     evidence_refs: []
+L316:   });
+L317:   
+L318:   return result;
+L319: }
+L320: 
+L321: export function generateIncidentReport(input: GenerateReportInput): GenerateReportResult {
+L322:   const refusals: RefusalResult[] = [];
+L323:   const errors: string[] = [];
+L324:   
+L325:   const decisionCheck = validateDecisionTarget(input);
+L326:   if (decisionCheck) {
+L327:     refusals.push(decisionCheck);
+L328:     
+L329:     const rejectedReport: IncidentReport = {
+L330:       report_version: "report_v1",
+L331:       case_id: input.case_id || generateId("CASE"),
+L332:       organization: input.organization,
+L333:       generated_at: new Date().toISOString(),
+L334:       environment: input.environment,
+L335:       status: "REJECTED",
+L336:       authoring_mode: "system_generated",
+L337:       data_sources: [],
+L338:       scope_limits_block_id: input.scope_variant,
+L339:       decision_under_review: {
+L340:         decision_point: "",
+L341:         window_start: input.window_start,
+L342:         window_end: input.window_end,
+L343:         decision_maker_role: input.decision_maker_role,
+L344:         setting: input.setting
+L345:       },
+L346:       evidence_snapshot: { admitted: [], missing_or_pending: [], excluded_outcome_info: [] },
+L347:       constraints: {
+L348:         time_pressure: false,
+L349:         competing_demands: false,
+L350:         resource_limits: false,
+L351:         guideline_ambiguity: false,
+L352:         handoffs_fragmentation: false,
+L353:         irreversibility: false,
+L354:         signal_quality_limits: false,
+L355:         constraint_evidence_refs: []
+L356:       },
+L357:       timeline: [],
+L358:       claim_boundaries: { permitted_statements: [], disallowed_claims: DISALLOWED_CLAIMS },
+L359:       governance_output: { authority_tier: "advisory_only", constraints: [] },
+L360:       system_learning: { notes: [], improvement_opportunities: [], candidate_mitigations: [] },
+L361:       action_items: [],
+L362:       refusal_log: [{
+L363:         reason_code: REASON_CODES.P003.code,
+L364:         attempted_content: "Report generation",
+L365:         allowed_rewrite: null,
+L366:         disposition: "rejected"
+L367:       }],
+L368:       finalization: { immutable_state: "draft", artifact_hash: null, previous_hash: null, signature: null }
+L369:     };
+L370:     
+L371:     return {
+L372:       success: false,
+L373:       report: rejectedReport,
+L374:       markdown: generateMarkdown(rejectedReport),
+L375:       refusals,
+L376:       errors: ["Decision target undefined"]
+L377:     };
+L378:   }
+L379:   
+L380:   const caseId = input.case_id || generateId("CASE");
+L381:   const dataSources: string[] = [];
+L382:   
+L383:   let hasQuarantinedContent = false;
+L384:   
+L385:   const admittedEvidence: EvidenceItem[] = input.admitted_evidence.map((item, idx) => {
+L386:     const { sanitized: sanitizedDesc, quarantined } = sanitizeDecisionTimeContent(item.description, refusals);
+L387:     if (quarantined) hasQuarantinedContent = true;
+L388:     dataSources.push(item.source_type);
+L389:     return {
+L390:       item_id: generateId("EV"),
+L391:       description: sanitizedDesc,
+L392:       source_type: item.source_type,
+L393:       time_anchor: item.time_anchor,
+L394:       confidence: item.confidence
+L395:     };
+L396:   });
+L397:   
+L398:   const missingEvidence: EvidenceItem[] = input.missing_pending.map((item, idx) => {
+L399:     const { sanitized, quarantined } = sanitizeDecisionTimeContent(item.description, refusals);
+L400:     if (quarantined) hasQuarantinedContent = true;
+L401:     return {
+L402:       item_id: generateId("EV"),
+L403:       description: sanitized,
+L404:       source_type: item.source_type,
+L405:       time_anchor: item.time_anchor,
+L406:       confidence: "low" as const
+L407:     };
+L408:   });
+L409:   
+L410:   const excludedEvidence: EvidenceItem[] = input.excluded_outcome_info.map((item, idx) => ({
+L411:     item_id: generateId("EV"),
+L412:     description: item.description,
+L413:     source_type: item.source_type,
+L414:     time_anchor: item.time_anchor,
+L415:     confidence: "high" as const
+L416:   }));
+L417:   
+L418:   const timelineEvents: TimelineEvent[] = input.timeline_events.map((event, idx) => {
+L419:     const { sanitized: sanitizedEvent, quarantined: q1 } = sanitizeDecisionTimeContent(event.what_happened, refusals);
+L420:     const { sanitized: sanitizedLabel, quarantined: q2 } = sanitizeDecisionTimeContent(event.event_label, refusals);
+L421:     if (q1 || q2) hasQuarantinedContent = true;
+L422:     return {
+L423:       timestamp: event.timestamp,
+L424:       event_label: sanitizedLabel,
+L425:       what_happened: sanitizedEvent,
+L426:       source_refs: event.source_refs,
+L427:       verification_status: event.verification_status
+L428:     };
+L429:   });
+L430:   
+L431:   const timelineValidation = validateTimelineOrdering(timelineEvents);
+L432:   let status: ReportStatus = "ADMISSIBLE";
+L433:   
+L434:   if (!timelineValidation.valid) {
+L435:     status = "DISPUTED";
+L436:     for (const dispute of timelineValidation.disputed) {
+L437:       refusals.push({
+L438:         status: "quarantined",
+L439:         reason_code: REASON_CODES.A001.code,
+L440:         what_happened: dispute,
+L441:         why_it_matters: "Disputed timeline ordering reduces report authority.",
+L442:         how_to_proceed: "Verify timestamps or mark affected events as disputed."
+L443:       });
+L444:     }
+L445:   }
+L446:   
+L447:   if (hasQuarantinedContent && status === "ADMISSIBLE") {
+L448:     status = "QUARANTINED";
+L449:   }
+L450:   
+L451:   if (input.narrative_input) {
+L452:     const narrativeCheck = scanForEvaluativeLanguage(input.narrative_input);
+L453:     const outcomeCheck = scanForOutcomeKnowledge(input.narrative_input);
+L454:     
+L455:     if (narrativeCheck) {
+L456:       refusals.push(narrativeCheck);
+L457:       status = "SCRAPBOOKED";
+L458:     }
+L459:     if (outcomeCheck) {
+L460:       refusals.push(outcomeCheck);
+L461:       if (status === "ADMISSIBLE") status = "QUARANTINED";
+L462:     }
+L463:   }
+L464:   
+L465:   const constraintEvidenceRefs = admittedEvidence.map(e => e.item_id);
+L466:   const permittedStatements = generatePermittedStatements(admittedEvidence);
+L467:   const governanceConstraints = generateGovernanceConstraints(
+L468:     input.constraints,
+L469:     constraintEvidenceRefs
+L470:   );
+L471:   
+L472:   const improvementOpportunities: ImprovementOpportunity[] = input.improvement_notes.map((note, idx) => ({
+L473:     id: generateId("IMP"),
+L474:     description: note,
+L475:     evidence_basis: excludedEvidence.map(e => e.item_id)
+L476:   }));
+L477:   
+L478:   const actionItems: ActionItem[] = input.action_items.map((item, idx) => ({
+L479:     id: generateId("ACT"),
+L480:     description: sanitizeText(item.description, refusals),
+L481:     owner_role: item.owner_role,
+L482:     due_date: item.due_date || null,
+L483:     verification_method: item.verification_method || null
+L484:   }));
+L485:   
+L486:   const refusalLog: RefusalLogEntry[] = refusals.map(r => ({
+L487:     reason_code: r.reason_code,
+L488:     attempted_content: r.original_content ? r.original_content.slice(0, 100) + "..." : "[content quarantined]",
+L489:     allowed_rewrite: r.rewritten_content || null,
+L490:     disposition: r.status === "refused" ? "rejected" as const : 
+L491:                  r.status === "rewritten" ? "rewritten" as const : "quarantined" as const
+L492:   }));
+L493:   
+L494:   const { sanitized: sanitizedDecisionPoint, quarantined: dpQ } = sanitizeDecisionTimeContent(input.decision_point, refusals);
+L495:   const { sanitized: sanitizedSetting, quarantined: stQ } = input.setting 
+L496:     ? sanitizeDecisionTimeContent(input.setting, refusals)
+L497:     : { sanitized: undefined, quarantined: false };
+L498:   if ((dpQ || stQ) && status === "ADMISSIBLE") {
+L499:     status = "QUARANTINED";
+L500:   }
+
+--- FILE: shared/incidentReport.ts ---
+L1: import { z } from "zod";
+L2: 
+L3: export const ReportStatus = z.enum([
+L4:   "ADMISSIBLE",
+L5:   "REJECTED", 
+L6:   "SCRAPBOOKED",
+L7:   "PENDING_TIME",
+L8:   "QUARANTINED",
+L9:   "DISPUTED"
+L10: ]);
+L11: export type ReportStatus = z.infer<typeof ReportStatus>;
+L12: 
+L13: export const Environment = z.enum(["demo", "staging", "prod"]);
+L14: export type Environment = z.infer<typeof Environment>;
+L15: 
+L16: export const AuthoringMode = z.enum(["human_assisted", "system_generated"]);
+L17: export type AuthoringMode = z.infer<typeof AuthoringMode>;
+L18: 
+L19: export const ConfidenceLevel = z.enum(["high", "medium", "low"]);
+L20: export type ConfidenceLevel = z.infer<typeof ConfidenceLevel>;
+L21: 
+L22: export const VerificationStatus = z.enum(["verified", "partial", "disputed"]);
+L23: export type VerificationStatus = z.infer<typeof VerificationStatus>;
+L24: 
+L25: export const AuthorityTier = z.enum(["advisory_only", "procedurally_permitted"]);
+L26: export type AuthorityTier = z.infer<typeof AuthorityTier>;
+L27: 
+L28: export const RefusalDisposition = z.enum(["rejected", "rewritten", "quarantined"]);
+L29: export type RefusalDisposition = z.infer<typeof RefusalDisposition>;
+L30: 
+L31: export const ReasonCodeSchema = z.object({
+L32:   code: z.string(),
+L33:   family: z.enum(["R", "P", "S", "A"]),
+L34:   description: z.string()
+L35: });
+L36: export type ReasonCode = z.infer<typeof ReasonCodeSchema>;
+L37: 
+L38: export const REASON_CODES = {
+L39:   R001: { code: "R001", family: "R" as const, description: "Structural format violation" },
+L40:   R002: { code: "R002", family: "R" as const, description: "Missing required field" },
+L41:   R003: { code: "R003", family: "R" as const, description: "Evaluative language detected" },
+L42:   R004: { code: "R004", family: "R" as const, description: "Outcome knowledge contamination" },
+L43:   P001: { code: "P001", family: "P" as const, description: "Procedural sequence error" },
+L44:   P002: { code: "P002", family: "P" as const, description: "Authorization scope exceeded" },
+L45:   P003: { code: "P003", family: "P" as const, description: "Decision target undefined" },
+L46:   S001: { code: "S001", family: "S" as const, description: "PHI exposure risk" },
+L47:   S002: { code: "S002", family: "S" as const, description: "Prohibited language category" },
+L48:   S003: { code: "S003", family: "S" as const, description: "Scope boundary violation" },
+L49:   A001: { code: "A001", family: "A" as const, description: "Admissibility conflict" }
+L50: } as const;
+L51: 
+L52: export const PROHIBITED_TERMS = [
+L53:   "should have known",
+L54:   "obvious",
+L55:   "missed",
+L56:   "failed",
+L57:   "negligent",
+L58:   "negligence",
+L59:   "inappropriate",
+L60:   "error",
+L61:   "responsible party",
+L62:   "appropriate care",
+L63:   "clearly",
+L64:   "preventable",
+L65:   "standard of care",
+L66:   "deviation"
+L67: ];
+L68: 
+L69: export const SCOPE_LIMITS_VARIANTS = {
+L70:   SCOPE_V1: `This review reconstructs decision-time conditions only. It does not assess clinical correctness, intent, standard of care, negligence, or preventability. Outcome-derived information is excluded from judgment sections. This document is advisory and does not issue verdicts or findings of fault.`,
+L71:   SCOPE_V2: `This record examines information available at the moment of decision. It explicitly excludes retrospective judgment, outcome knowledge, and comparative performance assessment. No conclusions regarding negligence, intent, or standard-of-care compliance are rendered.`,
+L72:   SCOPE_V3: `The scope of this review is limited to reconstructing what was known and knowable at decision time. Post-decision outcomes, hindsight interpretations, and evaluative language are excluded. This is an advisory document that constrains claims rather than adjudicating them.`
+L73: } as const;
+L74: 
+L75: export const DISALLOWED_CLAIMS = [
+L76:   "preventability",
+L77:   "negligence",
+L78:   "standard-of-care deviation",
+L79:   "intent/motivation",
+L80:   "comparative performance",
+L81:   "clinical correctness",
+L82:   "appropriateness of care",
+L83:   "missed diagnosis",
+L84:   "failure to act"
+L85: ];
+L86: 
+L87: export const EvidenceItemSchema = z.object({
+L88:   item_id: z.string(),
+L89:   description: z.string(),
+L90:   source_type: z.string(),
+L91:   time_anchor: z.string(),
+L92:   confidence: ConfidenceLevel
+L93: });
+L94: export type EvidenceItem = z.infer<typeof EvidenceItemSchema>;
+L95: 
+L96: export const TimelineEventSchema = z.object({
+L97:   timestamp: z.string(),
+L98:   event_label: z.string(),
+L99:   what_happened: z.string(),
+L100:   source_refs: z.array(z.string()),
+L101:   verification_status: VerificationStatus
+L102: });
+L103: export type TimelineEvent = z.infer<typeof TimelineEventSchema>;
+L104: 
+L105: export const RefusalLogEntrySchema = z.object({
+L106:   reason_code: z.string(),
+L107:   attempted_content: z.string(),
+L108:   allowed_rewrite: z.string().nullable(),
+L109:   disposition: RefusalDisposition
+L110: });
+L111: export type RefusalLogEntry = z.infer<typeof RefusalLogEntrySchema>;
+L112: 
+L113: export const ActionItemSchema = z.object({
+L114:   id: z.string(),
+L115:   description: z.string(),
+L116:   owner_role: z.string(),
+L117:   due_date: z.string().nullable(),
+L118:   verification_method: z.string().nullable()
+L119: });
+L120: export type ActionItem = z.infer<typeof ActionItemSchema>;
+L121: 
+L122: export const GovernanceConstraintSchema = z.object({
+L123:   constraint_id: z.string(),
+L124:   statement: z.string(),
+L125:   evidence_refs: z.array(z.string())
+L126: });
+L127: export type GovernanceConstraint = z.infer<typeof GovernanceConstraintSchema>;
+L128: 
+L129: export const ImprovementOpportunitySchema = z.object({
+L130:   id: z.string(),
+L131:   description: z.string(),
+L132:   evidence_basis: z.array(z.string())
+L133: });
+L134: export type ImprovementOpportunity = z.infer<typeof ImprovementOpportunitySchema>;
+L135: 
+L136: export const IncidentReportSchema = z.object({
+L137:   report_version: z.literal("report_v1"),
+L138:   case_id: z.string(),
+L139:   organization: z.string().optional(),
+L140:   generated_at: z.string(),
+L141:   environment: Environment,
+L142:   status: ReportStatus,
+L143:   authoring_mode: AuthoringMode,
+L144:   data_sources: z.array(z.string()),
+L145:   scope_limits_block_id: z.enum(["SCOPE_V1", "SCOPE_V2", "SCOPE_V3"]),
+L146:   
+L147:   decision_under_review: z.object({
+L148:     decision_point: z.string(),
+L149:     window_start: z.string(),
+L150:     window_end: z.string(),
+L151:     decision_maker_role: z.string(),
+L152:     setting: z.string().optional()
+L153:   }),
+L154:   
+L155:   evidence_snapshot: z.object({
+L156:     admitted: z.array(EvidenceItemSchema),
+L157:     missing_or_pending: z.array(EvidenceItemSchema),
+L158:     excluded_outcome_info: z.array(EvidenceItemSchema)
+L159:   }),
+L160:   
+L161:   constraints: z.object({
+L162:     time_pressure: z.boolean(),
+L163:     competing_demands: z.boolean(),
+L164:     resource_limits: z.boolean(),
+L165:     guideline_ambiguity: z.boolean(),
+L166:     handoffs_fragmentation: z.boolean(),
+L167:     irreversibility: z.boolean(),
+L168:     signal_quality_limits: z.boolean(),
+L169:     constraint_evidence_refs: z.array(z.string())
+L170:   }),
+L171:   
+L172:   timeline: z.array(TimelineEventSchema),
+L173:   
+L174:   claim_boundaries: z.object({
+L175:     permitted_statements: z.array(z.string()),
+L176:     disallowed_claims: z.array(z.string())
+L177:   }),
+L178:   
+L179:   governance_output: z.object({
+L180:     authority_tier: AuthorityTier,
+L181:     constraints: z.array(GovernanceConstraintSchema)
+L182:   }),
+L183:   
+L184:   system_learning: z.object({
+L185:     notes: z.array(z.string()),
+L186:     improvement_opportunities: z.array(ImprovementOpportunitySchema),
+L187:     candidate_mitigations: z.array(z.string())
+L188:   }),
+L189:   
+L190:   action_items: z.array(ActionItemSchema),
+L191:   
+L192:   refusal_log: z.array(RefusalLogEntrySchema),
+L193:   
+L194:   finalization: z.object({
+L195:     immutable_state: z.enum(["draft", "finalized"]),
+L196:     artifact_hash: z.string().nullable(),
+L197:     previous_hash: z.string().nullable(),
+L198:     signature: z.string().nullable()
+L199:   })
+L200: });
+L201: 
+L202: export type IncidentReport = z.infer<typeof IncidentReportSchema>;
+L203: 
+L204: export const GenerateReportInputSchema = z.object({
+L205:   case_id: z.string().optional(),
+L206:   organization: z.string().optional(),
+L207:   environment: Environment.default("demo"),
+L208:   scope_variant: z.enum(["SCOPE_V1", "SCOPE_V2", "SCOPE_V3"]).default("SCOPE_V1"),
+L209:   
+L210:   decision_point: z.string(),
+L211:   window_start: z.string(),
+L212:   window_end: z.string(),
+L213:   decision_maker_role: z.string(),
+L214:   setting: z.string().optional(),
+L215:   
+L216:   admitted_evidence: z.array(z.object({
+L217:     description: z.string(),
+L218:     source_type: z.string(),
+L219:     time_anchor: z.string(),
+L220:     confidence: ConfidenceLevel.default("medium")
+L221:   })).default([]),
+L222:   
+L223:   missing_pending: z.array(z.object({
+L224:     description: z.string(),
+L225:     source_type: z.string(),
+L226:     time_anchor: z.string()
+L227:   })).default([]),
+L228:   
+L229:   excluded_outcome_info: z.array(z.object({
+L230:     description: z.string(),
+L231:     source_type: z.string(),
+L232:     time_anchor: z.string()
+L233:   })).default([]),
+L234:   
+L235:   constraints: z.object({
+L236:     time_pressure: z.boolean().default(false),
+L237:     competing_demands: z.boolean().default(false),
+L238:     resource_limits: z.boolean().default(false),
+L239:     guideline_ambiguity: z.boolean().default(false),
+L240:     handoffs_fragmentation: z.boolean().default(false),
+L241:     irreversibility: z.boolean().default(false),
+L242:     signal_quality_limits: z.boolean().default(false)
+L243:   }).default({}),
+L244:   
+L245:   timeline_events: z.array(z.object({
+L246:     timestamp: z.string(),
+L247:     event_label: z.string(),
+L248:     what_happened: z.string(),
+L249:     source_refs: z.array(z.string()).default([]),
+L250:     verification_status: VerificationStatus.default("partial")
+L251:   })).default([]),
+L252:   
+L253:   narrative_input: z.string().optional(),
+L254:   
+L255:   improvement_notes: z.array(z.string()).default([]),
+L256:   
+L257:   action_items: z.array(z.object({
+L258:     description: z.string(),
+L259:     owner_role: z.string(),
+L260:     due_date: z.string().optional(),
+L261:     verification_method: z.string().optional()
+L262:   })).default([])
+L263: });
+L264: 
+L265: export type GenerateReportInput = z.infer<typeof GenerateReportInputSchema>;
+L266: 
+L267: export interface RefusalResult {
+L268:   status: "refused" | "rewritten" | "quarantined";
+L269:   reason_code: string;
+L270:   what_happened: string;
+L271:   why_it_matters: string;
+L272:   how_to_proceed: string;
+L273:   original_content?: string;
+L274:   rewritten_content?: string;
+L275: }
+L276: 
+L277: export interface GenerateReportResult {
+L278:   success: boolean;
+L279:   report?: IncidentReport;
+L280:   markdown?: string;
+L281:   refusals: RefusalResult[];
+L282:   errors: string[];
+L283: }
+
+--- FILE: uploads/corpus/a24dd042-a2d6-4175-9fed-5f1a2d9103bc/5a317a417f1a881971250aa01778b51d558f2703373c008d0a3b7cf603be9b9b-CITIZENS UNITED.txt ---
+L1: CITIZENS UNITED v. FEDERAL ELECTION
+L2: COMMISSION
+L3: appeal from the united states district court for the
+L4: district of columbia
+L5: No. 08–205. Argued March 24, 2009—Reargued September 9, 2009––
+L6: Decided January 21, 2010
+L7: As amended by § 203 of the Bipartisan Campaign Reform Act of 2002
+L8: (BCRA), federal law prohibits corporations and unions from using their
+L9: general treasury funds to make independent expenditures for speech
+L10: that is an “electioneering communication” or for speech that expressly
+L11: advocates the election or defeat of a candidate. 2 U. S. C. § 441b. An
+L12: electioneering communication is “any broadcast, cable, or satellite communication”
+L13: that “refers to a clearly identified candidate for Federal
+L14: office” and is made within 30 days of a primary election, § 434(f)(3)(A),
+L15: and that is “publicly distributed,” 11 CFR § 100.29(a)(2), which in “the
+L16: case of a candidate for nomination for President . . . means” that
+L17: the communication “[c]an be received by 50,000 or more persons in a
+L18: State where a primary election . . . is being held within 30 days,”
+L19: § 100.29(b)(3)(ii). Corporations and unions may establish a political action
+L20: committee (PAC) for express advocacy or electioneering communications
+L21: purposes. 2 U. S. C. § 441b(b)(2). In McConnell v. Federal
+L22: Election Comm’n, 540 U. S. 93, 203–209, this Court upheld limits on
+L23: electioneering communications in a facial challenge, relying on the
+L24: holding in Austin v. Michigan Chamber of Commerce, 494 U. S. 652,
+L25: that political speech may be banned based on the speaker’s corporate
+L26: identity.
+L27: In January 2008, appellant Citizens United, a nonprofit corporation,
+L28: released a documentary (hereinafter Hillary) critical of then-Senator
+L29: Hillary Clinton, a candidate for her party’s Presidential nomination.
+L30: Anticipating that it would make Hillary available on cable television
+L31: through video-on-demand within 30 days of primary elections, Citizens
+L32: United produced television ads to run on broadcast and cable television.
+L33: Concerned about possible civil and criminal penalties for violating
+L34: § 441b, it sought declaratory and injunctive relief, arguing that (1) § 441b
+L35: is unconstitutional as applied to Hillary; and (2) BCRA’s disclaimer,
+L36: disclosure, and reporting requirements, BCRA §§ 201 and 311, were unconstitutional
+L37: as applied to Hillary and the ads. The District Court
+L38: denied Citizens United a preliminary injunction and granted appellee
+L39: Federal Election Commission (FEC) summary judgment.
+L40: Cite as: 558 U. S. 310 (2010) Syllabus
+L41: 311
+L42: Held:
+L43: 1. Because the question whether § 441b applies to Hillary cannot be
+L44: resolved on other, narrower grounds without chilling political speech,
+L45: this Court must consider the continuing effect of the speech suppression
+L46: upheld in Austin. Pp. 322–336.
+L47: (a) Citizens United’s narrower arguments—that Hillary is not an
+L48: “electioneering communication” covered by § 441b because it is not “publicly
+L49: distributed” under 11 CFR § 100.29(a)(2); that § 441b may not be
+L50: applied to Hillary under Federal Election Comm’n v. Wisconsin Right
+L51: to Life, Inc., 551 U. S. 449 (WRTL), which found § 441b unconstitutional
+L52: as applied to speech that was not “express advocacy or its functional
+L53: equivalent,” id., at 481 (opinion of Roberts, C. J.), determining that a
+L54: communication “is the functional equivalent of express advocacy only if
+L55: [it] is susceptible of no reasonable interpretation other than as an appeal
+L56: to vote for or against a specific candidate,” id., at 469–470; that § 441b
+L57: should be invalidated as applied to movies shown through video-ondemand
+L58: because this delivery system has a lower risk of distorting the
+L59: political process than do television ads; and that there should be an
+L60: exception to § 441b’s ban for nonprofit corporate political speech funded
+L61: overwhelmingly by individuals—are not sustainable under a fair reading
+L62: of the statute. Pp. 322–329.
+L63: (b) Thus, this case cannot be resolved on a narrower ground without
+L64: chilling political speech, speech that is central to the First Amendment’s
+L65: meaning and purpose. Citizens United did not waive this challenge
+L66: to Austin when it stipulated to dismissing the facial challenge
+L67: below, since (1) even if such a challenge could be waived, this Court may
+L68: reconsider Austin and § 441b’s facial validity here because the District
+L69: Court “passed upon” the issue, Lebron v. National Railroad Passenger
+L70: Corporation, 513 U. S. 374, 379; (2) throughout the litigation, Citizens
+L71: United has asserted a claim that the FEC has violated its right to free
+L72: speech; and (3) the parties cannot enter into a stipulation that prevents
+L73: the Court from considering remedies necessary to resolve a claim that
+L74: has been preserved. Because Citizens United’s narrower arguments
+L75: are not sustainable, this Court must, in an exercise of its judicial responsibility,
+L76: consider § 441b’s facial validity. Any other course would prolong
+L77: the substantial, nationwide chilling effect caused by § 441b’s corporate
+L78: expenditure ban. This conclusion is further supported by the
+L79: following: (1) the uncertainty caused by the Government’s litigating position;
+L80: (2) substantial time would be required to clarify § 441b’s application
+L81: on the points raised by the Government’s position in order to avoid
+L82: any chilling effect caused by an improper interpretation; and (3) because
+L83: speech itself is of primary importance to the integrity of the election
+L84: process, any speech arguably within the reach of rules created for regu
+L85: 312 CITIZENS UNITED v. FEDERAL ELECTION COMM’N
+L86: Syllabus
+L87: lating political speech is chilled. The regulatory scheme at issue may
+L88: not be a prior restraint in the strict sense. However, given its complexity
+L89: and the deference courts show to administrative determinations,
+L90: a speaker wishing to avoid criminal liability threats and the heavy
+L91: costs of defending against FEC enforcement must ask a governmental
+L92: agency for prior permission to speak. The restrictions thus function as
+L93: the equivalent of a prior restraint, giving the FEC power analogous
+L94: to the type of government practices that the First Amendment was
+L95: drawn to prohibit. The ongoing chill on speech makes it necessary to
+L96: invoke the earlier precedents that a statute that chills speech can and
+L97: must be invalidated where its facial invalidity has been demonstrated.
+L98: Pp. 329–336.
+L99: 2. Austin is overruled, and thus provides no basis for allowing the
+L100: Government to limit corporate independent expenditures. Hence,
+L101: § 441b’s restrictions on such expenditures are invalid and cannot be applied
+L102: to Hillary. Given this conclusion, the part of McConnell that
+L103: upheld BCRA § 203’s extension of § 441b’s restrictions on independent
+L104: corporate expenditures is also overruled. Pp. 336–366.
+L105: (a) Although the First Amendment provides that “Congress shall
+L106: make no law . . . abridging the freedom of speech,” § 441b’s prohibition
+L107: on corporate independent expenditures is an outright ban on speech,
+L108: backed by criminal sanctions. It is a ban notwithstanding the fact that
+L109: a PAC created by a corporation can still speak, for a PAC is a separate
+L110: association from the corporation. Because speech is an essential mechanism
+L111: of democracy—it is the means to hold officials accountable to the
+L112: people—political speech must prevail against laws that would suppress
+L113: it by design or inadvertence. Laws burdening such speech are subject
+L114: to strict scrutiny, which requires the Government to prove that the restriction
+L115: “furthers a compelling interest and is narrowly tailored to
+L116: achieve that interest.” WRTL, supra, at 464. This language provides
+L117: a sufficient framework for protecting the interests in this case. Premised
+L118: on mistrust of governmental power, the First Amendment stands
+L119: against attempts to disfavor certain subjects or viewpoints or to distinguish
+L120: among different speakers, which may be a means to control content.
+L121: The Government may also commit a constitutional wrong when
+L122: by law it identifies certain preferred speakers. There is no basis for
+L123: the proposition that, in the political speech context, the Government
+L124: may impose restrictions on certain disfavored speakers. Both history
+L125: and logic lead to this conclusion. Pp. 336–341.
+L126: (b) The Court has recognized that the First Amendment applies to
+L127: corporations, e. g., First Nat. Bank of Boston v. Bellotti, 435 U. S. 765,
+L128: 778, n. 14, and extended this protection to the context of political speech,
+L129: see, e. g., NAACP v. Button, 371 U. S. 415, 428–429. Addressing challenges
+L130: to the Federal Election Campaign Act of 1971, the Court in Buck
+L131: Cite as: 558 U. S. 310 (2010) 313
+L132: Syllabus
+L133: ley v. Valeo, 424 U. S. 1 (per curiam), upheld limits on direct contributions
+L134: to candidates, 18 U. S. C. § 608(b), recognizing a governmental interest
+L135: in preventing quid pro quo corruption. 424 U. S., at 25–26.
+L136: However, the Court invalidated § 608(e)’s expenditure ban, which applied
+L137: to individuals, corporations, and unions, because it “fail[ed] to serve any
+L138: substantial governmental interest in stemming the reality or appearance
+L139: of corruption in the electoral process,” id., at 47–48. While Buckley
+L140: did not consider a separate ban on corporate and union independent
+L141: expenditures found in § 610, had that provision been challenged in Buckley’s
+L142: wake, it could not have been squared with the precedent’s reasoning
+L143: and analysis. The Buckley Court did not invoke the overbreadth
+L144: doctrine to suggest that § 608(e)’s expenditure ban would have been constitutional
+L145: had it applied to corporations and unions but not individuals.
+L146: Notwithstanding this precedent, Congress soon recodified § 610’s corporate
+L147: and union expenditure ban at 2 U. S. C. § 441b, the provision at
+L148: issue. Less than two years after Buckley, Bellotti reaffirmed the First
+L149: Amendment principle that the Government lacks the power to restrict
+L150: political speech based on the speaker’s corporate identity. 435 U. S., at
+L151: 784–785. Thus the law stood until Austin upheld a corporate independent
+L152: expenditure restriction, bypassing Buckley and Bellotti by recognizing
+L153: a new governmental interest in preventing “the corrosive and
+L154: distorting effects of immense aggregations of [corporate] wealth . . . that
+L155: have little or no correlation to the public’s support for the corporation’s
+L156: political ideas.” 494 U. S., at 660. Pp. 342–348.
+L157: (c) This Court is confronted with conflicting lines of precedent: a
+L158: pre-Austin line forbidding speech restrictions based on the speaker’s
+L159: corporate identity and a post-Austin line permitting them. Neither
+L160: Austin’s antidistortion rationale nor the Government’s other justifications
+L161: support § 441b’s restrictions. Pp. 348–362.
+L162: (1) The First Amendment prohibits Congress from fining or jailing
+L163: citizens, or associations of citizens, for engaging in political speech,
+L164: but Austin’s antidistortion rationale would permit the Government to
+L165: ban political speech because the speaker is an association with a corporate
+L166: form. Political speech is “indispensable to decisionmaking in a democracy,
+L167: and this is no less true because the speech comes from a corporation.”
+L168: Bellotti, supra, at 777 (footnote omitted). This protection is
+L169: inconsistent with Austin’s rationale, which is meant to prevent corporations
+L170: from obtaining “ ‘an unfair advantage in the political marketplace’ ”
+L171: by using “ ‘resources amassed in the economic marketplace.’ ” 494 U. S.,
+L172: at 659. First Amendment protections do not depend on the speaker’s
+L173: “financial ability to engage in public discussion.” Buckley, supra, at 49.
+L174: These conclusions were reaffirmed when the Court invalidated a BCRA
+L175: provision that increased the cap on contributions to one candidate if
+L176: the opponent made certain expenditures from personal funds. Davis v.
+L177: 314 CITIZENS UNITED v. FEDERAL ELECTION COMM’N
+L178: Syllabus
+L179: Federal Election Comm’n, 554 U. S. 724, 742. Distinguishing wealthy
+L180: individuals from corporations based on the latter’s special advantages
+L181: of, e. g., limited liability, does not suffice to allow laws prohibiting speech.
+L182: It is irrelevant for First Amendment purposes that corporate funds may
+L183: “have little or no correlation to the public’s support for the corporation’s
+L184: political ideas.” Austin, supra, at 660. All speakers, including individuals
+L185: and the media, use money amassed from the economic marketplace
+L186: to fund their speech, and the First Amendment protects the resulting
+L187: speech. Under the antidistortion rationale, Congress could also ban
+L188: political speech of media corporations. Although currently exempt
+L189: from § 441b, they accumulate wealth with the help of their corporate
+L190: form, may have aggregations of wealth, and may express views “hav[ing]
+L191: little or no correlation to the public’s support” for those views.
+L192: Differential treatment of media corporations and other corporations cannot
+L193: be squared with the First Amendment, and there is no support for
+L194: the view that the Amendment’s original meaning would permit suppressing
+L195: media corporations’ political speech. Austin interferes with
+L196: the “open marketplace” of ideas protected by the First Amendment.
+L197: New York State Bd. of Elections v. Lopez Torres, 552 U. S. 196, 208.
+L198: Its censorship is vast in its reach, suppressing the speech of both for-
+L199: profit and nonprofit, both small and large, corporations. Pp. 349–356.
+L200: (2) This reasoning also shows the invalidity of the Government’s
+L201: other arguments. It reasons that corporate political speech can be
+L202: banned to prevent corruption or its appearance. The Buckley Court
+L203: found this rationale “sufficiently important” to allow contribution limits
+L204: but refused to extend that reasoning to expenditure limits, 424 U. S., at
+L205: 25, and the Court does not do so here. While a single Bellotti footnote
+L206: purported to leave the question open, 435 U. S., at 788, n. 26, this Court
+L207: now concludes that independent expenditures, including those made by
+L208: corporations, do not give rise to corruption or the appearance of corruption.
+L209: That speakers may have influence over or access to elected officials
+L210: does not mean that those officials are corrupt. And the appearance
+L211: of influence or access will not cause the electorate to lose faith
+L212: in this democracy. Caperton v. A. T. Massey Coal Co., 556 U. S. 868,
+L213: distinguished. Pp. 356–361.
+L214: (3) The Government’s asserted interest in protecting shareholders
+L215: from being compelled to fund corporate speech, like the antidistortion
+L216: rationale, would allow the Government to ban political speech even
+L217: of media corporations. The statute is underinclusive; it only protects a
+L218: dissenting shareholder’s interests in certain media for 30 or 60 days
+L219: before an election when such interests would be implicated in any media
+L220: at any time. It is also overinclusive because it covers all corporations,
+L221: including those with one shareholder. Pp. 361–362.
+L222: Cite as: 558 U. S. 310 (2010) 315
+L223: Syllabus
+L224: (4) Because § 441b is not limited to corporations or associations
+L225: created in foreign countries or funded predominantly by foreign shareholders,
+L226: it would be overbroad even if the Court were to recognize a
+L227: compelling governmental interest in limiting foreign influence over the
+L228: Nation’s political process. P. 362.
+L229: (d) The relevant factors in deciding whether to adhere to stare decisis,
+L230: beyond workability—the precedent’s antiquity, the reliance interests
+L231: at stake, and whether the decision was well reasoned—counsel in favor
+L232: of abandoning Austin, which itself contravened the precedents of Buckley
+L233: and Bellotti. As already explained, Austin was not well reasoned.
+L234: It is also undermined by experience since its announcement. Political
+L235: speech is so ingrained in this country’s culture that speakers find ways
+L236: around campaign finance laws. Rapid changes in technology—and the
+L237: creative dynamic inherent in the concept of free expression—counsel
+L238: against upholding a law that restricts political speech in certain media
+L239: or by certain speakers. In addition, no serious reliance issues are at
+L240: stake. Thus, due consideration leads to the conclusion that Austin
+L241: should be overruled. The Court returns to the principle established in
+L242: Buckley and Bellotti that the Government may not suppress political
+L243: speech based on the speaker’s corporate identity. No sufficient governmental
+L244: interest justifies limits on the political speech of nonprofit or
+L245: for-profit corporations. Pp. 362–366.
+L246: 3. BCRA §§ 201 and 311 are valid as applied to the ads for Hillary
+L247: and to the movie itself. Pp. 366–372.
+L248: (a) Disclaimer and disclosure requirements may burden the ability
+L249: to speak, but they “impose no ceiling on campaign-related activities,”
+L250: Buckley, supra, at 64, or “ ‘ “prevent anyone from speaking,” ’ ” McConnell,
+L251: 540 U. S., at 201. The Buckley Court explained that disclosure can
+L252: be justified by a governmental interest in providing “the electorate with
+L253: information” about election-related spending sources. 424 U. S., at 66.
+L254: The McConnell Court applied this interest in rejecting facial challenges
+L255: to §§ 201 and 311. 540 U. S., at 196. However, the Court acknowledged
+L256: that as-applied challenges would be available if a group could show a
+L257: “ ‘reasonable probability’ ” that disclosing its contributors’ names would
+L258: “ ‘subject them to threats, harassment, or reprisals from either Government
+L259: officials or private parties.’ ” Id., at 198. Pp. 366–367.
+L260: (b) The disclaimer and disclosure requirements are valid as applied
+L261: to Citizens United’s ads. They fall within BCRA’s “electioneering communication”
+L262: definition: They referred to then-Senator Clinton by name
+L263: shortly before a primary and contained pejorative references to her
+L264: candidacy. Section 311 disclaimers provide information to the electorate,
+L265: McConnell, supra, at 196, and “insure that the voters are fully
+L266: informed” about who is speaking, Buckley, supra, at 76. At the very
+L267: 316 CITIZENS UNITED v. FEDERAL ELECTION COMM’N
+L268: Syllabus
+L269: least, they avoid confusion by making clear that the ads are not funded
+L270: by a candidate or political party. Citizens United’s arguments that
+L271: § 311 is underinclusive because it requires disclaimers for broadcast advertisements
+L272: but not for print or Internet advertising and that § 311
+L273: decreases the quantity and effectiveness of the group’s speech were rejected
+L274: in McConnell. This Court also rejects their contention that
+L275: § 201’s disclosure requirements must be confined to speech that is the
+L276: functional equivalent of express advocacy under WRTL’s test for restrictions
+L277: on independent expenditures, 551 U. S., at 469–476 (opinion of
+L278: Roberts, C. J.). Disclosure is the less restrictive alternative to more
+L279: comprehensive speech regulations. Such requirements have been upheld
+L280: in Buckley and McConnell. Citizens United’s argument that no
+L281: informational interest justifies applying § 201 to its ads is similar to
+L282: the argument this Court rejected with regard to disclaimers. Citizens
+L283: United finally claims that disclosure requirements can chill donations by
+L284: exposing donors to retaliation, but offers no evidence that its members
+L285: face the type of threats, harassment, or reprisals that might make § 201
+L286: unconstitutional as applied. Pp. 367–371.
+L287: (c) For these same reasons, this Court affirms the application of
+L288: the §§ 201 and 311 disclaimer and disclosure requirements to Hillary.
+L289: Pp. 371–372.
+L290: Reversed in part, affirmed in part, and remanded.
+L291: Kennedy, J., delivered the opinion of the Court, in which Roberts,
+L292: C. J., and Scalia and Alito, JJ., joined, in which Thomas, J., joined as to
+L293: all but Part IV, and in which Stevens, Ginsburg, Breyer, and Soto-
+L294: mayor, JJ., joined as to Part IV. Roberts, C. J., filed a concurring opinion,
+L295: in which Alito, J., joined, post, p. 372. Scalia, J., filed a concurring
+L296: opinion, in which Alito, J., joined, and in which Thomas, J., joined in part,
+L297: post, p. 385. Stevens, J., filed an opinion concurring in part and dissenting
+L298: in part, in which Ginsburg, Breyer, and Sotomayor, JJ., joined,
+L299: post, p. 393. Thomas, J., filed an opinion concurring in part and dissenting
+L300: in part, post, p. 480.
+L301: Theodore B. Olson argued and reargued the cause for appellant.
+L302: With him on the briefs were Matthew D. McGill,
+L303: Amir C. Tayrani, and Michael Boos.
+L304: Floyd Abrams argued the cause for Senator Mitch McConnell
+L305: as amicus curiae. With him on the brief was Susan
+L306: Buckley.
+L307: Solicitor General Kagan reargued the cause for appellee.
+L308: Deputy Solicitor General Stewart argued the cause for ap
+L309: Cite as: 558 U. S. 310 (2010) 317
+L310: Counsel
+L311: pellee on the original argument. With them on the briefs
+L312: were then-Acting Solicitor General Kneedler, William M.
+L313: Jay, Thomasenia P. Duncan, David Kolker, Kevin Deeley,
+L314: and Adav Noti.
+L315: Seth P. Waxman argued the cause for Senator John McCain
+L316: et al. as amici curiae urging affirmance. With him on
+L317: the briefs were Randolph D. Moss, Roger M. Witten, Scott
+L318: L. Nelson, Alan B. Morrison, Brian Wolfman, Trevor
+L319: Potter, J. Gerald Hebert, Paul S. Ryan, Tara Malloy, Fred
+L320: Wertheimer, and Donald J. Simon.*
+L321: *Briefs of amici curiae urging reversal were filed for the Alliance Defense
+L322: Fund by Benjamin W. Bull, Erik W. Stanley, and Robert J. McCully;
+L323: for the American Civil Rights Union by Peter Ferrara; for the American
+L324: Federation of Labor and Congress of Industrial Organizations by Jonathan
+L325: P. Hiatt and Laurence E. Gold; for the Cato Institute by Benjamin
+L326: D. Wood, Glenn M. Willard, William J. McGinley, and Ilya Shapiro; for
+L327: the Center for Competitive Politics by Stephen M. Hoersting and Reid
+L328: Alan Cox; for the Chamber of Commerce of the United States of America
+L329: by Jan Witold Baran, Thomas W. Kirby, Caleb P. Burns, Robin S. Conrad,
+L330: Amar D. Sarwal, Steven J. Law, and Judith K. Richmond; for the
+L331: Committee for Truth in Politics, Inc., by James Bopp, Jr., and Richard E.
+L332: Coleson; for the Foundation for Free Expression by Deborah J. Dewart
+L333: and James L. Hirsen; for the National Rifle Association by Charles J.
+L334: Cooper, David H. Thompson, and David Lehn; for the Reporters Committee
+L335: for Freedom of the Press by Lucy A. Dalglish and Gregg P. Leslie;
+L336: and for the Wyoming Liberty Group et al. by Benjamin Barr.
+L337: Briefs of amici curiae urging affirmance were filed for the American
+L338: Independent Business Alliance by Brenda Wright, Lisa J. Danetz, and
+L339: Daniel J. H. Greenwood; for the Campaign Legal Center et al. by Messrs.
+L340: Potter and Hebert, Ms. Malloy, and Messrs. Ryan, Simon, and Wertheimer;
+L341: for the Center for Political Accountability et al. by Karl J. Sandstrom;
+L342: for the League of Women Voters of the United States et al. by
+L343: Douglas T. Kendall, Elizabeth B. Wydra, David H. Gans, and Lloyd J.
+L344: Leonard; for the Program on Corporations, Law and Democracy et al. by
+L345: Jeffrey D. Clements; for the Sunlight Foundation et al. by Gary S. Stein;
+L346: and for Norman Ornstein et al. by H. Christopher Bartolomucci.
+L347: Briefs of amici curiae were filed for the State of Montana et al. by Steve
+L348: Bullock, Attorney General of Montana, and Anthony Johnstone, Solicitor,
+L349: by Terry Goddard, Attorney General of Arizona, Mary R. O’Grady, Solicitor
+L350: General, and Orville B. Fitch II, Acting Attorney General of New
+L351: 318 CITIZENS UNITED v. FEDERAL ELECTION COMM’N
+L352: Opinion of the Court
+L353: Justice Kennedy delivered the opinion of the Court.
+L354: Federal law prohibits corporations and unions from using
+L355: their general treasury funds to make independent expendi-
+L356: Hampshire, and by the Attorneys General for their respective States as
+L357: follows: Richard Blumenthal of Connecticut, Bill McCollum of Florida,
+L358: Mark J. Bennett of Hawaii, Lisa Madigan of Illinois, Tom Miller of Iowa,
+L359: Steve Six of Kansas, Douglas F. Gansler of Maryland, Martha Coakley of
+L360: Massachusetts, Michael A. Cox of Michigan, Lori Swanson of Minnesota,
+L361: Jim Hood of Mississippi, Anne Milgram of New Jersey, Gary K. King of
+L362: New Mexico, Roy Cooper of North Carolina, Wayne Stenehjem of North
+L363: Dakota, Richard Cordray of Ohio, W. A. Drew Edmondson of Oklahoma,
+L364: Thomas W. Corbett, Jr., of Pennsylvania, Patrick C. Lynch of Rhode Island,
+L365: Lawrence E. Long of South Dakota, Robert E. Cooper, Jr., of Tennessee,
+L366: William H. Sorrell of Vermont, and Darrell V. McGraw, Jr., of West
+L367: Virginia; for the American Civil Liberties Union by Steven R. Shapiro,
+L368: Joel M. Gora, and Mark J. Lopez; for the American Justice Partnership
+L369: et al. by Cleta Mitchell and Michael J. Lockerby; for the California Broadcasters
+L370: Association et al. by Lawrence H. Norton, James A. Kahl, and
+L371: Gregg P. Skall; for the California First Amendment Coalition by Gary L.
+L372: Bostwick and Jean-Paul Jassy; for Campaign Finance Scholars by Allison
+L373: R. Hayward, pro se; for the Center for Constitutional Jurisprudence by
+L374: Anthony T. Caso, Edwin Meese III, and John C. Eastman; for the Center
+L375: for Independent Media et al. by Monica Youn; for the Center for Political
+L376: Accountability et al. by Mr. Sandstrom; for the Committee for Economic
+L377: Development by Paul M. Smith; for the Democratic National Committee
+L378: by Robert F. Bauer and David J. Burman; for the Fidelis Center for Law
+L379: and Policy et al. by Patrick T. Gillen; for Former Officials of the American
+L380: Civil Liberties Union by Norman Dorsen and Burt Neuborne, both pro se;
+L381: for the Free Speech Defense and Education Fund, Inc., et al. by William J.
+L382: Olson, Herbert W. Titus, John S. Miles, and Mark B. Weinberg; for the
+L383: Hachette Book Group, Inc., et al. by Michael J. Chepiga; for the Independent
+L384: Sector by M. Devereux Chatillon; for the Institute for Justice by William
+L385: R. Maurer, William H. Mellor, Steven M. Simpson, and Robert W.
+L386: Gall; for Judicial Watch, Inc., by Paul J. Orfanedes and Dale L. Wilcox;
+L387: for Justice at Stake et al. by James E. Scarboro; for the Michigan Chamber
+L388: of Commerce by Richard D. McLellan, Gary P. Gordon, John D. Pirich,
+L389: and Andrea L. Hansen; for the Pacific Legal Foundation by Deborah J. La
+L390: Fetra and Damien M. Schiff; for Public Good by Seth E. Mermin; for
+L391: Seven Former Chairmen of the Federal Election Commission et al. by
+L392: Messrs. Bopp and Coleson; and for Representative Chris Van Hollen et al.
+L393: by Bradley S. Phillips and Aaron S. Lowenstein.
+L394: Cite as: 558 U. S. 310 (2010) 319
+L395: Opinion of the Court
+L396: tures for speech defined as an “electioneering communication”
+L397: or for speech expressly advocating the election or
+L398: defeat of a candidate. 2 U. S. C. § 441b. Limits on electioneering
+L399: communications were upheld in McConnell v. Federal
+L400: Election Comm’n, 540 U. S. 93, 203–209 (2003). The holding
+L401: of McConnell rested to a large extent on an earlier case,
+L402: Austin v. Michigan Chamber of Commerce, 494 U. S. 652
+L403: (1990). Austin had held that political speech may be banned
+L404: based on the speaker’s corporate identity.
+L405: In this case we are asked to reconsider Austin and, in
+L406: effect, McConnell. It has been noted that “Austin was a
+L407: significant departure from ancient First Amendment principles,”
+L408: Federal Election Comm’n v. Wisconsin Right to Life,
+L409: Inc., 551 U. S. 449, 490 (2007) (WRTL) (Scalia, J., concurring
+L410: in part and concurring in judgment). We agree with that
+L411: conclusion and hold that stare decisis does not compel the
+L412: continued acceptance of Austin. The Government may regulate
+L413: corporate political speech through disclaimer and disclosure
+L414: requirements, but it may not suppress that speech
+L415: altogether. We turn to the case now before us.
+L416: I
+L417: A
+L418: Citizens United is a nonprofit corporation. It brought this
+L419: action in the United States District Court for the District of
+L420: Columbia. A three-judge court later convened to hear the
+L421: cause. The resulting judgment gives rise to this appeal.
+L422: Citizens United has an annual budget of about $12 million.
+L423: Most of its funds are from donations by individuals; but, in
+L424: addition, it accepts a small portion of its funds from for-
+L425: profit corporations.
+L426: In January 2008, Citizens United released a film entitled
+L427: Hillary: The Movie. We refer to the film as Hillary. It is
+L428: a 90-minute documentary about then-Senator Hillary Clinton,
+L429: who was a candidate in the Democratic Party’s 2008
+L430: Presidential primary elections. Hillary mentions Senator
+L431: 320 CITIZENS UNITED v. FEDERAL ELECTION COMM’N
+L432: Opinion of the Court
+L433: Clinton by name and depicts interviews with political commentators
+L434: and other persons, most of them quite critical of
+L435: Senator Clinton. Hillary was released in theaters and on
+L436: DVD, but Citizens United wanted to increase distribution by
+L437: making it available through video-on-demand.
+L438: Video-on-demand allows digital cable subscribers to select
+L439: programming from various menus, including movies, television
+L440: shows, sports, news, and music. The viewer can watch
+L441: the program at any time and can elect to rewind or pause
+L442: the program. In December 2007, a cable company offered,
+L443: for a payment of $1.2 million, to make Hillary available
+L444: on a video-on-demand channel called “Elections ’08.” App.
+L445: 255a–257a. Some video-on-demand services require viewers
+L446: to pay a small fee to view a selected program, but here
+L447: the proposal was to make Hillary available to viewers free
+L448: of charge.
+L449: To implement the proposal, Citizens United was prepared
+L450: to pay for the video-on-demand; and to promote the film, it
+L451: produced two 10-second ads and one 30-second ad for Hillary.
+L452: Each ad includes a short (and, in our view, pejorative)
+L453: statement about Senator Clinton, followed by the name of
+L454: the movie and the movie’s Web site address. Id., at 26a–27a.
+L455: Citizens United desired to promote the video-on-demand offering
+L456: by running advertisements on broadcast and cable
+L457: television.
+L458: B
+L459: Before the Bipartisan Campaign Reform Act of 2002
+L460: (BCRA), federal law prohibited—and still does prohibit—
+L461: corporations and unions from using general treasury funds
+L462: to make direct contributions to candidates or independent
+L463: expenditures that expressly advocate the election or defeat
+L464: of a candidate, through any form of media, in connection
+L465: with certain qualified federal elections. 2 U. S. C. § 441b
+L466: (2000 ed.); see McConnell, supra, at 204, and n. 87; Federal
+L467: Election Comm’n v. Massachusetts Citizens for Life, Inc.,
+L468: 479 U. S. 238, 249 (1986) (MCFL). BCRA § 203 amended
+L469: Cite as: 558 U. S. 310 (2010) 321
+L470: Opinion of the Court
+L471: § 441b to prohibit any “electioneering communication” as
+L472: well. 2 U. S. C. § 441b(b)(2) (2006 ed.). An electioneering
+L473: communication is defined as “any broadcast, cable, or satellite
+L474: communication” that “refers to a clearly identified candidate
+L475: for Federal office” and is made within 30 days of a primary
+L476: or 60 days of a general election. § 434(f)(3)(A). The
+L477: Federal Election Commission’s (FEC) regulations further
+L478: define an electioneering communication as a communication
+L479: that is “publicly distributed.” 11 CFR § 100.29(a)(2) (2009).
+L480: “In the case of a candidate for nomination for President . . .
+L481: publicly distributed means” that the communication “[c]an
+L482: be received by 50,000 or more persons in a State where
+L483: a primary election . . . is being held within 30 days.”
+L484: § 100.29(b)(3)(ii)(A). Corporations and unions are barred
+L485: from using their general treasury funds for express advocacy
+L486: or electioneering communications. They may establish, however,
+L487: a “separate segregated fund” (known as a political
+L488: action committee, or PAC) for these purposes. 2 U. S. C.
+L489: § 441b(b)(2). The moneys received by the segregated fund
+L490: are limited to donations from stockholders and employees of
+L491: the corporation or, in the case of unions, members of the
+L492: union. Ibid.
+L493: C
+L494: Citizens United wanted to make Hillary available through
+L495: video-on-demand within 30 days of the 2008 primary elections.
+L496: It feared, however, that both the film and the ads
+L497: would be covered by § 441b’s ban on corporate-funded independent
+L498: expenditures, thus subjecting the corporation
+L499: to civil and criminal penalties under § 437g. In December
+L500: 2007, Citizens United sought declaratory and injunctive relief
+
+--- FILE: uploads/corpus/c986e47c-abdd-4d2e-9dcc-0d96fc0bd674/5a317a417f1a881971250aa01778b51d558f2703373c008d0a3b7cf603be9b9b-CITIZENS UNITED.txt ---
+L1: CITIZENS UNITED v. FEDERAL ELECTION
+L2: COMMISSION
+L3: appeal from the united states district court for the
+L4: district of columbia
+L5: No. 08–205. Argued March 24, 2009—Reargued September 9, 2009––
+L6: Decided January 21, 2010
+L7: As amended by § 203 of the Bipartisan Campaign Reform Act of 2002
+L8: (BCRA), federal law prohibits corporations and unions from using their
+L9: general treasury funds to make independent expenditures for speech
+L10: that is an “electioneering communication” or for speech that expressly
+L11: advocates the election or defeat of a candidate. 2 U. S. C. § 441b. An
+L12: electioneering communication is “any broadcast, cable, or satellite communication”
+L13: that “refers to a clearly identified candidate for Federal
+L14: office” and is made within 30 days of a primary election, § 434(f)(3)(A),
+L15: and that is “publicly distributed,” 11 CFR § 100.29(a)(2), which in “the
+L16: case of a candidate for nomination for President . . . means” that
+L17: the communication “[c]an be received by 50,000 or more persons in a
+L18: State where a primary election . . . is being held within 30 days,”
+L19: § 100.29(b)(3)(ii). Corporations and unions may establish a political action
+L20: committee (PAC) for express advocacy or electioneering communications
+L21: purposes. 2 U. S. C. § 441b(b)(2). In McConnell v. Federal
+L22: Election Comm’n, 540 U. S. 93, 203–209, this Court upheld limits on
+L23: electioneering communications in a facial challenge, relying on the
+L24: holding in Austin v. Michigan Chamber of Commerce, 494 U. S. 652,
+L25: that political speech may be banned based on the speaker’s corporate
+L26: identity.
+L27: In January 2008, appellant Citizens United, a nonprofit corporation,
+L28: released a documentary (hereinafter Hillary) critical of then-Senator
+L29: Hillary Clinton, a candidate for her party’s Presidential nomination.
+L30: Anticipating that it would make Hillary available on cable television
+L31: through video-on-demand within 30 days of primary elections, Citizens
+L32: United produced television ads to run on broadcast and cable television.
+L33: Concerned about possible civil and criminal penalties for violating
+L34: § 441b, it sought declaratory and injunctive relief, arguing that (1) § 441b
+L35: is unconstitutional as applied to Hillary; and (2) BCRA’s disclaimer,
+L36: disclosure, and reporting requirements, BCRA §§ 201 and 311, were unconstitutional
+L37: as applied to Hillary and the ads. The District Court
+L38: denied Citizens United a preliminary injunction and granted appellee
+L39: Federal Election Commission (FEC) summary judgment.
+L40: Cite as: 558 U. S. 310 (2010) Syllabus
+L41: 311
+L42: Held:
+L43: 1. Because the question whether § 441b applies to Hillary cannot be
+L44: resolved on other, narrower grounds without chilling political speech,
+L45: this Court must consider the continuing effect of the speech suppression
+L46: upheld in Austin. Pp. 322–336.
+L47: (a) Citizens United’s narrower arguments—that Hillary is not an
+L48: “electioneering communication” covered by § 441b because it is not “publicly
+L49: distributed” under 11 CFR § 100.29(a)(2); that § 441b may not be
+L50: applied to Hillary under Federal Election Comm’n v. Wisconsin Right
+L51: to Life, Inc., 551 U. S. 449 (WRTL), which found § 441b unconstitutional
+L52: as applied to speech that was not “express advocacy or its functional
+L53: equivalent,” id., at 481 (opinion of Roberts, C. J.), determining that a
+L54: communication “is the functional equivalent of express advocacy only if
+L55: [it] is susceptible of no reasonable interpretation other than as an appeal
+L56: to vote for or against a specific candidate,” id., at 469–470; that § 441b
+L57: should be invalidated as applied to movies shown through video-ondemand
+L58: because this delivery system has a lower risk of distorting the
+L59: political process than do television ads; and that there should be an
+L60: exception to § 441b’s ban for nonprofit corporate political speech funded
+L61: overwhelmingly by individuals—are not sustainable under a fair reading
+L62: of the statute. Pp. 322–329.
+L63: (b) Thus, this case cannot be resolved on a narrower ground without
+L64: chilling political speech, speech that is central to the First Amendment’s
+L65: meaning and purpose. Citizens United did not waive this challenge
+L66: to Austin when it stipulated to dismissing the facial challenge
+L67: below, since (1) even if such a challenge could be waived, this Court may
+L68: reconsider Austin and § 441b’s facial validity here because the District
+L69: Court “passed upon” the issue, Lebron v. National Railroad Passenger
+L70: Corporation, 513 U. S. 374, 379; (2) throughout the litigation, Citizens
+L71: United has asserted a claim 
