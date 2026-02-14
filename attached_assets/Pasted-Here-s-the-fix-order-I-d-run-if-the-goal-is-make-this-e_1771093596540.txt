@@ -1,0 +1,178 @@
+Here’s the fix order I’d run if the goal is: make this ecosystem credibly shippable to a real high-stakes buyer (M&A / compliance / healthcare) without collapsing under ops or overclaim.
+
+I’m ordering by procurement blockers first, then trust, then scalability, then nice-to-have.
+
+⸻
+
+Fix Order v1.0 (Blockers → Trust → Scale)
+
+0) Stop the bleeding: Claims + positioning (same day)
+
+Why: Overclaims kill trust instantly, and they’re free to fix.
+	•	Replace “never hallucinate / proves behavior” language with:
+	•	“Evidence-anchored to static artifacts”
+	•	“Runtime behavior not proven by static analysis”
+	•	Add explicit epistemic labels everywhere: PROVEN / INFERRED / UNKNOWN / INCONSISTENT
+	•	Add “Not a security score / not a compliance certification” disclaimers where needed
+
+Deliverable: README + docs wording + ELI prompt + output schema updated.
+
+⸻
+
+1) One-command run: Docker (highest priority)
+
+Why: Without this, nobody outside Replit will even try it.
+	•	Add Dockerfile(s) + docker compose for:
+	•	API service (Node)
+	•	Analyzer service (Python) or integrated image
+	•	Postgres
+	•	Add make up, make analyze, make test wrappers
+	•	Ensure analysis can run without the UI (headless mode)
+
+Acceptance test: A stranger can run:
+
+docker compose up
+
+and successfully analyze a repo.
+
+⸻
+
+2) Identity-bound auth (procurement gate)
+
+Why: Shared API key = instant rejection in enterprise review.
+
+Minimum viable upgrade:
+	•	Per-user API keys or JWT auth (Auth0/Clerk/simple local users to start)
+	•	RBAC roles:
+	•	viewer / operator / admin
+	•	All actions written to audit trail with actor_id
+
+Acceptance test: Two users produce distinct audit trails; revoking one doesn’t kill the other.
+
+⸻
+
+3) Artifact contract + schema hardening (so systems can integrate)
+
+Why: You need deterministic outputs for Halo/Lantern and for buyers.
+	•	Freeze evidence_pack.v1.json schema
+	•	Freeze eli_output.v1.json schema
+	•	Add strict validation and versioning:
+	•	schema_version, tool_version, run_id
+	•	Add “partial coverage” flags:
+	•	analyzed_files_count vs total_files_count
+	•	skipped_types
+	•	timeouts
+
+Acceptance test: Any run produces valid v1 artifacts or fails fast.
+
+⸻
+
+4) Remove circular evidence and self-referential citations
+
+Why: This is the “credibility trap” DeepSeek hit, and it’s real.
+
+Rules:
+	•	PTA output cannot cite PTA output as evidence.
+	•	“Dossier markdown” is not evidence unless it’s explicitly marked “generated summary.”
+
+Implement:
+	•	Evidence refs must point to source artifacts (code/config) or explicit external inputs
+	•	Generated narrative gets its own namespace: generated_ref
+
+Acceptance test: Every PROVEN claim maps to non-generated evidence.
+
+⸻
+
+5) Job execution model (avoid HTTP timeouts, enable scale)
+
+Why: Long analyses don’t belong inside request/response.
+	•	Introduce a job queue:
+	•	simplest: Postgres-backed queue or BullMQ/Redis
+	•	API becomes:
+	•	POST /analyze → returns job_id
+	•	GET /jobs/:id → status
+	•	GET /jobs/:id/artifacts → outputs
+
+Acceptance test: 100k LOC repo doesn’t timeout; results retrievable later.
+
+⸻
+
+6) Key management + rotation runbook (trust + ops)
+
+Why: “Forensic” implies keys won’t be duct-taped.
+	•	Clear secrets model:
+	•	signing keys
+	•	API auth keys
+	•	encryption keys (if any)
+	•	Rotation procedure documented
+	•	Add “key age” / “key id” in receipts
+
+Acceptance test: Rotate a key without breaking verification of old artifacts.
+
+⸻
+
+7) Deployment targets + environment story
+
+Why: Buyers ask “where does it run?” immediately.
+
+Pick one:
+	•	Docker Compose on a VM (fastest)
+	•	ECS/Fargate
+	•	Kubernetes (later)
+
+Document:
+	•	required ports
+	•	persistence volumes
+	•	minimum resources
+	•	logging outputs
+
+Acceptance test: You can deploy to a clean server in under an hour.
+
+⸻
+
+8) Add vulnerability scanning integration (optional but high leverage)
+
+Why: Buyers expect this even if it’s not your core claim.
+
+Integrate one or more:
+	•	Semgrep (SAST)
+	•	Trivy (containers/deps)
+	•	OSV scanner (deps)
+
+Important: present these as adjacent signals, not proof.
+
+Acceptance test: Report includes scan outputs + limitations.
+
+⸻
+
+9) UI polish / React (last)
+
+Why: UI doesn’t matter until the engine is credible.
+
+Only after:
+	•	Docker
+	•	auth
+	•	job model
+	•	schema contracts
+
+Then polish dashboards.
+
+⸻
+
+If You Only Do 3 Things This Week
+	1.	Docker + Compose
+	2.	Identity-bound auth + actor-bound audit
+	3.	Schema contracts + no circular evidence
+
+That gets you from “smart prototype” to “someone can actually run and trust this.”
+
+⸻
+
+Replit-specific guidance
+	•	Keep Replit for dev speed.
+	•	Do not build “Replit-specific deployment” as the production story.
+	•	Use Replit only to iterate until Docker passes the acceptance tests above.
+
+⸻
+
+If you tell me which repo is the “source of truth” for PTA (name + whether it’s currently Replit-first), I’ll translate this fix order into a concrete task list: files to add, endpoints to change, and acceptance tests per PR.
