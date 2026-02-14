@@ -3,6 +3,8 @@ import re
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
+from core.evidence import make_evidence_from_line, make_evidence
+
 
 class ReplitProfiler:
     """Detects Replit-specific configuration and runtime details from a workspace.
@@ -13,7 +15,7 @@ class ReplitProfiler:
 
     SKIP_DIRS = {".git", "node_modules", "__pycache__", ".pythonlibs",
                  ".cache", ".local", ".config", "out", ".upm", ".replit_agent"}
-    SKIP_PATHS = {"server/analyzer"}
+    SKIP_PATHS = set()
     CODE_EXTENSIONS = {".ts", ".js", ".py", ".go", ".rs", ".java", ".rb", ".tsx", ".jsx"}
     COMMON_NON_SECRETS = {
         "NODE_ENV", "PATH", "HOME", "PORT", "PWD", "SHELL", "USER",
@@ -22,8 +24,21 @@ class ReplitProfiler:
         "CI", "DEBUG", "VERBOSE", "LOG_LEVEL",
     }
 
-    def __init__(self, root_dir: Path):
+    def __init__(self, root_dir: Path, self_root: Optional[str] = None):
         self.root = root_dir
+
+        if self_root is not None:
+            self.self_skip_paths = {self_root}
+        else:
+            candidate = self.root / "server" / "analyzer" / "analyzer_cli.py"
+            if candidate.exists():
+                self.self_skip_paths = {"server/analyzer"}
+            else:
+                self.self_skip_paths = set()
+
+    @property
+    def skipped_self_paths(self):
+        return self.self_skip_paths
 
     def detect(self) -> Dict[str, Any]:
         profile: Dict[str, Any] = {
@@ -78,21 +93,21 @@ class ReplitProfiler:
             run_match = re.match(r'^run\s*=\s*"(.+?)"', stripped)
             if run_match:
                 result["run"] = run_match.group(1)
-                result["evidence"].append(f".replit:{i}: {stripped}")
+                result["evidence"].append(make_evidence_from_line(".replit", i, stripped))
 
             entry_match = re.match(r'^entrypoint\s*=\s*"(.+?)"', stripped)
             if entry_match:
                 result["entrypoint"] = entry_match.group(1)
-                result["evidence"].append(f".replit:{i}: {stripped}")
+                result["evidence"].append(make_evidence_from_line(".replit", i, stripped))
 
             lang_match = re.match(r'^language\s*=\s*"(.+?)"', stripped)
             if lang_match:
                 result["language"] = lang_match.group(1)
-                result["evidence"].append(f".replit:{i}: {stripped}")
+                result["evidence"].append(make_evidence_from_line(".replit", i, stripped))
 
             if re.match(r'\[nix\]', stripped):
                 result["has_nix_section"] = True
-                result["evidence"].append(f".replit:{i}: {stripped}")
+                result["evidence"].append(make_evidence_from_line(".replit", i, stripped))
 
         return result
 
@@ -106,7 +121,7 @@ class ReplitProfiler:
                 pkg = m.group(1)
                 if pkg not in result["packages"]:
                     result["packages"].append(pkg)
-                result["evidence"].append(f"replit.nix:{i}: {line.strip()}")
+                result["evidence"].append(make_evidence_from_line("replit.nix", i, line.strip()))
 
         return result
 
@@ -131,6 +146,8 @@ class ReplitProfiler:
             dirs[:] = [d for d in dirs if d not in self.SKIP_DIRS]
             rel_root = os.path.relpath(root, self.root)
             if any(rel_root.startswith(sp) for sp in self.SKIP_PATHS):
+                continue
+            if any(rel_root.startswith(sp) for sp in self.self_skip_paths):
                 continue
             for fname in files:
                 ext = os.path.splitext(fname)[1]
@@ -166,19 +183,19 @@ class ReplitProfiler:
                     m = re.search(pattern, line)
                     if not m:
                         continue
-                    evidence_str = f"{rel}:{line_num}: {line.strip()}"
+                    ev = make_evidence_from_line(rel, line_num, line.strip())
                     if kind in ("listen", "config"):
                         try:
                             results["port"] = int(m.group(1))
                         except (ValueError, IndexError):
                             pass
-                        results["evidence"].append(evidence_str)
+                        results["evidence"].append(ev)
                     elif kind == "bind_all":
                         results["binds_all_interfaces"] = True
-                        results["evidence"].append(evidence_str)
+                        results["evidence"].append(ev)
                     elif kind == "env_port":
                         results["uses_env_port"] = True
-                        results["evidence"].append(evidence_str)
+                        results["evidence"].append(ev)
 
         return results if results["evidence"] else None
 
@@ -189,7 +206,7 @@ class ReplitProfiler:
             r'os\.getenv\(\s*["\']([A-Z_][A-Z0-9_]+)',
         ]
 
-        secrets: Dict[str, List[str]] = {}
+        secrets: Dict[str, List] = {}
 
         for rel, lines in self._walk_code_files():
             for line_num, line in enumerate(lines, start=1):
@@ -200,7 +217,7 @@ class ReplitProfiler:
                             continue
                         if var_name not in secrets:
                             secrets[var_name] = []
-                        secrets[var_name].append(f"{rel}:{line_num}")
+                        secrets[var_name].append(make_evidence_from_line(rel, line_num, line.strip()))
 
         return [{"name": k, "referenced_in": v} for k, v in secrets.items()]
 
@@ -220,7 +237,7 @@ class ReplitProfiler:
             "Anthropic": r'anthropic|claude',
         }
 
-        found: Dict[str, List[str]] = {}
+        found: Dict[str, List] = {}
 
         for rel, lines in self._walk_code_files():
             full_text = "".join(lines).lower()
@@ -228,8 +245,8 @@ class ReplitProfiler:
                 if re.search(pattern, full_text, re.IGNORECASE):
                     if api_name not in found:
                         found[api_name] = []
-                    if rel not in found[api_name]:
-                        found[api_name].append(rel)
+                    if not any(e["path"] == rel for e in found[api_name]):
+                        found[api_name].append(make_evidence(rel, 0, 0, api_name))
 
         return [{"api": k, "evidence_files": v[:5]} for k, v in found.items()]
 
@@ -245,13 +262,13 @@ class ReplitProfiler:
                     for pattern in log_patterns:
                         if re.search(pattern, line):
                             result["logging"] = True
-                            result["evidence"].append(f"{rel}:{line_num}: (logging detected)")
+                            result["evidence"].append(make_evidence_from_line(rel, line_num, "(logging detected)"))
                             break
 
                 for pattern in health_patterns:
                     if re.search(pattern, line):
                         result["health_endpoint"] = True
-                        result["evidence"].append(f"{rel}:{line_num}: {line.strip()}")
+                        result["evidence"].append(make_evidence_from_line(rel, line_num, line.strip()))
 
         return result
 

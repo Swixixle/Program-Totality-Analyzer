@@ -29,6 +29,7 @@ def analyze(
     target: Optional[str] = typer.Argument(None, help="GitHub URL or local path to analyze"),
     output_dir: str = typer.Option(..., "--output-dir", "-o", help="Directory to write output files"),
     replit: bool = typer.Option(False, "--replit", help="Analyze current Replit workspace"),
+    root: Optional[str] = typer.Option(None, "--root", help="Subdirectory within target to scope analysis"),
 ):
     """
     Analyze a software project and generate a dossier.
@@ -57,7 +58,7 @@ def analyze(
         raise typer.Exit(code=1)
 
     try:
-        analyzer = Analyzer(source, output_dir, mode=mode)
+        analyzer = Analyzer(source, output_dir, mode=mode, root=root)
         asyncio.run(analyzer.run())
         console.print(f"[bold green]Analysis complete![/bold green] Results in {output_dir}")
     except Exception as e:

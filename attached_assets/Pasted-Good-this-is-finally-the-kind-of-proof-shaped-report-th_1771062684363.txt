@@ -1,0 +1,172 @@
+Good — this is finally the kind of “proof-shaped” report that lets us reason. I’m going to be blunt about what’s still missing: **I still don’t have the actual artifacts**, just excerpts. But the excerpts are specific enough to move forward with a tight next-step review.
+
+Here’s the architect-grade read on what you’ve got, plus the **next changes to demand from agents** to harden V1.
+
+---
+
+## What’s solid now
+
+### 1) CLI contract is correct
+
+You restored and enforced:
+
+```bash
+python analyzer_cli.py analyze --replit -o <dir>
+```
+
+And `--help` shows `COMMAND [ARGS]...` with `analyze` listed. That was the right fix.
+
+### 2) Replit mode produces the right artifact set
+
+Outputs include:
+
+* `DOSSIER.md`
+* `target_howto.json`
+* `replit_profile.json`
+* packs
+* `claims.json`, `coverage.json`, `index.json`
+
+That matches the product contract.
+
+### 3) Secrets handling is correct
+
+`required_secrets` are **names only**, with `file:line` references. That is exactly what we want.
+
+---
+
+## What’s still not proven / still at risk
+
+### A) Evidence format drift: “file:line references” vs your contract (line ranges + snippet hash)
+
+You’re reporting evidence like `README.md:3` and `drizzle.config.ts:3`.
+
+But the contract we laid down was stronger:
+
+* `path`
+* `line_start`
+* `line_end`
+* `snippet_hash` (stable id)
+* and ideally the pack has embedded `L#:` lines
+
+**Why it matters:** single-line references are brittle and easy to fake; line ranges + snippet hash gives audit-grade traceability.
+
+**Action:** tighten evidence schema now, before you add more lenses.
+
+### B) Replit profile false positive fix: “skip analyzer paths”
+
+Good instinct—but we need it done correctly:
+
+* It should exclude **the analyzer’s own subtree** (e.g., `server/analyzer/`) when analyzing the workspace, **unless** the target is the analyzer itself.
+* But your tool is being run *inside* a larger monorepo with `server/analyzer/…`.
+  So you need a robust “self-skip” rule that doesn’t accidentally skip real target code when the analyzer lives alongside it.
+
+**Action:** implement a `--self-root` or auto-detect self path and skip only that subtree.
+
+### C) “How to Use the Target System” quality gate
+
+You’re saying it exists, but we must ensure it’s not generic.
+
+For the target manual to be real, it must extract and output:
+
+* `.replit` run command (if present)
+* `package.json` scripts / `pyproject` entrypoints
+* ports and binding behavior (`0.0.0.0`, `PORT`, etc.)
+* actual endpoints (from routes)
+* smoke tests (from CI scripts or health endpoints)
+* common failures (only if evidenced; otherwise unknown)
+
+**Action:** add a “Manual Completeness Score” (deterministic) to prevent fake manuals.
+
+---
+
+## High-value next hardening step: Manual Completeness Score
+
+Add to `target_howto.json`:
+
+```json
+{
+  "completeness": {
+    "score": 0.0,
+    "max": 100,
+    "missing": ["run_prod", "verification_steps"],
+    "notes": "No Dockerfile found; no health endpoint found."
+  }
+}
+```
+
+Scoring (suggested):
+
+* +20 if run command is evidenced (README/scripts/.replit)
+* +15 if required secrets list exists with evidence
+* +15 if port behavior evidenced
+* +20 if verification/smoke steps evidenced
+* +15 if integration steps evidenced (endpoints/CLI usage)
+* +15 if install steps evidenced
+
+This makes the tool *honest by construction*.
+
+---
+
+## Required agent ask (paste this to them)
+
+This is the next message you should send to Replit agents to tighten V1:
+
+> **HARDEN V1 — Evidence Schema + Manual Completeness**
+>
+> 1. Update evidence format everywhere to:
+>
+>    * `path`, `line_start`, `line_end`, `snippet_hash`
+>    * Keep `path:line` only as display convenience (optional).
+>
+> 2. Ensure all packs embed line numbers (`L1:` etc.) and all evidence ranges align to pack line numbers or source file line numbers consistently (pick one; document it).
+>
+> 3. Add `completeness.score` to `target_howto.json` with deterministic scoring and a `missing[]` list.
+>
+> 4. Add `unknowns[]` items for any missing operator manual fields, each with:
+>
+>    * `what_is_missing`
+>    * `why_it_matters`
+>    * `what_evidence_needed`
+>
+> 5. Add a `self_skip` mechanism so Replit workspace analysis does not pattern-match against analyzer source files:
+>
+>    * auto-detect analyzer root and exclude only that subtree
+>    * include a note in `coverage.json` about excluded self paths
+>
+> 6. Provide proofs:
+>
+>    * print `schemas/*.json` contents for claims + evidence + howto
+>    * show one claim from `claims.json` with the new evidence object
+>    * show one howto step from `target_howto.json` with line range + snippet_hash
+
+---
+
+## One strategic decision to lock
+
+You’re in a monorepo-ish layout (`server/analyzer/...` plus `server/routes.ts` etc.). Decide this now:
+
+* **Default target in `--replit` mode** should be:
+
+  * **workspace root** (current behavior), OR
+  * **a configured subdirectory** (e.g., `--root server/analyzer_target`)
+
+If you keep scanning the whole workspace, your manuals will conflate multiple apps unless you add project selection.
+
+Best v1: keep workspace root but allow:
+
+```bash
+python analyzer_cli.py analyze --replit --root server
+```
+
+No need to ask users later; implement now.
+
+---
+
+## What I need from you to proceed (no extra questions)
+
+Paste **just these two things** from the live artifacts (not summaries):
+
+1. The first ~120 lines of `out/<run_id>/target_howto.json`
+2. One representative claim object from `out/<run_id>/claims.json`
+
+Once I see those, I can tell you exactly whether the operator manual and evidence model are truly “audit-grade” or still too soft.
