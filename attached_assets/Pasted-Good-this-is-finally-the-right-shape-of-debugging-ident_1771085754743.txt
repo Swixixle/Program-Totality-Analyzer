@@ -1,0 +1,170 @@
+Good — this is finally the right shape of debugging (identify the real failure mode, fix it, re-run acceptance). The “section name mismatch → empty buckets” diagnosis is exactly the kind of bug I expected.
+
+But I’m still not accepting “PASS” on prose. Your summary is now plausible, yet it still contains two governance-critical divergences from the spec we gave the agent, and one metric-risk that will bite you later if you don’t lock it down.
+
+Below is what you should send back to the Replit agent as the final “close-out” requirement, plus the guardrails to keep Wave 1 from silently drifting.
+
+⸻
+
+1) Hard correction: schema drift vs. the original contract
+
+The original Wave 1 contract we set
+
+EvidencePack verified had structured buckets (routes, dependencies, schemas, enforcement) because that enables deterministic diff semantics and keeps downstream consumers stable.
+
+What the agent now did
+
+They changed verified into dynamic section-keyed groups (“What the Target System Is”, “Integration Surface”, etc.).
+
+That is not automatically wrong — but it’s a contract change. It can still be valid if you treat Wave 1 as “EvidencePack v1 = verified-claims pack” rather than “structural surface pack.”
+
+Decision (do this now, no debate):
+	•	Keep EvidencePack v1 as a claims pack (dynamic sections) AND
+	•	Add a second, optional structured namespace for the future:
+
+"verified_structural": {
+  "routes": [...],
+  "dependencies": [...],
+  "schemas": [...],
+  "enforcement": {...}
+}
+
+This preserves your “no rewrite” approach while keeping the door open for the governance-grade surface map later without breaking v1 consumers.
+
+Directive to agent: implement verified_structural as best-effort from existing deterministic outputs (target_howto.json etc.) and never infer.
+
+⸻
+
+2) VERIFIED semantics: you’re close, but you must lock the rule
+
+Your agent’s revised story now implies:
+	•	snippet_hash_verified=True exists in --no-llm mode ✅ (good)
+	•	adapter includes “verified claims” based on snippet_hash_verified ✅ (good)
+	•	BUT they also mentioned file_exists evidence has a verified field, not snippet_hash_verified.
+
+Policy decision: do not allow “verified” as a loose boolean to elevate a claim to VERIFIED unless it is explicitly defined.
+
+You need one single function that defines VERIFIED, used everywhere:
+
+Acceptable v1 rule:
+A claim is VERIFIED iff at least one evidence item satisfies:
+	•	snippet_hash present, and
+	•	snippet_hash_verified == True, and
+	•	the referenced file exists at analysis time.
+
+Everything else stays UNKNOWN/UNVERIFIED.
+
+If you want to allow “file_exists verified” later, make it a different tier:
+	•	EVIDENCE_VERIFIED_HASH
+	•	EVIDENCE_VERIFIED_EXISTENCE
+
+But don’t mix them under “VERIFIED claim” until you’ve codified the semantics.
+
+Directive to agent: create pta/verify_policy.py with is_verified_claim(claim)->bool and use it in adapter/render/diff. No duplicated logic.
+
+⸻
+
+3) DCI: your current numbers smell like a category error
+
+The agent reported:
+
+DCI score: 36.6% (78% claims coverage, 0% unknowns coverage, 32% howto completeness)
+
+This is dangerous unless you explicitly define DCI as visibility over a specific denominator.
+
+You previously positioned DCI as:
+
+percent of system surface that is verifiably mapped
+
+If you fold “unknowns coverage” and “howto completeness” into DCI, you’ve mutated it into a composite maturity score — which is exactly what we said NOT to do (liability + confusion + “security score” vibes).
+
+Fix:
+	•	Rename the composite to something else (e.g., Reporting Completeness Index (RCI)).
+	•	Keep DCI strictly structural visibility:
+	•	routes mapped %
+	•	deps mapped %
+	•	schema mapped %
+	•	enforcement evidence mapped %
+	•	(N/A excluded)
+
+If you don’t yet have structural buckets, then DCI v1 must be clearly labeled:
+	•	DCI_v1_claims_visibility (explicitly not structural)
+…and you plan DCI_v2_structural_visibility when verified_structural is populated.
+
+Directive to agent: rename metrics so you never accidentally sell a maturity score as visibility.
+
+⸻
+
+4) Final close-out requirement: provide the evidence, not explanations
+
+Tell the agent: no more narrative. Only artifacts.
+
+They must paste:
+
+A) The diffs
+	•	git diff --stat
+	•	git diff for:
+	•	pta/unknowns.py
+	•	pta/adapter.py
+	•	pta/render*.py
+	•	pta_diff.py
+	•	CLI changes
+
+B) The schema excerpt
+
+First 80–120 lines of evidence_pack.v1.json showing:
+	•	evidence_pack_version
+	•	verified
+	•	unknowns
+	•	metrics
+	•	hashes
+
+C) A deterministic proof of VERIFIED in --no-llm
+
+Paste a short excerpt from claims.json showing snippet_hash_verified: true.
+
+D) Diff output excerpt
+
+First 80 lines of DIFF_REPORT.md showing:
+	•	changes
+	•	DCI delta (or renamed metric delta)
+	•	unknown transitions
+…and no risk language
+
+⸻
+
+5) What you should do after they comply
+
+Once artifacts match invariants:
+	1.	Lock the contract in docs
+	•	Add docs/EVIDENCEPACK_V1.md with:
+	•	schema
+	•	VERIFIED policy
+	•	UNKNOWN policy
+	•	metric definitions
+	2.	Add golden fixtures
+	•	fixtures/packA.json, fixtures/packB.json
+	•	fixtures/diff_expected.json
+	•	Snapshot tests ensure no drift.
+	3.	Tag a release
+	•	v0.1.0-wave1 (or similar)
+	•	This matters for governance: stable reference.
+
+⸻
+
+Message you can send to the Replit agent verbatim
+
+Provide artifacts only:
+	1.	Paste git diff --stat and diffs for unknowns/adapter/render/diff/CLI.
+	2.	Paste first ~120 lines of evidence_pack.v1.json showing keys and structure.
+	3.	Paste an excerpt of claims.json proving snippet_hash_verified: true in --no-llm.
+	4.	Paste first ~80 lines of DIFF_REPORT.md.
+	5.	Implement two corrections:
+	•	Add verified_structural namespace (routes/deps/schemas/enforcement) without inference (best-effort).
+	•	Create pta/verify_policy.py with is_verified_claim() and use it everywhere.
+	•	Rename metrics: keep DCI strictly “visibility” (or explicitly name it DCI_v1_claims_visibility); move composite into separate metric name.
+No further prose until those are delivered.
+
+⸻
+
+If you run that gate, you’ll end Wave 1 with something that’s not just “working,” but contractually stable—which is the whole point of PTA.

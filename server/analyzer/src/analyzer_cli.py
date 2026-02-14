@@ -130,7 +130,9 @@ def diff(
     console.print(f"  DIFF_REPORT.md: {diff_report_path}")
 
     dci = result.get("dci_delta", {})
-    console.print(f"  DCI: {dci.get('old_score', 0):.2%} -> {dci.get('new_score', 0):.2%} ({dci.get('direction', '?')})")
+    rci = result.get("rci_delta", {})
+    console.print(f"  DCI v1: {dci.get('old_score', 0):.2%} -> {dci.get('new_score', 0):.2%} ({dci.get('direction', '?')})")
+    console.print(f"  RCI: {rci.get('old_score', 0):.2%} -> {rci.get('new_score', 0):.2%} ({rci.get('direction', '?')})")
 
 
 @app.command("render")

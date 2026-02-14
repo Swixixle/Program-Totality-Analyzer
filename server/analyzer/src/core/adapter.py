@@ -5,11 +5,9 @@ Assembles existing extraction outputs into a stable EvidencePack v1
 contract for governance features. Does NOT modify original artifacts.
 
 Verification policy:
-  - Only claims with snippet_hash_verified evidence are included in
-    the "verified" section.
+  - Delegated entirely to verify_policy.is_verified_claim().
   - Claims are grouped by their original extractor-assigned section.
   - No keyword reclassification or inference is performed.
-  - file_exists evidence with verified=True is also accepted.
 
 All downstream rendering and diff operations consume this pack only.
 """
@@ -18,6 +16,8 @@ import json
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 from datetime import datetime, timezone
+
+from .verify_policy import is_verified_claim, get_verified_evidence
 
 
 EVIDENCE_PACK_VERSION = "1.0"
@@ -38,9 +38,8 @@ def build_evidence_pack(
     This is a pure post-processing function — it reads but never modifies
     the original extraction artifacts.
 
-    Only claims with deterministically verified evidence anchors
-    (snippet_hash_verified=True or file_exists with verified=True)
-    are included. Claims are grouped by their extractor-assigned section.
+    Only claims passing verify_policy.is_verified_claim() are included.
+    Claims are grouped by their extractor-assigned section.
     """
     verified_claims = _get_verified_claims(claims)
 
@@ -50,10 +49,9 @@ def build_evidence_pack(
         "mode": mode,
         "run_id": run_id,
         "verified": _group_by_section(verified_claims),
+        "verified_structural": _build_verified_structural(verified_claims, howto, file_index),
         "unknowns": known_unknowns,
-        "metrics": {
-            "dci": _compute_dci(howto, claims, known_unknowns, coverage),
-        },
+        "metrics": _build_metrics(howto, claims, known_unknowns, coverage),
         "hashes": {
             "snippets": _collect_snippet_hashes(claims, howto),
         },
@@ -101,37 +99,19 @@ def _get_claims_list(claims: Dict[str, Any]) -> List[Dict]:
     return []
 
 
-def _is_evidence_verified(ev: dict) -> bool:
-    """
-    An evidence anchor is verified if EITHER:
-      - snippet_hash_verified is True (line-level hash match), OR
-      - kind is file_exists and verified is True (file presence check)
-    Both are deterministic — neither requires LLM.
-    """
-    if not isinstance(ev, dict):
-        return False
-    if ev.get("snippet_hash_verified", False):
-        return True
-    if ev.get("kind") == "file_exists" and ev.get("verified", False):
-        return True
-    return False
-
-
 def _get_verified_claims(claims: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
-    Return only claims that have at least one deterministically verified
-    evidence anchor. This is the only way a claim enters the EvidencePack's
-    verified section.
+    Return only claims that pass verify_policy.is_verified_claim().
+    This is the only way a claim enters the EvidencePack's verified section.
     """
     result = []
     for claim in _get_claims_list(claims):
-        verified_evidence = [ev for ev in claim.get("evidence", []) if _is_evidence_verified(ev)]
-        if verified_evidence:
+        if is_verified_claim(claim):
             result.append({
                 "id": claim.get("id", ""),
                 "statement": claim.get("statement", ""),
                 "section": claim.get("section", ""),
-                "evidence": verified_evidence,
+                "evidence": get_verified_evidence(claim),
                 "confidence": claim.get("confidence", 0),
             })
     return result
@@ -151,21 +131,126 @@ def _group_by_section(verified_claims: List[Dict[str, Any]]) -> Dict[str, List[D
     return groups
 
 
-def _compute_dci(
+def _build_verified_structural(
+    verified_claims: List[Dict[str, Any]],
+    howto: Dict[str, Any],
+    file_index: List[str],
+) -> Dict[str, List[Dict[str, Any]]]:
+    """
+    Best-effort structural namespace for governance-grade surface mapping.
+    Populates routes/dependencies/schemas/enforcement from existing
+    deterministic outputs ONLY. Never infers — if no evidence, returns [].
+
+    This is an optional, forward-looking namespace. v1 consumers should
+    treat it as best-effort.
+    """
+    import re
+
+    structural: Dict[str, List[Dict[str, Any]]] = {
+        "routes": [],
+        "dependencies": [],
+        "schemas": [],
+        "enforcement": [],
+    }
+
+    dep_patterns = re.compile(
+        r"dependenc|package\.json|requirements\.txt|pyproject\.toml|cargo\.toml|go\.mod|gemfile",
+        re.I,
+    )
+    schema_patterns = re.compile(
+        r"schema|migration|model|drizzle|prisma|sequelize|typeorm|alembic|\.sql$",
+        re.I,
+    )
+    route_patterns = re.compile(
+        r"route|endpoint|api|controller|handler|router",
+        re.I,
+    )
+    enforcement_patterns = re.compile(
+        r"auth|permission|rbac|acl|guard|middleware|policy|validator",
+        re.I,
+    )
+
+    for claim in verified_claims:
+        statement_lower = claim.get("statement", "").lower()
+        evidence = claim.get("evidence", [])
+
+        placed = False
+        for ev in evidence:
+            path = ev.get("path", "").lower() if isinstance(ev, dict) else ""
+
+            if dep_patterns.search(path) or dep_patterns.search(statement_lower):
+                structural["dependencies"].append(claim)
+                placed = True
+                break
+            if schema_patterns.search(path):
+                structural["schemas"].append(claim)
+                placed = True
+                break
+            if route_patterns.search(path):
+                structural["routes"].append(claim)
+                placed = True
+                break
+            if enforcement_patterns.search(path):
+                structural["enforcement"].append(claim)
+                placed = True
+                break
+
+        if not placed:
+            if route_patterns.search(statement_lower):
+                structural["routes"].append(claim)
+            elif schema_patterns.search(statement_lower):
+                structural["schemas"].append(claim)
+            elif enforcement_patterns.search(statement_lower):
+                structural["enforcement"].append(claim)
+
+    install_steps = howto.get("install_steps", [])
+    if isinstance(install_steps, list):
+        for step in install_steps:
+            if not isinstance(step, dict):
+                continue
+            ev = step.get("evidence")
+            if isinstance(ev, dict) and ev.get("snippet_hash_verified") is True and ev.get("snippet_hash") and ev.get("path"):
+                cmd = step.get("command", "")
+                if cmd and ("install" in cmd.lower() or "pip" in cmd.lower() or "npm" in cmd.lower()):
+                    structural["dependencies"].append({
+                        "id": f"howto_install_{len(structural['dependencies'])}",
+                        "statement": step.get("description", cmd),
+                        "section": "howto:install_steps",
+                        "evidence": [ev],
+                        "confidence": 0.5,
+                    })
+
+    schema_files = [
+        f for f in file_index
+        if schema_patterns.search(f)
+    ]
+    for sf in schema_files[:5]:
+        already = any(
+            any(e.get("path", "") == sf for e in c.get("evidence", []) if isinstance(e, dict))
+            for c in structural["schemas"]
+        )
+        if not already:
+            structural["schemas"].append({
+                "id": f"structural_schema_file_{sf}",
+                "statement": f"Schema/migration file detected: {sf}",
+                "section": "structural:file_index",
+                "evidence": [{"path": sf, "kind": "file_exists_index", "note": "from file index, not claim evidence"}],
+                "confidence": 0.3,
+            })
+
+    return structural
+
+
+def _build_metrics(
     howto: Dict[str, Any],
     claims: Dict[str, Any],
     known_unknowns: List[Dict[str, Any]],
     coverage: Dict[str, Any],
 ) -> Dict[str, Any]:
     """
-    Deterministic Coverage Index — a visibility metric, NOT a security score.
-
-    Lower DCI = lower visibility, NOT insecure.
-
-    Straight average across coverage classes:
-      - claims_coverage: ratio of claims with verified evidence
-      - unknowns_coverage: ratio of VERIFIED unknown categories
-      - howto_completeness: from existing completeness score
+    Build metrics namespace with clear separation:
+      - rci: Reporting Completeness Index (composite maturity)
+      - dci_v1_claims_visibility: claims-only visibility ratio
     """
     claim_list = _get_claims_list(claims)
     total_claims = len(claim_list)
@@ -181,17 +266,26 @@ def _compute_dci(
     howto_max = completeness.get("max", 100) if isinstance(completeness, dict) else 100
     howto_coverage = (howto_score / howto_max) if howto_max > 0 else 0.0
 
-    dci_score = round((claims_coverage + unknowns_coverage + howto_coverage) / 3.0, 4)
+    rci_score = round((claims_coverage + unknowns_coverage + howto_coverage) / 3.0, 4)
 
     return {
-        "score": dci_score,
-        "formula": "average(claims_coverage, unknowns_coverage, howto_completeness)",
-        "components": {
-            "claims_coverage": round(claims_coverage, 4),
-            "unknowns_coverage": round(unknowns_coverage, 4),
-            "howto_completeness": round(howto_coverage, 4),
+        "rci": {
+            "score": rci_score,
+            "label": "Reporting Completeness Index",
+            "formula": "average(claims_coverage, unknowns_coverage, howto_completeness)",
+            "components": {
+                "claims_coverage": round(claims_coverage, 4),
+                "unknowns_coverage": round(unknowns_coverage, 4),
+                "howto_completeness": round(howto_coverage, 4),
+            },
+            "interpretation": "Composite completeness of PTA reporting. NOT a security or structural visibility score.",
         },
-        "interpretation": "Lower DCI = lower visibility into the system. This is NOT a security score.",
+        "dci_v1_claims_visibility": {
+            "score": round(claims_coverage, 4),
+            "label": "DCI v1 — Claims Visibility",
+            "formula": "verified_claims / total_claims",
+            "interpretation": "Percent of claims with deterministic hash-verified evidence. Structural DCI (routes/deps/schemas/enforcement) planned for v2.",
+        },
     }
 
 

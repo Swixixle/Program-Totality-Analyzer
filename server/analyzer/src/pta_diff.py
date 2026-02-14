@@ -9,7 +9,7 @@ Only deterministic comparison signals are allowed:
   - Claim add/remove per section
   - Snippet hash changes within claims
   - Unknown category status delta
-  - DCI delta
+  - RCI / DCI delta
 
 NOT allowed:
   - Interpreting risk
@@ -56,9 +56,13 @@ def diff_packs(pack_a: Dict[str, Any], pack_b: Dict[str, Any]) -> Dict[str, Any]
             pack_a.get("hashes", {}).get("snippets", []),
             pack_b.get("hashes", {}).get("snippets", []),
         ),
-        "dci_delta": _diff_dci(
-            pack_a.get("metrics", {}).get("dci", {}),
-            pack_b.get("metrics", {}).get("dci", {}),
+        "rci_delta": _diff_metric(
+            pack_a.get("metrics", {}).get("rci", {}),
+            pack_b.get("metrics", {}).get("rci", {}),
+        ),
+        "dci_delta": _diff_metric(
+            pack_a.get("metrics", {}).get("dci_v1_claims_visibility", {}),
+            pack_b.get("metrics", {}).get("dci_v1_claims_visibility", {}),
         ),
     }
 
@@ -144,13 +148,13 @@ def _diff_hashes(hashes_a: List[str], hashes_b: List[str]) -> Dict[str, Any]:
     }
 
 
-def _diff_dci(dci_a: Dict[str, Any], dci_b: Dict[str, Any]) -> Dict[str, Any]:
-    score_a = dci_a.get("score", 0)
-    score_b = dci_b.get("score", 0)
+def _diff_metric(metric_a: Dict[str, Any], metric_b: Dict[str, Any]) -> Dict[str, Any]:
+    score_a = metric_a.get("score", 0)
+    score_b = metric_b.get("score", 0)
     delta = round(score_b - score_a, 4)
 
-    components_a = dci_a.get("components", {})
-    components_b = dci_b.get("components", {})
+    components_a = metric_a.get("components", {})
+    components_b = metric_b.get("components", {})
 
     component_deltas = {}
     all_keys = sorted(set(list(components_a.keys()) + list(components_b.keys())))
@@ -192,12 +196,20 @@ def render_diff_report(diff: Dict[str, Any]) -> str:
     ]
 
     dci = diff.get("dci_delta", {})
-    lines.append("## DCI Delta")
+    lines.append("## DCI v1 (Claims Visibility) Delta")
     lines.append("")
     lines.append(f"- Old: {dci.get('old_score', 0):.2%}")
     lines.append(f"- New: {dci.get('new_score', 0):.2%}")
     lines.append(f"- Delta: {dci.get('delta', 0):+.2%} ({dci.get('direction', '?')})")
-    for k, v in dci.get("component_deltas", {}).items():
+    lines.append("")
+
+    rci = diff.get("rci_delta", {})
+    lines.append("## RCI (Reporting Completeness) Delta")
+    lines.append("")
+    lines.append(f"- Old: {rci.get('old_score', 0):.2%}")
+    lines.append(f"- New: {rci.get('new_score', 0):.2%}")
+    lines.append(f"- Delta: {rci.get('delta', 0):+.2%} ({rci.get('direction', '?')})")
+    for k, v in rci.get("component_deltas", {}).items():
         lines.append(f"  - {k}: {v:+.2%}")
     lines.append("")
 

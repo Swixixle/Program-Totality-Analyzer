@@ -5,10 +5,12 @@ Renders analysis reports from EvidencePack only.
 Never re-reads extraction artifacts directly.
 Never re-runs extraction or analysis.
 
+Uses verify_policy for any verification checks.
+
 Modes:
   - engineer: Full file:line references, raw evidence, verbose
   - auditor: VERIFIED + UNKNOWN only, evidence anchors, no inferred narrative
-  - executive: Metrics first (DCI), surface area summaries, no file:line clutter
+  - executive: Metrics first (RCI + DCI), surface area summaries, no file:line clutter
 """
 
 from typing import Dict, Any, List
@@ -57,6 +59,14 @@ def _count_verified_claims(pack: Dict[str, Any]) -> int:
     return total
 
 
+def _get_rci(pack: Dict[str, Any]) -> Dict[str, Any]:
+    return pack.get("metrics", {}).get("rci", {})
+
+
+def _get_dci(pack: Dict[str, Any]) -> Dict[str, Any]:
+    return pack.get("metrics", {}).get("dci_v1_claims_visibility", {})
+
+
 def _render_engineer(pack: Dict[str, Any]) -> str:
     lines = [
         f"# Program Totality Report — Engineer View",
@@ -80,16 +90,25 @@ def _render_engineer(pack: Dict[str, Any]) -> str:
     lines.append(f"- Verified categories: {summary.get('verified_categories', 0)}")
     lines.append("")
 
-    dci = pack.get("metrics", {}).get("dci", {})
-    lines.append("## Deterministic Coverage Index (DCI)")
+    dci = _get_dci(pack)
+    rci = _get_rci(pack)
+
+    lines.append("## DCI v1 — Claims Visibility")
     lines.append("")
     lines.append(f"**Score:** {dci.get('score', 0):.2%}")
     lines.append(f"**Formula:** {dci.get('formula', 'N/A')}")
-    components = dci.get("components", {})
+    lines.append(f"*{dci.get('interpretation', '')}*")
+    lines.append("")
+
+    lines.append("## Reporting Completeness Index (RCI)")
+    lines.append("")
+    lines.append(f"**Score:** {rci.get('score', 0):.2%}")
+    lines.append(f"**Formula:** {rci.get('formula', 'N/A')}")
+    components = rci.get("components", {})
     for k, v in components.items():
         lines.append(f"- {k}: {v:.2%}")
     lines.append(f"")
-    lines.append(f"*{dci.get('interpretation', '')}*")
+    lines.append(f"*{rci.get('interpretation', '')}*")
     lines.append("")
 
     verified_sections = _get_verified_sections(pack)
@@ -106,6 +125,19 @@ def _render_engineer(pack: Dict[str, Any]) -> str:
             for ev in claim.get("evidence", []):
                 if isinstance(ev, dict):
                     lines.append(f"- Evidence: {_render_evidence_anchor(ev)}")
+            lines.append("")
+
+    structural = pack.get("verified_structural", {})
+    if structural and any(v for v in structural.values() if isinstance(v, list) and v):
+        lines.append("## Verified Structural (best-effort)")
+        lines.append("")
+        for bucket, items in sorted(structural.items()):
+            if not isinstance(items, list) or not items:
+                continue
+            lines.append(f"### {bucket}")
+            lines.append("")
+            for item in items:
+                lines.append(f"- {item.get('statement', '?')}")
             lines.append("")
 
     lines.append("## Known Unknown Surface")
@@ -169,10 +201,15 @@ def _render_auditor(pack: Dict[str, Any]) -> str:
                     lines.append(f"  - Evidence anchor: {_render_evidence_anchor(ev)}")
             lines.append("")
 
-    dci = pack.get("metrics", {}).get("dci", {})
-    lines.append("## DCI Score")
+    dci = _get_dci(pack)
+    rci = _get_rci(pack)
+    lines.append("## DCI v1 — Claims Visibility")
     lines.append("")
     lines.append(f"**{dci.get('score', 0):.2%}** — {dci.get('interpretation', '')}")
+    lines.append("")
+    lines.append("## Reporting Completeness Index (RCI)")
+    lines.append("")
+    lines.append(f"**{rci.get('score', 0):.2%}** — {rci.get('interpretation', '')}")
     lines.append("")
 
     return "\n".join(lines)
@@ -180,7 +217,8 @@ def _render_auditor(pack: Dict[str, Any]) -> str:
 
 def _render_executive(pack: Dict[str, Any]) -> str:
     summary = pack.get("summary", {})
-    dci = pack.get("metrics", {}).get("dci", {})
+    dci = _get_dci(pack)
+    rci = _get_rci(pack)
     unknowns = pack.get("unknowns", [])
     unknown_count = len([u for u in unknowns if u.get("status") == "UNKNOWN"])
     verified_cat_count = len([u for u in unknowns if u.get("status") == "VERIFIED"])
@@ -196,20 +234,22 @@ def _render_executive(pack: Dict[str, Any]) -> str:
         "",
         f"| Metric | Value |",
         f"|--------|-------|",
-        f"| DCI Score | {dci.get('score', 0):.1%} |",
+        f"| DCI v1 (Claims Visibility) | {dci.get('score', 0):.1%} |",
+        f"| RCI (Reporting Completeness) | {rci.get('score', 0):.1%} |",
         f"| Files Scanned | {summary.get('total_files', 0)} |",
         f"| Total Claims | {summary.get('total_claims', 0)} |",
         f"| Verified Claims | {summary.get('verified_claims', 0)} |",
         f"| Unknown Categories | {unknown_count} / {len(unknowns)} |",
         f"| Verified Categories | {verified_cat_count} / {len(unknowns)} |",
         "",
-        f"*{dci.get('interpretation', '')}*",
+        f"*DCI v1: {dci.get('interpretation', '')}*",
+        f"*RCI: {rci.get('interpretation', '')}*",
         "",
-        "## Coverage Breakdown",
+        "## RCI Coverage Breakdown",
         "",
     ]
 
-    components = dci.get("components", {})
+    components = rci.get("components", {})
     for k, v in components.items():
         bar_filled = int(v * 20)
         bar = "#" * bar_filled + "-" * (20 - bar_filled)
