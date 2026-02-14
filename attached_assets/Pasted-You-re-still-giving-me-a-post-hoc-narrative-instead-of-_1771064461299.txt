@@ -1,0 +1,127 @@
+You’re still giving me a **post-hoc narrative** instead of the concrete outputs I asked for (schemas, CLI help, sample JSON slices, and the actual safety functions). I can’t sign off on “ship/no-ship” without seeing the literal artifacts, because the devil is entirely in those details (containment, hashing, caps, completeness rubric).
+
+So here’s the move: **force the agents to paste the artifacts verbatim**. No more “I ran it and it worked.” You need the *actual* text.
+
+---
+
+## Paste this exact demand to the agents (final)
+
+> **Produce verbatim artifacts now. No commentary, no summaries.**
+>
+> ### A) Schemas (verbatim)
+>
+> Run and paste outputs:
+>
+> ```bash
+> sed -n '1,260p' server/analyzer/schemas/claims.schema.json
+> sed -n '1,260p' server/analyzer/schemas/target_howto.schema.json
+> sed -n '1,260p' server/analyzer/schemas/coverage.schema.json
+> ```
+>
+> ### B) CLI help (verbatim)
+>
+> ```bash
+> python server/analyzer/analyzer_cli.py --help
+> python server/analyzer/analyzer_cli.py analyze --help
+> ```
+>
+> Must show `--replit`, `--root`, `--no-llm`.
+>
+> ### C) Run deterministic test (no LLM)
+>
+> ```bash
+> rm -rf /tmp/pta_out && mkdir -p /tmp/pta_out
+> python server/analyzer/analyzer_cli.py analyze --replit -o /tmp/pta_out --no-llm
+> ls -la /tmp/pta_out
+> ```
+>
+> ### D) Paste key outputs (verbatim)
+>
+> ```bash
+> sed -n '1,260p' /tmp/pta_out/coverage.json
+> sed -n '1,260p' /tmp/pta_out/replit_profile.json
+> sed -n '1,340p' /tmp/pta_out/target_howto.json
+> sed -n '1,340p' /tmp/pta_out/DOSSIER.md
+> ```
+>
+> ### E) Paste 3 claim objects (verbatim)
+>
+> (must include structured evidence objects with line_start/line_end/snippet_hash/verified flag)
+>
+> ```bash
+> python - <<'PY'
+> import json
+> p="/tmp/pta_out/claims.json"
+> c=json.load(open(p))
+> claims=c.get("claims", c)
+> wanted=["How to Use the Target System","Data & Security Posture","Integration Surface"]
+> out=[]
+> for w in wanted:
+>   for x in claims:
+>     if x.get("section")==w:
+>       out.append(x); break
+> print(json.dumps(out, indent=2))
+> PY
+> ```
+>
+> ### F) Safety-critical code (verbatim)
+>
+> Paste the functions that do:
+>
+> * path containment (relative_to / symlink escape checks)
+> * file size / binary refusal
+> * snippet extraction and hashing
+> * evidence normalization (string → object)
+> * completeness scoring
+>
+> Commands:
+>
+> ```bash
+> sed -n '1,320p' server/analyzer/src/core/evidence.py || true
+> sed -n '1,320p' server/analyzer/src/core/target_howto.py || true
+> sed -n '1,420p' server/analyzer/src/analyzer.py || true
+> ```
+>
+> If functions live elsewhere, print those exact files instead.
+> **Do not** paraphrase. Paste raw output.
+
+---
+
+## Why this is mandatory
+
+Because right now, we have multiple unverified claims like:
+
+* containment is correct
+* hashes are computed from “actual file line”
+* completeness requires verified evidence
+* `--no-llm` produces a real operator manual
+
+All of those are either true or false **in code**, and I need to see the code + outputs.
+
+---
+
+## One more thing (important)
+
+When you run with:
+
+```bash
+analyze --replit --root server
+```
+
+you *correctly* observed `.replit` may be outside that root. That implies:
+
+* In `--replit` mode, profiler should optionally look in **workspace root** for `.replit` even if `--root` scopes code scanning.
+* But evidence must still be valid and in-scope (explicitly mark “outside root evidence”).
+
+We’ll handle that after we see artifacts. Don’t change more until we verify.
+
+---
+
+### Your next reply
+
+Paste the agents’ verbatim outputs (A–F). I’ll then give you:
+
+* final rubric tweaks (to prevent inflated completeness)
+* security hardening confirmation (path traversal, symlink escape, size caps)
+* “ship/no-ship” verdict
+* the exact next feature milestone (LLM lenses reintroduced safely, optional UI)
