@@ -1,6 +1,8 @@
 # Program Totality Analyzer
 
-An evidence-bound static analysis tool that generates comprehensive technical dossiers for software projects. It tells you what a system is, how to run it, what it needs, and what it cannot determine -- with every claim citing `file:line` evidence backed by SHA-256 snippet hashes.
+A static-artifact-anchored analysis tool that generates technical dossiers for software projects. It extracts what a system is, how to run it, what it needs, and what it cannot determine — with every claim citing `file:line` evidence backed by SHA-256 snippet hashes.
+
+**Scope limitation:** PTA analyzes static artifacts only (source files, config, lockfiles). It does not observe runtime behavior, prove correctness, or guarantee security. Claims labeled VERIFIED mean "anchored to a hash-verified source snippet," not "proven true at runtime."
 
 ## What It Does
 
@@ -117,7 +119,9 @@ For file-existence evidence (e.g., lockfile detection):
 
 ### Verification
 
-Snippet hashes are server-verified: the analyzer re-reads the cited line range, strips whitespace, hashes the result, and confirms it matches the claimed hash. Claims that fail verification are capped at confidence 0.20 and marked `"status": "unverified"`.
+Snippet hashes are re-checked against source files: the analyzer re-reads the cited line range, strips whitespace, hashes the result, and confirms it matches the claimed hash. Claims that fail hash verification are capped at confidence 0.20 and marked `"status": "unverified"`.
+
+**Important:** Hash verification confirms that a snippet exists at the cited location. It does not prove that the code behaves as described, is secure, or is free of bugs. PTA is not a security scanner, compliance certification tool, or correctness prover.
 
 ### Whitespace Policy
 
@@ -187,10 +191,10 @@ The analyzer does not bind any ports. If you see port errors, they come from the
 
 Two strictly separated layers:
 
-1. **Structural layer** (deterministic) -- file indexing, pattern matching, evidence extraction. This is truth.
-2. **Semantic layer** (LLM-powered, optional) -- architecture understanding, risk assessment, integration analysis. This is interpretation.
+1. **Structural layer** (deterministic) — file indexing, pattern matching, evidence extraction. Outputs are reproducible and hash-verified against source artifacts.
+2. **Semantic layer** (LLM-powered, optional) — architecture interpretation, risk assessment, integration analysis. Outputs are labeled as LLM-generated and carry confidence scores, not deterministic guarantees.
 
-The `--no-llm` flag gives you only the structural layer. The semantic layer adds interpretation but never contaminates structural evidence.
+The `--no-llm` flag gives you only the structural layer. The semantic layer adds interpretation but is namespaced separately and never contaminates structural evidence.
 
 ## Running Tests
 

@@ -642,7 +642,9 @@ RULES:
     - Limitations (what could NOT be determined)
 """
 
-        prompt = f"""You are the 'Program Totality Analyzer'. Write a comprehensive Markdown DOSSIER about this target system.
+        prompt = f"""You are the 'Program Totality Analyzer'. Write a Markdown DOSSIER about this target system based on static artifacts only.
+
+SCOPE LIMITATION: This dossier is derived from static source artifacts (code, config, lockfiles). It does NOT observe runtime behavior, prove correctness, or certify security. Every claim must be labeled with its epistemic status.
 
 MANDATORY SECTIONS:
 1. **Identity of Target System** (What is it? What is it NOT?)
@@ -659,9 +661,11 @@ MANDATORY SECTIONS:
 12. **Receipts** (Evidence index: list every file:line citation used above)
 
 RULES:
-- Every claim MUST cite evidence as (file:line) inline.
-- If no evidence exists for a claim, say "Unknown — evidence needed: <describe>" and add to Unknowns section.
-- Do NOT hallucinate. Do NOT use vague adjectives. Be specific and operational.
+- Every claim MUST cite evidence as (file:line) inline, pointing to actual source files in the target project.
+- If no evidence exists for a claim, say "UNKNOWN — evidence needed: <describe>" and add to Unknowns section.
+- Label each claim: VERIFIED (hash-anchored to source), INFERRED (derived from context but not hash-verified), or UNKNOWN.
+- Do NOT hallucinate file paths or line numbers. Do NOT use vague adjectives. Be specific and operational.
+- Do NOT cite PTA-generated output (dossier text, claims.json, evidence_pack) as evidence for claims. Evidence must reference the target system's own artifacts.
 - The "How to Use" section must read like an actual operator manual with concrete commands.
 - For Replit projects: the Replit Execution Profile section is MANDATORY.
 - All secrets must be referenced by NAME only, never expose values.

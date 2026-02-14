@@ -11,7 +11,7 @@ from .core.adapter import load_evidence_pack
 from .core.render import render_report, save_report
 
 app = typer.Typer(
-    help="Program Totality Analyzer - Generate comprehensive technical dossiers for software projects.",
+    help="Program Totality Analyzer - Generate static-artifact-anchored technical dossiers for software projects.",
     add_completion=False,
 )
 
