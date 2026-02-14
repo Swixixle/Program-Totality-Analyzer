@@ -95,6 +95,37 @@ export function useCreateProject() {
   });
 }
 
+export function useAnalyzeReplit() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (): Promise<Project> => {
+      const res = await fetch(api.projects.analyzeReplit.path, {
+        method: api.projects.analyzeReplit.method,
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!res.ok) throw new Error("Failed to start Replit workspace analysis");
+      const data = await res.json();
+      return data as Project;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [api.projects.list.path] });
+      toast({
+        title: "Workspace Analysis Started",
+        description: "Scanning this Replit workspace...",
+      });
+    },
+    onError: (error) => {
+      toast({
+        variant: "destructive",
+        title: "Workspace Analysis Failed",
+        description: error.message,
+      });
+    },
+  });
+}
+
 // POST /api/projects/:id/analyze (Manual trigger if needed)
 export function useTriggerAnalysis() {
   const { toast } = useToast();

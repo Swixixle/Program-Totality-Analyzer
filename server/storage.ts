@@ -3,7 +3,7 @@ import { projects, analyses, type InsertProject, type InsertAnalysis, type Proje
 import { eq, desc } from "drizzle-orm";
 
 export interface IStorage {
-  createProject(project: InsertProject): Promise<Project>;
+  createProject(project: InsertProject, mode?: string): Promise<Project>;
   getProjects(): Promise<Project[]>;
   getProject(id: number): Promise<Project | undefined>;
   createAnalysis(analysis: InsertAnalysis): Promise<Analysis>;
@@ -12,8 +12,8 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  async createProject(insertProject: InsertProject): Promise<Project> {
-    const [project] = await db.insert(projects).values(insertProject).returning();
+  async createProject(insertProject: InsertProject, mode: string = "github"): Promise<Project> {
+    const [project] = await db.insert(projects).values({ ...insertProject, mode }).returning();
     return project;
   }
 

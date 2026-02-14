@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import ReactMarkdown from "react-markdown";
 import { Loader2, AlertTriangle, FileText, CheckCircle, HelpCircle, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 export default function ProjectDetails() {
   const [match, params] = useRoute("/projects/:id");

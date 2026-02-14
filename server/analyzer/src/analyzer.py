@@ -3,28 +3,42 @@ import json
 import shutil
 import asyncio
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from rich.console import Console
 from git import Repo
 import openai
 from dotenv import load_dotenv
 
-# Load environment variables
+from replit_detector import ReplitDetector
+
 load_dotenv()
 
+
 class Analyzer:
-    def __init__(self, repo_url: str, output_dir: str):
-        self.repo_url = repo_url
+    def __init__(self, source: str, output_dir: str, mode: str = "github"):
+        """
+        source: GitHub URL, local path, or workspace root (for replit mode)
+        mode: "github", "local", or "replit"
+        """
+        self.source = source
+        self.mode = mode
         self.output_dir = Path(output_dir)
-        self.repo_dir = self.output_dir / "repo"
         self.packs_dir = self.output_dir / "packs"
         self.console = Console()
-        
-        # Ensure directories exist
+        self.replit_profile: Optional[Dict[str, Any]] = None
+
+        if mode == "github":
+            self.repo_dir = self.output_dir / "repo"
+        elif mode == "local":
+            self.repo_dir = Path(source)
+        elif mode == "replit":
+            self.repo_dir = Path(source)
+        else:
+            raise ValueError(f"Unknown mode: {mode}")
+
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.packs_dir.mkdir(parents=True, exist_ok=True)
-        
-        # OpenAI setup
+
         self.client = openai.OpenAI(
             api_key=os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY"),
             base_url=os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
@@ -36,107 +50,150 @@ class Analyzer:
 
     async def run(self):
         self.console.print("Step 1: Acquiring target...")
-        self.acquire_repo()
+        self.acquire()
 
         self.console.print("Step 2: Indexing and Coverage...")
         file_index = self.index_files()
-        
+
         self.console.print("Step 3: Creating Evidence Packs...")
         packs = self.create_evidence_packs(file_index)
-        
+
+        if self.mode == "replit":
+            self.console.print("Step 3b: Replit Detection...")
+            detector = ReplitDetector(self.repo_dir)
+            self.replit_profile = detector.detect()
+            self.save_json("replit_profile.json", self.replit_profile)
+            # Add replit config to packs
+            packs["replit"] = json.dumps(self.replit_profile, indent=2, default=str)
+
         self.console.print("Step 4: Extracting 'How-to'...")
         howto = await self.extract_howto(packs)
-        
+
         self.console.print("Step 5: Generating Claims & Dossier...")
         dossier, claims = await self.generate_dossier(packs, howto)
-        
-        # Save artifacts
+
         self.save_json("index.json", file_index)
         self.save_json("target_howto.json", howto)
         self.save_json("claims.json", claims)
-        self.save_json("coverage.json", {"scanned": len(file_index), "skipped": 0}) # Simplified
-        
+        self.save_json("coverage.json", {
+            "mode": self.mode,
+            "scanned": len(file_index),
+            "skipped": 0,
+            "is_replit": self.replit_profile is not None and self.replit_profile.get("is_replit", False),
+        })
+
         with open(self.output_dir / "DOSSIER.md", "w") as f:
             f.write(dossier)
 
-    def acquire_repo(self):
-        if self.repo_dir.exists():
-            shutil.rmtree(self.repo_dir)
-        
-        # Clone repo
-        Repo.clone_from(self.repo_url, self.repo_dir)
+    def acquire(self):
+        if self.mode == "github":
+            if self.repo_dir.exists():
+                shutil.rmtree(self.repo_dir)
+            Repo.clone_from(self.source, self.repo_dir)
+        elif self.mode in ("local", "replit"):
+            if not self.repo_dir.exists():
+                raise FileNotFoundError(f"Directory not found: {self.repo_dir}")
 
     def index_files(self) -> List[str]:
+        skip_dirs = {".git", "node_modules", "__pycache__", ".pythonlibs", ".cache",
+                     ".local", ".config", "out", ".upm", ".replit_agent"}
+        skip_extensions = {".lock", ".png", ".jpg", ".jpeg", ".gif", ".ico", ".woff", ".woff2", ".ttf", ".eot"}
         file_list = []
-        for root, _, files in os.walk(self.repo_dir):
-            if ".git" in root:
-                continue
+        for root, dirs, files in os.walk(self.repo_dir):
+            # Prune directories in-place
+            dirs[:] = [d for d in dirs if d not in skip_dirs]
             for file in files:
+                ext = os.path.splitext(file)[1]
+                if ext in skip_extensions:
+                    continue
                 rel_path = os.path.relpath(os.path.join(root, file), self.repo_dir)
-                if not any(p in rel_path for p in [".git", "node_modules", "__pycache__", ".lock"]):
-                     file_list.append(rel_path)
+                file_list.append(rel_path)
         return file_list
 
     def create_evidence_packs(self, file_index: List[str]) -> Dict[str, str]:
-        # Simple heuristic for packs
         packs = {
             "docs": [],
-            "api": [],
             "config": [],
-            "code": []
+            "code": [],
+            "ops": [],
         }
-        
+
         for f in file_index:
             lower = f.lower()
-            if "readme" in lower or ".md" in lower or "doc" in lower:
+            if "readme" in lower or ".md" in lower or "doc" in lower or "changelog" in lower:
                 packs["docs"].append(f)
-            elif "package.json" in lower or "requirements.txt" in lower or "docker" in lower or ".env" in lower or "config" in lower:
+            elif any(cfg in lower for cfg in [
+                "package.json", "requirements.txt", "pyproject.toml", "cargo.toml",
+                "docker", ".env", "config", ".replit", "replit.nix", "makefile",
+                "taskfile", ".github/workflows", "tsconfig", "vite.config",
+            ]):
                 packs["config"].append(f)
-            elif any(ext in lower for ext in [".ts", ".js", ".py", ".go", ".rs", ".java"]):
+            elif any(ops in lower for ops in ["dockerfile", "docker-compose", ".github", "ci", "deploy", "k8s", "helm"]):
+                packs["ops"].append(f)
+            elif any(ext in lower for ext in [".ts", ".js", ".py", ".go", ".rs", ".java", ".rb", ".tsx", ".jsx"]):
                 packs["code"].append(f)
-        
-        # Read content (limit size)
+
         evidence = {}
         for category, files in packs.items():
             content = ""
-            for f in files[:20]: # Limit to first 20 relevant files per pack to avoid massive context
+            limit = 30 if category == "config" else 20
+            for f in files[:limit]:
                 try:
                     text = (self.repo_dir / f).read_text(errors='ignore')
-                    # Add line numbers
                     lines = text.splitlines()
-                    numbered_lines = "\n".join([f"{i+1}: {line}" for i, line in enumerate(lines[:500])]) # Limit 500 lines per file
+                    line_limit = 300 if category == "config" else 500
+                    numbered_lines = "\n".join([f"{i+1}: {line}" for i, line in enumerate(lines[:line_limit])])
                     content += f"\n--- FILE: {f} ---\n{numbered_lines}\n"
                 except Exception:
                     pass
-            
-            # Save pack
-            pack_content = content[:100000] # Hard cap 100k chars
+
+            pack_content = content[:100000]
             evidence[category] = pack_content
             (self.packs_dir / f"{category}_pack.txt").write_text(pack_content)
-            
+
         return evidence
 
     async def extract_howto(self, packs: Dict[str, str]) -> Dict[str, Any]:
-        prompt = """
-        You are an expert system operator. Analyze the provided evidence (docs, config, code) to extract a JSON 'Operator Manual'.
+        replit_context = ""
+        if self.mode == "replit" and self.replit_profile:
+            replit_context = f"""
         
-        Output JSON Schema:
-        {
-            "prereqs": ["list of tools needed"],
-            "install_steps": ["commands to install"],
-            "config": ["env vars", "files"],
-            "run_dev": ["command to start dev"],
-            "run_prod": ["command to start prod"],
-            "usage_examples": ["example commands"],
-            "verification_steps": ["how to verify it works"],
-            "unknowns": ["what is missing or unclear"]
-        }
+        IMPORTANT: This is a Replit workspace. Include Replit-specific how-to steps.
+        The Replit profile detected:
+        {json.dumps(self.replit_profile, indent=2, default=str)}
         
-        If you are unsure, mark as unknown. Cite files if possible.
+        Add a "replit_execution_profile" section with:
+        - run_command
+        - language
+        - port_binding
+        - required_secrets (names only)
+        - external_apis
+        - deployment_assumptions
+        - observability
         """
+
+        prompt = f"""
+        You are an expert system operator. Analyze the provided evidence to extract a JSON 'Operator Manual' for the target system.
         
-        user_content = f"DOCS:\n{packs.get('docs', '')}\n\nCONFIG:\n{packs.get('config', '')}"
+        Output this JSON schema:
+        {{
+            "prereqs": ["list of tools/runtimes needed"],
+            "install_steps": [{{"step": "description", "command": "command or null", "evidence": "file:line or null"}}],
+            "config": [{{"name": "env var or config file", "purpose": "what it does", "evidence": "file reference"}}],
+            "run_dev": [{{"step": "description", "command": "command", "evidence": "file reference"}}],
+            "run_prod": [{{"step": "description", "command": "command or unknown", "evidence": "file reference or null"}}],
+            "usage_examples": [{{"description": "what it does", "command": "example command or API call"}}],
+            "verification_steps": [{{"step": "description", "command": "command", "evidence": "file reference"}}],
+            "common_failures": [{{"symptom": "what happens", "cause": "why", "fix": "how to fix"}}],
+            "unknowns": [{{"item": "what is missing", "evidence_needed": "what would resolve it"}}]
+        }}
+        {replit_context}
         
+        If you cannot cite evidence, mark as unknown. Do NOT invent instructions.
+        """
+
+        user_content = f"DOCS:\n{packs.get('docs', '')[:40000]}\n\nCONFIG:\n{packs.get('config', '')[:40000]}\n\nOPS:\n{packs.get('ops', '')[:20000]}"
+
         try:
             response = self.client.chat.completions.create(
                 model="gpt-5.1",
@@ -144,53 +201,89 @@ class Analyzer:
                     {"role": "system", "content": prompt},
                     {"role": "user", "content": user_content}
                 ],
-                response_format={"type": "json_object"}
+                response_format={"type": "json_object"},
+                max_completion_tokens=8192,
             )
             return json.loads(response.choices[0].message.content)
         except Exception as e:
             self.console.print(f"[red]Error extracting howto:[/red] {e}")
-            return {"error": str(e)}
+            return {"error": str(e), "unknowns": [{"item": "Full how-to extraction failed", "evidence_needed": "Retry or check API key"}]}
 
     async def generate_dossier(self, packs: Dict[str, str], howto: Dict[str, Any]) -> tuple[str, Dict[str, Any]]:
-        prompt = """
-        You are the 'Program Totality Analyzer'. Write a comprehensive Markdown DOSSIER about this system.
-        
-        Sections:
-        1. **Identity of Target System** (What is it?)
-        2. **Purpose & Jobs-to-be-done**
-        3. **Architecture Snapshot**
-        4. **How to Use the Target System** (Refine the provided JSON into readable instructions)
-        5. **Integration Surface**
-        6. **Data & Security Posture**
-        7. **Operational Reality**
-        8. **Maintainability & Change Risk**
-        9. **Unknowns / Missing Evidence**
-
-        Be skeptic. If evidence is missing, say so. Do not hallucinate.
+        replit_section = ""
+        if self.mode == "replit" and self.replit_profile:
+            replit_section = """
+        10. **Replit Execution Profile**
+            - Run command
+            - Language/runtime
+            - Port binding
+            - Required secrets (names only, never values)
+            - External APIs referenced
+            - Deployment assumptions
+            - Observability/logging present?
         """
+
+        prompt = f"""
+        You are the 'Program Totality Analyzer'. Write a comprehensive Markdown DOSSIER about this target system.
         
-        howto_str = json.dumps(howto, indent=2)
-        user_content = f"HOWTO JSON:\n{howto_str}\n\nDOCS:\n{packs.get('docs', '')}\n\nCONFIG:\n{packs.get('config', '')}\n\nCODE SNAPSHOT:\n{packs.get('code', '')[:50000]}"
-        
+        MANDATORY SECTIONS:
+        1. **Identity of Target System** (What is it? What is it NOT?)
+        2. **Purpose & Jobs-to-be-done**
+        3. **Capability Map**
+        4. **Architecture Snapshot**
+        5. **How to Use the Target System** (Operator manual - refine the provided howto JSON into readable, actionable steps)
+        6. **Integration Surface** (APIs, webhooks, SDKs, data formats)
+        7. **Data & Security Posture** (Storage, encryption, auth, secret handling)
+        8. **Operational Reality** (What it takes to keep running)
+        9. **Maintainability & Change Risk**
+        {replit_section}
+        11. **Unknowns / Missing Evidence** (What could NOT be determined)
+        12. **Receipts** (Evidence index - explicit vs inferred)
+
+        RULES:
+        - Every claim must cite evidence (file path + line if possible)
+        - If no evidence exists, say "Unknown" and state what evidence would be needed
+        - Do not hallucinate. Do not use vague adjectives. Be specific.
+        - The "How to Use" section should read like an actual operator manual
+        - For Replit projects: include the Replit Execution Profile
+        """
+
+        howto_str = json.dumps(howto, indent=2, default=str)
+        replit_str = ""
+        if self.replit_profile:
+            replit_str = f"\n\nREPLIT PROFILE:\n{json.dumps(self.replit_profile, indent=2, default=str)}"
+
+        user_content = (
+            f"HOWTO JSON:\n{howto_str}\n\n"
+            f"DOCS:\n{packs.get('docs', '')[:30000]}\n\n"
+            f"CONFIG:\n{packs.get('config', '')[:30000]}\n\n"
+            f"CODE SNAPSHOT:\n{packs.get('code', '')[:40000]}"
+            f"{replit_str}"
+        )
+
         try:
             response = self.client.chat.completions.create(
                 model="gpt-5.1",
                 messages=[
                     {"role": "system", "content": prompt},
                     {"role": "user", "content": user_content}
-                ]
+                ],
+                max_completion_tokens=8192,
             )
             dossier = response.choices[0].message.content
-            
-            # Simple claims extraction (mock for now, or secondary call)
-            claims = {"type": "dossier_generated", "status": "success"}
-            
+
+            claims = {
+                "type": "dossier_generated",
+                "mode": self.mode,
+                "is_replit": self.replit_profile is not None and self.replit_profile.get("is_replit", False),
+                "sections_generated": True,
+            }
+
             return dossier, claims
         except Exception as e:
             self.console.print(f"[red]Error generating dossier:[/red] {e}")
-            return f"Error: {e}", {}
+            return f"# Analysis Error\n\nFailed to generate dossier: {e}", {"error": str(e)}
 
     def save_json(self, filename: str, data: Any):
         with open(self.output_dir / filename, "w") as f:
-            json.dump(data, f, indent=2)
-
+            json.dump(data, f, indent=2, default=str)

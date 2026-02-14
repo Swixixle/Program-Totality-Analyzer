@@ -1,0 +1,178 @@
+Yes — and that changes something important.
+
+If this tool is going to demystify systems in your world, it **must** analyze:
+
+1. GitHub repositories
+2. Local folders
+3. **Live Replit projects (full workspace)**
+
+So we need to design acquisition properly from the beginning.
+
+This is not a small tweak — this affects architecture.
+
+---
+
+# Updated Design: Multi-Source Acquisition Layer
+
+Your analyzer must support three input modes:
+
+## Mode 1 — GitHub Repo
+
+```bash
+analyze https://github.com/user/repo
+```
+
+* clone
+* scan
+* produce dossier
+
+## Mode 2 — Local Folder
+
+```bash
+analyze ./some-folder
+```
+
+* scan directly
+
+## Mode 3 — Replit Workspace (NEW, Critical)
+
+```bash
+analyze --replit
+```
+
+This means:
+
+* Scan current working directory
+* Respect `.replit`, `replit.nix`, `pyproject.toml`, `package.json`
+* Detect Replit-specific environment
+* Detect hidden secrets references
+* Detect deployment configuration
+
+---
+
+# Why Replit Mode Is Different
+
+Replit projects often:
+
+* Have no Dockerfile
+* Depend on `.replit`
+* Use `run = "node index.js"` style config
+* Depend on implicit environment variables
+* Store secrets in Replit Secrets
+* Auto-install via Nix
+
+So if you treat Replit like generic GitHub, you will misdiagnose deployment reality.
+
+We need a Replit-aware operator lens.
+
+---
+
+# What “How To Use It” Means in Replit Context
+
+For Replit targets, the analyzer must extract:
+
+* How it runs in Replit (`.replit` file)
+* What the run command is
+* What packages are auto-installed
+* What Nix dependencies exist
+* What secrets are expected (from code references)
+* Whether it exposes a web server
+* What port it binds to
+* Whether it assumes 0.0.0.0
+
+And then produce:
+
+## “How to Use This Replit Program”
+
+* Click Run → executes X
+* Requires Secrets:
+
+  * OPENAI_API_KEY
+  * GITHUB_TOKEN
+* Exposes web server on port 5000
+* Entry route: `/`
+* Dev assumptions
+* Production caveats
+
+That is extremely powerful.
+
+---
+
+# So What Do You Tell Replit Agents Now?
+
+Paste this additional directive:
+
+---
+
+## ADDITIONAL REQUIREMENT — REPLIT MODE
+
+The analyzer must support:
+
+```
+python analyzer_cli.py analyze --replit
+```
+
+When `--replit` is passed:
+
+* Treat current workspace root as target
+* Detect `.replit` and `replit.nix`
+* Extract run command
+* Extract language environment
+* Extract port configuration
+* Extract secrets referenced in code (env var names only, not values)
+* Include a “Replit Deployment Profile” section in DOSSIER.md
+
+Add new output section:
+
+### Replit Execution Profile
+
+* Run command
+* Language/runtime
+* Port binding
+* Required secrets (names only)
+* External APIs referenced
+* Deployment assumptions
+* Observability/logging present?
+
+---
+
+# Architecture Adjustment Required
+
+In `acquire.py`, add:
+
+```python
+def acquire_target(target: str | None, replit_mode: bool):
+```
+
+If `replit_mode == True`:
+
+* skip clone
+* set root = current working directory
+
+---
+
+# Critical Design Insight
+
+This tool becomes much more powerful if:
+
+* It can demystify your own Replit builds
+* It can explain your HALO/Lantern/ELI projects in operator terms
+* It can generate a “Partner-Ready Manual” from a live workspace
+
+That’s real leverage.
+
+---
+
+# Strategic Question (Important)
+
+Do you want:
+
+A) Replit mode to only analyze static files
+or
+B) Replit mode to optionally inspect runtime state (running port, process list, etc.)
+
+B is more complex but far more powerful.
+
+---
+
+Tell me which direction you want before the agents harden the acquisition layer.

@@ -26,7 +26,9 @@ export const api = {
     create: {
       method: 'POST' as const,
       path: '/api/projects' as const,
-      input: insertProjectSchema,
+      input: insertProjectSchema.extend({
+        mode: z.enum(["github", "local", "replit"]).optional().default("github"),
+      }),
       responses: {
         201: z.custom<typeof projects.$inferSelect>(),
         400: errorSchemas.validation,
@@ -49,13 +51,21 @@ export const api = {
       },
     },
     analyze: {
-        method: 'POST' as const,
-        path: '/api/projects/:id/analyze' as const,
-        responses: {
-            202: z.object({ message: z.string() }),
-            404: errorSchemas.notFound
-        }
-    }
+      method: 'POST' as const,
+      path: '/api/projects/:id/analyze' as const,
+      responses: {
+        202: z.object({ message: z.string() }),
+        404: errorSchemas.notFound,
+      },
+    },
+    analyzeReplit: {
+      method: 'POST' as const,
+      path: '/api/projects/analyze-replit' as const,
+      responses: {
+        201: z.custom<typeof projects.$inferSelect>(),
+        500: errorSchemas.internal,
+      },
+    },
   },
 };
 

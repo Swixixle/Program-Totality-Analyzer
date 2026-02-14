@@ -3,7 +3,7 @@ import { useProjects } from "@/hooks/use-projects";
 import { Layout } from "@/components/layout";
 import { Card } from "@/components/ui/card";
 import { StatusBadge } from "@/components/status-badge";
-import { GitBranch, Calendar } from "lucide-react";
+import { GitBranch, Calendar, Terminal } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { motion } from "framer-motion";
 
@@ -67,7 +67,7 @@ export default function ProjectList() {
                       </div>
                       <div className="flex items-center gap-4 text-sm text-muted-foreground font-mono">
                         <span className="flex items-center gap-1.5 truncate max-w-[300px]">
-                          <GitBranch className="w-3.5 h-3.5" />
+                          {project.mode === "replit" ? <Terminal className="w-3.5 h-3.5" /> : <GitBranch className="w-3.5 h-3.5" />}
                           {project.url}
                         </span>
                         {project.createdAt && (

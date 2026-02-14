@@ -6,6 +6,7 @@ export const projects = pgTable("projects", {
   id: serial("id").primaryKey(),
   url: text("url").notNull(),
   name: text("name").notNull(),
+  mode: text("mode").notNull().default("github"), // github, local, replit
   status: text("status").notNull().default("pending"), // pending, analyzing, completed, failed
   createdAt: timestamp("created_at").defaultNow(),
 });
@@ -21,7 +22,7 @@ export const analyses = pgTable("analyses", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const insertProjectSchema = createInsertSchema(projects).omit({ id: true, createdAt: true, status: true });
+export const insertProjectSchema = createInsertSchema(projects).omit({ id: true, createdAt: true, status: true, mode: true });
 export const insertAnalysisSchema = createInsertSchema(analyses).omit({ id: true, createdAt: true });
 
 export type Project = typeof projects.$inferSelect;

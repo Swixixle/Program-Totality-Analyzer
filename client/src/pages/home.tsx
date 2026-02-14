@@ -1,23 +1,23 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { useCreateProject } from "@/hooks/use-projects";
+import { useCreateProject, useAnalyzeReplit } from "@/hooks/use-projects";
 import { Layout } from "@/components/layout";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, ArrowRight, Github, Code2, Cpu } from "lucide-react";
+import { Search, ArrowRight, Github, Code2, Cpu, Terminal } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function Home() {
   const [url, setUrl] = useState("");
   const [, setLocation] = useLocation();
   const createProject = useCreateProject();
+  const analyzeReplit = useAnalyzeReplit();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!url) return;
     
-    // Extract name from URL or use placeholder
     const name = url.split("/").pop() || "Unknown Repo";
     
     createProject.mutate(
@@ -28,6 +28,14 @@ export default function Home() {
         },
       }
     );
+  };
+
+  const handleAnalyzeReplit = () => {
+    analyzeReplit.mutate(undefined, {
+      onSuccess: (project) => {
+        setLocation(`/projects/${project.id}`);
+      },
+    });
   };
 
   return (
@@ -53,8 +61,7 @@ export default function Home() {
           </h1>
           
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Input a GitHub repository to generate a comprehensive technical dossier. 
-            Analyze claims, verify functionality, and uncover structural unknowns.
+            Input a GitHub repository or analyze this Replit workspace to generate a comprehensive technical dossier.
           </p>
 
           <Card className="p-2 mt-8 bg-background/50 backdrop-blur-sm border-white/10 shadow-2xl shadow-primary/5 max-w-2xl mx-auto w-full">
@@ -62,6 +69,7 @@ export default function Home() {
               <div className="relative flex-1">
                 <Github className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input 
+                  data-testid="input-github-url"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="https://github.com/username/repository"
@@ -70,15 +78,31 @@ export default function Home() {
                 />
               </div>
               <Button 
+                data-testid="button-analyze-github"
                 type="submit" 
                 disabled={createProject.isPending}
-                className="h-12 px-8 font-semibold bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-[0_0_20px_-5px_var(--primary)] transition-all duration-300"
               >
                 {createProject.isPending ? "Initializing..." : "Analyze"}
                 {!createProject.isPending && <ArrowRight className="ml-2 w-4 h-4" />}
               </Button>
             </form>
           </Card>
+
+          <div className="flex items-center gap-4 max-w-2xl mx-auto w-full">
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-xs text-muted-foreground font-mono uppercase tracking-widest">or</span>
+            <div className="flex-1 h-px bg-border" />
+          </div>
+
+          <Button 
+            data-testid="button-analyze-replit"
+            variant="outline"
+            disabled={analyzeReplit.isPending}
+            onClick={handleAnalyzeReplit}
+          >
+            <Terminal className="mr-2 w-5 h-5" />
+            {analyzeReplit.isPending ? "Scanning Workspace..." : "Analyze This Workspace"}
+          </Button>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 text-left">
             <FeatureCard 
