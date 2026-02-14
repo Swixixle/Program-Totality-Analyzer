@@ -1,0 +1,10 @@
+{
+  "schema": "halo_envelope_v1",
+  "ces_version": "1.0",
+  "namespace": "halo-envelope",
+  "event_hash_alg": "sha256",
+  "event_hash": "a887c6901d279bdf87a0b81e61366b942c7fb1ba8670a1d8a990cbe21e5dfe2a",
+  "signer_id": "halo-signer",
+  "timestamp_utc": "2026-02-10T06:32:13Z",
+  "signature": "-----BEGIN SSH SIGNATURE-----\nU1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAg0XFxxHmzB9YjoczaWJySZG7gB0\nFk37Deiooyfcnt09gAAAANaGFsby1lbnZlbG9wZQAAAAAAAAAGc2hhNTEyAAAAUwAAAAtz\nc2gtZWQyNTUxOQAAAEAb912UDvlKxiUlR61GDywVLFbWnrb0/zT9z7FfhnvCLwujpvHU1H\nMVEhy0Hlk0Acwrb0yOi+qjWb15XGLAx1IG\n-----END SSH SIGNATURE-----\n"
+}

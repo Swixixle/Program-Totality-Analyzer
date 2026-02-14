@@ -1,0 +1,765 @@
+{
+  "claims": [
+    {
+      "id": "claim_001",
+      "section": "Architecture Snapshot",
+      "statement": "The backend server is built with Node.js 20, Express, and uses Drizzle ORM.",
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "path": "README.md",
+          "line_start": 60,
+          "line_end": 61,
+          "display": "README.md:60\u201361",
+          "snippet_hash": "839b6cdd1e76",
+          "snippet_hash_verified": true
+        },
+        {
+          "path": "package.json",
+          "line_start": 56,
+          "line_end": 56,
+          "display": "package.json:56",
+          "snippet_hash": "e049b398be36",
+          "snippet_hash_verified": true
+        },
+        {
+          "path": "package.json",
+          "line_start": 53,
+          "line_end": 53,
+          "display": "package.json:53",
+          "snippet_hash": "c65672bd1705",
+          "snippet_hash_verified": true
+        }
+      ],
+      "status": "evidenced"
+    },
+    {
+      "id": "claim_002",
+      "section": "Architecture Snapshot",
+      "statement": "The frontend is implemented using React with wouter router, TailwindCSS, and shadcn/ui.",
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "path": "README.md",
+          "line_start": 59,
+          "line_end": 59,
+          "display": "README.md:59",
+          "snippet_hash": "78ea33acf1a7",
+          "snippet_hash_verified": true
+        },
+        {
+          "path": "client/src/App.tsx",
+          "line_start": 1,
+          "line_end": 1,
+          "display": "client/src/App.tsx:1",
+          "snippet_hash": "3f5b684ba8b5",
+          "snippet_hash_verified": true
+        },
+        {
+          "path": "tailwind.config.ts",
+          "line_start": 1,
+          "line_end": 107,
+          "display": "tailwind.config.ts:1\u2013107",
+          "snippet_hash": "31d5ee63d324",
+          "snippet_hash_verified": true
+        }
+      ],
+      "status": "evidenced"
+    },
+    {
+      "id": "claim_003",
+      "section": "Architecture Snapshot",
+      "statement": "PostgreSQL 14+ is required as the system's database.",
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "path": "README.md",
+          "line_start": 24,
+          "line_end": 24,
+          "display": "README.md:24",
+          "snippet_hash": "953d061df568",
+          "snippet_hash_verified": true
+        },
+        {
+          "path": ".env.example",
+          "line_start": 5,
+          "line_end": 5,
+          "display": ".env.example:5",
+          "snippet_hash": "aeaa5d08ab01",
+          "snippet_hash_verified": true
+        }
+      ],
+      "status": "evidenced"
+    },
+    {
+      "id": "claim_004",
+      "section": "Data & Security Posture",
+      "statement": "All core state (receipts, audit trail, checkpoints) is stored in PostgreSQL.",
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "path": ".env.example",
+          "line_start": 5,
+          "line_end": 5,
+          "display": ".env.example:5",
+          "snippet_hash": "aeaa5d08ab01",
+          "snippet_hash_verified": true
+        },
+        {
+          "path": "README.md",
+          "line_start": 61,
+          "line_end": 61,
+          "display": "README.md:61",
+          "snippet_hash": "7daa75cbdffb",
+          "snippet_hash_verified": true
+        }
+      ],
+      "status": "evidenced"
+    },
+    {
+      "id": "claim_005",
+      "section": "Data & Security Posture",
+      "statement": "Database connectivity is managed using a DATABASE_URL parameter in the environment configuration.",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "path": ".env.example",
+          "line_start": 5,
+          "line_end": 5,
+          "display": ".env.example:5",
+          "snippet_hash": "aeaa5d08ab01",
+          "snippet_hash_verified": true
+        },
+        {
+          "path": "drizzle.config.ts",
+          "line_start": 3,
+          "line_end": 13,
+          "display": "drizzle.config.ts:3\u201313",
+          "snippet_hash": "a19790628fbe",
+          "snippet_hash_verified": true
+        }
+      ],
+      "status": "evidenced"
+    },
+    {
+      "id": "claim_006",
+      "section": "Architecture Snapshot",
+      "statement": "Cryptographic mechanisms include SHA-256 for hashing and Ed25519 for checkpoint signing.",
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "path": "STATE.md",
+          "line_start": 18,
+          "line_end": 19,
+          "display": "STATE.md:18\u201319",
+          "snippet_hash": "e5e275055b48",
+          "snippet_hash_verified": true
+        },
+        {
+          "path": "STATE.md",
+          "line_start": 116,
+          "line_end": 116,
+          "display": "STATE.md:116",
+          "snippet_hash": "04cf647efc1b",
+          "snippet_hash_verified": true
+        }
+      ],
+      "status": "evidenced"
+    },
+    {
+      "id": "claim_007",
+      "section": "Capability Map",
+      "statement": "All canonicalized (c14n-v1) JSON payloads are hashed with SHA-256.",
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "path": "README.md",
+          "line_start": 73,
+          "line_end": 74,
+          "display": "README.md:73\u201374",
+          "snippet_hash": "afc1b335ae60",
+          "snippet_hash_verified": true
+        },
+        {
+          "path": "STATE.md",
+          "line_start": 17,
+          "line_end": 20,
+          "display": "STATE.md:17\u201320",
+          "snippet_hash": "4e7c26bc17e2",
+          "snippet_hash_verified": true
+        }
+      ],
+      "status": "evidenced"
+    },
+    {
+      "id": "claim_008",
+      "section": "Capability Map",
+      "statement": "All audit log entries are hash-linked (chained) and append-only.",
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "path": "STATE.md",
+          "line_start": 25,
+          "line_end": 29,
+          "display": "STATE.md:25\u201329",
+          "snippet_hash": "df297c047824",
+          "snippet_hash_verified": true
+        },
+        {
+          "path": "STATE.md",
+          "line_start": 162,
+          "line_end": 162,
+          "display": "STATE.md:162",
+          "snippet_hash": "e3b0c44298fc",
+          "snippet_hash_verified": true
+        }
+      ],
+      "status": "evidenced"
+    },
+    {
+      "id": "claim_009",
+      "section": "Capability Map",
+      "statement": "Receipt immutability is enforced by a lock mechanism that prevents further edits once set.",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "path": "README.md",
+          "line_start": 75,
+          "line_end": 75,
+          "display": "README.md:75",
+          "snippet_hash": "a88c861003a5",
+          "snippet_hash_verified": true
+        },
+        {
+          "path": "STATE.md",
+          "line_start": 21,
+          "line_end": 21,
+          "display": "STATE.md:21",
+          "snippet_hash": "ae2e628ba10a",
+          "snippet_hash_verified": true
+        }
+      ],
+      "status": "evidenced"
+    },
+    {
+      "id": "claim_010",
+      "section": "Capability Map",
+      "statement": "There is a 'kill switch' feature, setting an irreversible flag to disable all further output from a receipt.",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "path": "README.md",
+          "line_start": 76,
+          "line_end": 76,
+          "display": "README.md:76",
+          "snippet_hash": "ff7281b4a127",
+          "snippet_hash_verified": true
+        },
+        {
+          "path": "STATE.md",
+          "line_start": 22,
+          "line_end": 22,
+          "display": "STATE.md:22",
+          "snippet_hash": "673e73b27789",
+          "snippet_hash_verified": true
+        }
+      ],
+      "status": "evidenced"
+    },
+    {
+      "id": "claim_011",
+      "section": "Capability Map",
+      "statement": "Forensic packs can be exported in canonical JSON format and verified offline using a provided script.",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "path": "STATE.md",
+          "line_start": 123,
+          "line_end": 126,
+          "display": "STATE.md:123\u2013126",
+          "snippet_hash": "78f8cc299426",
+          "snippet_hash_verified": true
+        },
+        {
+          "path": "scripts/ci-forensic-gate.sh",
+          "line_start": 42,
+          "line_end": 84,
+          "display": "scripts/ci-forensic-gate.sh:42,61\u201384",
+          "snippet_hash": "d37376e1a8f9",
+          "snippet_hash_verified": true
+        }
+      ],
+      "status": "evidenced"
+    },
+    {
+      "id": "claim_012",
+      "section": "Data & Security Posture",
+      "statement": "System features support compliance with regulatory regimes such as 21 CFR, HIPAA, and SOC2.",
+      "confidence": 0.9,
+      "evidence": [
+        {
+          "path": "STATE.md",
+          "line_start": 137,
+          "line_end": 137,
+          "display": "STATE.md:137",
+          "snippet_hash": "1060d2bd2dd5",
+          "snippet_hash_verified": true
+        },
+        {
+          "path": "replit.md",
+          "line_start": 50,
+          "line_end": 50,
+          "display": "replit.md:50",
+          "snippet_hash": "10fad1f85cc9",
+          "snippet_hash_verified": true
+        }
+      ],
+      "status": "evidenced"
+    },
+    {
+      "id": "claim_013",
+      "section": "Data & Security Posture",
+      "statement": "API authentication is performed via an API_KEY provided in the x-api-key header for all sensitive endpoints.",
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "path": "SECURITY.md",
+          "line_start": 15,
+          "line_end": 16,
+          "display": "SECURITY.md:15\u201316",
+          "snippet_hash": "37c573459866",
+          "snippet_hash_verified": true
+        },
+        {
+          "path": ".env.example",
+          "line_start": 10,
+          "line_end": 10,
+          "display": ".env.example:10",
+          "snippet_hash": "eebb9b859fec",
+          "snippet_hash_verified": true
+        }
+      ],
+      "status": "evidenced"
+    },
+    {
+      "id": "claim_014",
+      "section": "Data & Security Posture",
+      "statement": "Session management uses express-session with secret keys and PostgreSQL persistence via connect-pg-simple.",
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "path": "package.json",
+          "line_start": 57,
+          "line_end": 57,
+          "display": "package.json:57",
+          "snippet_hash": "abb52cbb888c",
+          "snippet_hash_verified": true
+        },
+        {
+          "path": "package.json",
+          "line_start": 51,
+          "line_end": 51,
+          "display": "package.json:51",
+          "snippet_hash": "6441207d984d",
+          "snippet_hash_verified": true
+        },
+        {
+          "path": ".env.example",
+          "line_start": 23,
+          "line_end": 23,
+          "display": ".env.example:23",
+          "snippet_hash": "f7e2d4342e03",
+          "snippet_hash_verified": true
+        }
+      ],
+      "status": "evidenced"
+    },
+    {
+      "id": "claim_015",
+      "section": "Data & Security Posture",
+      "statement": "All API input is validated by Zod schemas, with a maximum body size of 1MB and UTF-8 JSON accepted.",
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "path": "SECURITY.md",
+          "line_start": 20,
+          "line_end": 23,
+          "display": "SECURITY.md:20\u201323",
+          "snippet_hash": "e321911e01d3",
+          "snippet_hash_verified": true
+        },
+        {
+          "path": "STATE.md",
+          "line_start": 95,
+          "line_end": 95,
+          "display": "STATE.md:95",
+          "snippet_hash": "e4bc38b01763",
+          "snippet_hash_verified": true
+        }
+      ],
+      "status": "evidenced"
+    },
+    {
+      "id": "claim_016",
+      "section": "Data & Security Posture",
+      "statement": "Per-IP rate limiting is enforced in-memory for API endpoints.",
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "path": "SECURITY.md",
+          "line_start": 26,
+          "line_end": 29,
+          "display": "SECURITY.md:26\u201329",
+          "snippet_hash": "eb6a482db0e7",
+          "snippet_hash_verified": true
+        },
+        {
+          "path": "STATE.md",
+          "line_start": 94,
+          "line_end": 94,
+          "display": "STATE.md:94",
+          "snippet_hash": "2007d1855b52",
+          "snippet_hash_verified": true
+        }
+      ],
+      "status": "evidenced"
+    },
+    {
+      "id": "claim_017",
+      "section": "Data & Security Posture",
+      "statement": "Several security headers are set including X-Content-Type-Options, X-Frame-Options, Referrer-Policy, and Permissions-Policy.",
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "path": "SECURITY.md",
+          "line_start": 32,
+          "line_end": 36,
+          "display": "SECURITY.md:32\u201336",
+          "snippet_hash": "9902d509ea6f",
+          "snippet_hash_verified": true
+        },
+        {
+          "path": "STATE.md",
+          "line_start": 97,
+          "line_end": 97,
+          "display": "STATE.md:97",
+          "snippet_hash": "7113b77a5020",
+          "snippet_hash_verified": true
+        }
+      ],
+      "status": "evidenced"
+    },
+    {
+      "id": "claim_018",
+      "section": "Data & Security Posture",
+      "statement": "Secrets such as API_KEY and SESSION_SECRET must be set in the environment and are never logged or returned in audit logs.",
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "path": "SECURITY.md",
+          "line_start": 17,
+          "line_end": 17,
+          "display": "SECURITY.md:17",
+          "snippet_hash": "eab7a271aea5",
+          "snippet_hash_verified": true
+        },
+        {
+          "path": "SECURITY.md",
+          "line_start": 72,
+          "line_end": 84,
+          "display": "SECURITY.md:72,84",
+          "snippet_hash": "37e5ee1c04fb",
+          "snippet_hash_verified": true
+        }
+      ],
+      "status": "evidenced"
+    },
+    {
+      "id": "claim_019",
+      "section": "Architecture Snapshot",
+      "statement": "The minimum Node.js version required is 20.",
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "path": ".replit",
+          "line_start": 1,
+          "line_end": 1,
+          "display": ".replit:1",
+          "snippet_hash": "21d3b40c804c",
+          "snippet_hash_verified": true
+        },
+        {
+          "path": "README.md",
+          "line_start": 60,
+          "line_end": 60,
+          "display": "README.md:60",
+          "snippet_hash": "839b6cdd1e76",
+          "snippet_hash_verified": true
+        }
+      ],
+      "status": "evidenced"
+    },
+    {
+      "id": "claim_020",
+      "section": "Operational Reality",
+      "statement": "No built-in TLS is provided; the system should be deployed behind a reverse proxy or HTTPS PaaS.",
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "path": "SECURITY.md",
+          "line_start": 54,
+          "line_end": 54,
+          "display": "SECURITY.md:54",
+          "snippet_hash": "07d374b5bf1c",
+          "snippet_hash_verified": true
+        },
+        {
+          "path": "README.md",
+          "line_start": 24,
+          "line_end": 24,
+          "display": "README.md:24",
+          "snippet_hash": "953d061df568",
+          "snippet_hash_verified": true
+        }
+      ],
+      "status": "evidenced"
+    },
+    {
+      "id": "claim_021",
+      "section": "Capability Map",
+      "statement": "Key rotation and external anchoring for checkpoints are supported through configurable anchor backends.",
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "path": "replit.md",
+          "line_start": 43,
+          "line_end": 47,
+          "display": "replit.md:43\u201347",
+          "snippet_hash": "f3cbe93099c2",
+          "snippet_hash_verified": true
+        },
+        {
+          "path": "STATE.md",
+          "line_start": 170,
+          "line_end": 173,
+          "display": "STATE.md:170\u2013173",
+          "snippet_hash": "e3b0c44298fc",
+          "snippet_hash_verified": true
+        }
+      ],
+      "status": "evidenced"
+    },
+    {
+      "id": "claim_022",
+      "section": "Integration Surface",
+      "statement": "All API endpoints use JSON as the data format and schemas are enforced by Zod.",
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "path": "STATE.md",
+          "line_start": 95,
+          "line_end": 95,
+          "display": "STATE.md:95",
+          "snippet_hash": "e4bc38b01763",
+          "snippet_hash_verified": true
+        },
+        {
+          "path": "SECURITY.md",
+          "line_start": 20,
+          "line_end": 23,
+          "display": "SECURITY.md:20\u201323",
+          "snippet_hash": "e321911e01d3",
+          "snippet_hash_verified": true
+        }
+      ],
+      "status": "evidenced"
+    },
+    {
+      "id": "claim_023",
+      "section": "Integration Surface",
+      "statement": "REST endpoints include /api/health, /api/ready, /api/receipts, /api/audit/verify, /api/receipts/:id/lock, and /api/receipts/:id/kill-switch.",
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "path": "docs/API_CONTRACTS.md",
+          "line_start": 11,
+          "line_end": 64,
+          "display": "docs/API_CONTRACTS.md:11\u201364",
+          "snippet_hash": "945f4dcf7034",
+          "snippet_hash_verified": true
+        }
+      ],
+      "status": "evidenced"
+    },
+    {
+      "id": "claim_024",
+      "section": "Operational Reality",
+      "statement": "The server runs in development via 'npm run dev' and in production via 'npm run build && npm run start'.",
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "path": "package.json",
+          "line_start": 7,
+          "line_end": 9,
+          "display": "package.json:7\u20139",
+          "snippet_hash": "fd240a9dc053",
+          "snippet_hash_verified": true
+        },
+        {
+          "path": ".replit",
+          "line_start": 2,
+          "line_end": 2,
+          "display": ".replit:2",
+          "snippet_hash": "96fa2e5505e4",
+          "snippet_hash_verified": true
+        },
+        {
+          "path": ".replit",
+          "line_start": 18,
+          "line_end": 18,
+          "display": ".replit:18",
+          "snippet_hash": "4530c109285c",
+          "snippet_hash_verified": true
+        }
+      ],
+      "status": "evidenced"
+    },
+    {
+      "id": "claim_025",
+      "section": "Operational Reality",
+      "statement": "The production port defaults to 5000, which may be overridden by the PORT environment variable.",
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "path": ".env.example",
+          "line_start": 14,
+          "line_end": 14,
+          "display": ".env.example:14",
+          "snippet_hash": "d1fd3ffd349f",
+          "snippet_hash_verified": true
+        },
+        {
+          "path": ".replit",
+          "line_start": 10,
+          "line_end": 14,
+          "display": ".replit:10,14",
+          "snippet_hash": "47abfb4488e8",
+          "snippet_hash_verified": true
+        }
+      ],
+      "status": "evidenced"
+    },
+    {
+      "id": "claim_026",
+      "section": "Capability Map",
+      "statement": "Forensic sensors (interpreter, summarizer, claim extractor) are included in the stack.",
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "path": "README.md",
+          "line_start": 78,
+          "line_end": 78,
+          "display": "README.md:78",
+          "snippet_hash": "d91f2f89b916",
+          "snippet_hash_verified": true
+        },
+        {
+          "path": "STATE.md",
+          "line_start": 80,
+          "line_end": 85,
+          "display": "STATE.md:80,85",
+          "snippet_hash": "d970abf3af89",
+          "snippet_hash_verified": true
+        }
+      ],
+      "status": "evidenced"
+    },
+    {
+      "id": "claim_027",
+      "section": "Operational Reality",
+      "statement": "CI/CD employs GitHub Actions for type-check, database migration, testing, build, and releasing zipped verifiers.",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "path": "STATE.md",
+          "line_start": 111,
+          "line_end": 114,
+          "display": "STATE.md:111\u2013114",
+          "snippet_hash": "77250538270d",
+          "snippet_hash_verified": true
+        },
+        {
+          "path": "replit.md",
+          "line_start": 39,
+          "line_end": 42,
+          "display": "replit.md:39\u201342",
+          "snippet_hash": "07b5ab07a250",
+          "snippet_hash_verified": true
+        }
+      ],
+      "status": "evidenced"
+    },
+    {
+      "id": "claim_028",
+      "section": "Maintainability & Change Risk",
+      "statement": "A fully privileged database administrator can bypass all application-level checks unless external anchoring is enabled.",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "path": "STATE.md",
+          "line_start": 172,
+          "line_end": 173,
+          "display": "STATE.md:172\u2013173",
+          "snippet_hash": "8e0f4cfe8bf3",
+          "snippet_hash_verified": true
+        }
+      ],
+      "status": "evidenced"
+    },
+    {
+      "id": "claim_029",
+      "section": "Maintainability & Change Risk",
+      "statement": "The rate limiter uses in-memory counters, which means rate limits reset after each server restart.",
+      "confidence": 1.0,
+      "evidence": [
+        {
+          "path": "STATE.md",
+          "line_start": 107,
+          "line_end": 107,
+          "display": "STATE.md:107",
+          "snippet_hash": "02737b74b436",
+          "snippet_hash_verified": true
+        },
+        {
+          "path": "STATE.md",
+          "line_start": 184,
+          "line_end": 184,
+          "display": "STATE.md:184",
+          "snippet_hash": "39bc391ed092",
+          "snippet_hash_verified": true
+        }
+      ],
+      "status": "evidenced"
+    },
+    {
+      "id": "claim_030",
+      "section": "Data & Security Posture",
+      "statement": "Audit log and receipt state is verified at both the time of write and on operator demand to ensure consistency.",
+      "confidence": 0.95,
+      "evidence": [
+        {
+          "path": "STATE.md",
+          "line_start": 25,
+          "line_end": 29,
+          "display": "STATE.md:25\u201329",
+          "snippet_hash": "df297c047824",
+          "snippet_hash_verified": true
+        }
+      ],
+      "status": "evidenced"
+    }
+  ],
+  "mode": "github",
+  "run_id": "9408f8456784",
+  "is_replit": false
+}

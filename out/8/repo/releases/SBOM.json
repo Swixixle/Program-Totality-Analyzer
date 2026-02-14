@@ -1,0 +1,118 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "serialNumber": "urn:uuid:e9e06eb0-8c70-4c25-89cd-cdb807e0d734",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2026-02-12T08:25:48.460Z",
+    "tools": {
+      "components": [
+        {
+          "type": "application",
+          "name": "ai-receipts-sbom-generator",
+          "version": "0.2.0"
+        }
+      ]
+    },
+    "component": {
+      "type": "application",
+      "name": "ai-receipts-verifier",
+      "version": "0.2.0",
+      "description": "Standalone offline verifier for AI Receipts forensic packs",
+      "purl": "pkg:npm/ai-receipts-verifier@0.2.0",
+      "bom_ref": "ai-receipts-verifier"
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "node-crypto",
+      "version": "builtin",
+      "description": "Node.js built-in crypto module (SHA-256, Ed25519)",
+      "scope": "required",
+      "bom_ref": "node-crypto",
+      "properties": [
+        {
+          "name": "bundled",
+          "value": "true"
+        },
+        {
+          "name": "source",
+          "value": "Node.js runtime"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "node-fs",
+      "version": "builtin",
+      "description": "Node.js built-in fs module (file I/O)",
+      "scope": "required",
+      "bom_ref": "node-fs",
+      "properties": [
+        {
+          "name": "bundled",
+          "value": "true"
+        },
+        {
+          "name": "source",
+          "value": "Node.js runtime"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "stableStringifyStrict",
+      "version": "0.2.0",
+      "description": "Deterministic JSON canonicalizer (embedded, no external dependency)",
+      "scope": "required",
+      "bom_ref": "stable-stringify-strict",
+      "properties": [
+        {
+          "name": "bundled",
+          "value": "true"
+        },
+        {
+          "name": "source",
+          "value": "First-party, inlined in verify.js"
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "ai-receipts-verifier",
+      "dependsOn": [
+        "node-crypto",
+        "node-fs",
+        "stable-stringify-strict"
+      ]
+    }
+  ],
+  "properties": [
+    {
+      "name": "ai-receipts:commit",
+      "value": "774b76fa2b21"
+    },
+    {
+      "name": "ai-receipts:engineId",
+      "value": "replit-node-verifier/0.2.0"
+    },
+    {
+      "name": "ai-receipts:signatureAlgorithm",
+      "value": "Ed25519"
+    },
+    {
+      "name": "ai-receipts:hashAlgorithm",
+      "value": "SHA-256"
+    },
+    {
+      "name": "ai-receipts:externalDependencies",
+      "value": "none"
+    },
+    {
+      "name": "ai-receipts:runtime",
+      "value": "Node.js >= 18"
+    }
+  ]
+}
