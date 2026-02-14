@@ -1,0 +1,142 @@
+You’re moving in the right direction, but this is the same failure mode again: **a completion narrative without the actual artifacts**. Also, one claim in your summary is a flashing red light:
+
+> “completeness 100/100”
+
+That is *almost certainly wrong* for real-world repos unless you’ve tuned the rubric to be too easy or you’re over-crediting fallback evidence. A perfect score should be rare.
+
+So: we pause “more features” and force **artifact-level verification**. I’m going to give you a single pasteable instruction to the agents that will produce the minimum evidence I need to sign off.
+
+---
+
+## Two architect concerns to validate immediately
+
+### Concern 1: Completeness scoring is too permissive
+
+If “100/100” is happening on a complex workspace, the rubric is likely:
+
+* awarding points when fields exist but are empty/generic
+* counting inferences as evidenced steps
+* double-counting the same evidence across categories
+* treating profiler findings as proof of “install/run/verify” steps
+
+**Fix criterion:** score must only award points when the field contains **actionable instructions** + **evidence**.
+
+### Concern 2: “Server-side snippet hashing” needs to be bounded
+
+Computing snippet hashes “by reading actual source file content server-side” is fine, but must be safe:
+
+* enforce root containment (no `../../`)
+* enforce file size limits
+* refuse binary
+* cap max lines per snippet
+* ensure deterministic line extraction
+
+Otherwise you’ve created a path traversal / resource blowup vector (even internally).
+
+---
+
+## Paste this to the agents (hard proof request)
+
+> **STOP summaries. Output the actual artifacts now.**
+> Provide the following in one message, in the exact order:
+>
+> ### 1) Evidence schemas (verbatim)
+>
+> * `sed -n '1,220p' server/analyzer/schemas/claims.schema.json`
+> * `sed -n '1,220p' server/analyzer/schemas/target_howto.schema.json`
+> * `sed -n '1,220p' server/analyzer/schemas/coverage.schema.json`
+>
+> ### 2) CLI contract proof
+>
+> * `python server/analyzer/analyzer_cli.py --help`
+> * `python server/analyzer/analyzer_cli.py analyze --help`
+>   Must show `--replit` and `--root`.
+>
+> ### 3) Run Replit mode test (fresh)
+>
+> ```bash
+> cd /home/runner/workspace
+> python server/analyzer/analyzer_cli.py analyze --replit --root server -o /tmp/pta_out
+> ls -la /tmp/pta_out
+> ```
+>
+> Then print:
+>
+> * `ls -la /tmp/pta_out/packs | head -200`
+> * `sed -n '1,220p' /tmp/pta_out/coverage.json`
+> * `sed -n '1,260p' /tmp/pta_out/replit_profile.json`
+>
+> ### 4) Show “How to use the TARGET system” (verbatim)
+>
+> * `sed -n '1,260p' /tmp/pta_out/target_howto.json`
+>
+> ### 5) Show 3 representative claims with full evidence objects
+>
+> Print ONLY these 3 claim objects (not the entire file):
+>
+> * One from section “How to Use the Target System”
+> * One from “Security / Data posture”
+> * One from “Integration Surface”
+>
+> Command (ok to use python snippet):
+>
+> ```bash
+> python - <<'PY'
+> import json
+> p="/tmp/pta_out/claims.json"
+> c=json.load(open(p))
+> wanted=["How to Use the Target System","Data & Security Posture","Integration Surface"]
+> out=[]
+> for w in wanted:
+>   for x in c.get("claims", c):
+>     if x.get("section")==w:
+>       out.append(x); break
+> print(json.dumps(out, indent=2))
+> PY
+> ```
+>
+> ### 6) Prove snippet_hash verification logic is safe
+>
+> Show the exact function(s) that:
+>
+> * normalize evidence (string → object)
+> * compute snippet_hash
+> * enforce root containment + size/binary limits
+>
+> Print relevant code sections:
+>
+> * `sed -n '1,260p' server/analyzer/src/core/evidence.py` (or whatever file contains it)
+> * `sed -n '1,260p' server/analyzer/src/core/extract.py`
+>
+> ### 7) Completeness scoring proof (no hand-waving)
+>
+> Print the exact scoring function:
+>
+> * `sed -n '1,260p' server/analyzer/src/core/target_howto.py`
+>
+> Then explain (in 5 bullets max) why the run scored 100/100, referencing fields in `/tmp/pta_out/target_howto.json`. If any awarded points rely on “unknown/inference,” that’s a bug.
+
+---
+
+## What I will do when you paste their output
+
+I’ll check:
+
+* Evidence objects are truly `{path, line_start, line_end, snippet_hash, display, snippet_hash_verified}` (or equivalent)
+* Evidence line ranges are real and within bounds
+* `snippet_hash_verified` is not trivially always true
+* `coverage.json` clearly shows what was excluded (including analyzer self-skip)
+* `target_howto.json` includes real commands, not boilerplate
+* Completeness rubric doesn’t award points for empty/unknown steps
+
+---
+
+## One more thing: stop letting “LLM truncation repair” creep into V1
+
+Your summary mentioned JSON truncation repair and token limits. That’s fine later, but **V1 should not depend on LLM success** for core outputs. V1 must be able to produce a meaningful dossier (especially the operator manual) from deterministic extraction.
+
+So: if the system currently relies on LLM for claims, add a `--no-llm` mode and make it default in tests. Otherwise you’ll keep chasing truncation edge cases.
+
+---
+
+Paste the agents’ artifact outputs here. Once I see them, I’ll give you a final “ship/no-ship” verdict and the exact last fixes to make it enterprise-grade.

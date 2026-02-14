@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CoverageOutput",
+  "description": "Analysis coverage metadata including self-skip and scan statistics",
+  "type": "object",
+  "required": ["mode", "run_id", "scanned", "skipped", "is_replit", "self_skip"],
+  "properties": {
+    "mode": {
+      "type": "string",
+      "enum": ["github", "local", "replit"],
+      "description": "Acquisition mode used for this analysis"
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{12}$",
+      "description": "Unique run identifier"
+    },
+    "scanned": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of files indexed and included in evidence packs"
+    },
+    "skipped": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Number of files skipped (self-skip, binary, etc.)"
+    },
+    "is_replit": {
+      "type": "boolean",
+      "description": "Whether target was identified as a Replit workspace"
+    },
+    "self_skip": {
+      "type": "object",
+      "required": ["enabled", "excluded_paths", "excluded_file_count", "reason"],
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether self-skip was active (analyzer detected itself in target)"
+        },
+        "excluded_paths": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Relative paths excluded from indexing"
+        },
+        "excluded_file_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of files excluded by self-skip"
+        },
+        "reason": {
+          "type": "string",
+          "description": "Why self-skip is applied"
+        }
+      }
+    }
+  }
+}

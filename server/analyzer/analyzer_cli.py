@@ -30,6 +30,7 @@ def analyze(
     output_dir: str = typer.Option(..., "--output-dir", "-o", help="Directory to write output files"),
     replit: bool = typer.Option(False, "--replit", help="Analyze current Replit workspace"),
     root: Optional[str] = typer.Option(None, "--root", help="Subdirectory within target to scope analysis"),
+    no_llm: bool = typer.Option(False, "--no-llm", help="Deterministic mode: skip LLM calls, produce only profiler/indexer outputs"),
 ):
     """
     Analyze a software project and generate a dossier.
@@ -38,6 +39,8 @@ def analyze(
     - GitHub repo: analyze https://github.com/user/repo -o ./out
     - Local folder: analyze ./some-folder -o ./out
     - Replit workspace: analyze --replit -o ./out
+
+    Use --no-llm for deterministic extraction without LLM dependency.
     """
     console = Analyzer.get_console()
 
@@ -57,8 +60,11 @@ def analyze(
         console.print("[bold red]Error:[/bold red] Provide a GitHub URL, local path, or use --replit")
         raise typer.Exit(code=1)
 
+    if no_llm:
+        console.print("[bold yellow]--no-llm mode:[/bold yellow] Skipping LLM calls, deterministic outputs only")
+
     try:
-        analyzer = Analyzer(source, output_dir, mode=mode, root=root)
+        analyzer = Analyzer(source, output_dir, mode=mode, root=root, no_llm=no_llm)
         asyncio.run(analyzer.run())
         console.print(f"[bold green]Analysis complete![/bold green] Results in {output_dir}")
     except Exception as e:

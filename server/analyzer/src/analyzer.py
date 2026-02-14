@@ -17,7 +17,7 @@ load_dotenv()
 
 
 class Analyzer:
-    def __init__(self, source: str, output_dir: str, mode: str = "github", root: Optional[str] = None):
+    def __init__(self, source: str, output_dir: str, mode: str = "github", root: Optional[str] = None, no_llm: bool = False):
         self.source = source
         self.mode = mode
         self.output_dir = Path(output_dir)
@@ -29,14 +29,17 @@ class Analyzer:
         self._profiler: Optional[ReplitProfiler] = None
         self._self_skip_paths: set = set()
         self._skipped_count: int = 0
+        self.no_llm = no_llm
 
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.packs_dir.mkdir(parents=True, exist_ok=True)
 
-        self.client = openai.OpenAI(
-            api_key=os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY"),
-            base_url=os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
-        )
+        self.client = None
+        if not no_llm:
+            self.client = openai.OpenAI(
+                api_key=os.environ.get("AI_INTEGRATIONS_OPENAI_API_KEY"),
+                base_url=os.environ.get("AI_INTEGRATIONS_OPENAI_BASE_URL")
+            )
 
     @staticmethod
     def get_console():
@@ -91,14 +94,21 @@ class Analyzer:
                                f"secrets={len(self.replit_profile.get('required_secrets', []))}, "
                                f"port={self.replit_profile.get('port_binding', {})}")
 
-        self.console.print("[bold]Step 4: Extracting how-to...[/bold]")
-        howto = await self.extract_howto(packs)
-        howto = self._normalize_howto_evidence(howto)
-        howto["completeness"] = self._compute_completeness(howto)
+        if self.no_llm:
+            self.console.print("[bold]Step 4: Building deterministic howto (--no-llm)...[/bold]")
+            howto = self._build_deterministic_howto()
+            howto["completeness"] = self._compute_completeness(howto)
+            dossier = self._build_deterministic_dossier(howto)
+            claims = {"claims": [], "mode": self.mode, "run_id": self.acquire_result.run_id, "is_replit": bool(self.replit_profile and self.replit_profile.get("is_replit")), "note": "No claims in --no-llm mode"}
+        else:
+            self.console.print("[bold]Step 4: Extracting how-to...[/bold]")
+            howto = await self.extract_howto(packs)
+            howto = self._normalize_howto_evidence(howto)
+            howto["completeness"] = self._compute_completeness(howto)
 
-        self.console.print("[bold]Step 5: Generating claims & dossier...[/bold]")
-        dossier, claims = await self.generate_dossier(packs, howto)
-        claims = self._verify_claims_evidence(claims)
+            self.console.print("[bold]Step 5: Generating claims & dossier...[/bold]")
+            dossier, claims = await self.generate_dossier(packs, howto)
+            claims = self._verify_claims_evidence(claims)
 
         self.save_json("index.json", file_index)
         self.save_json("target_howto.json", howto)
@@ -192,6 +202,43 @@ class Analyzer:
 
         return evidence
 
+    MAX_FILE_SIZE = 2 * 1024 * 1024
+    MAX_SNIPPET_LINES = 50
+    BINARY_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".ico", ".woff", ".woff2",
+                         ".ttf", ".eot", ".mp3", ".mp4", ".zip", ".tar", ".gz",
+                         ".pdf", ".exe", ".dll", ".so", ".o", ".pyc", ".class"}
+
+    def _safe_resolve_path(self, path: str) -> Optional[Path]:
+        if ".." in path.split(os.sep) or ".." in path.split("/"):
+            return None
+        norm = os.path.normpath(path)
+        if norm.startswith("..") or os.path.isabs(norm):
+            return None
+        ext = os.path.splitext(norm)[1].lower()
+        if ext in self.BINARY_EXTENSIONS:
+            return None
+        filepath = (self.repo_dir / norm).resolve()
+        repo_resolved = self.repo_dir.resolve()
+        try:
+            filepath.relative_to(repo_resolved)
+        except ValueError:
+            return None
+        if filepath.is_symlink():
+            real = filepath.resolve()
+            try:
+                real.relative_to(repo_resolved)
+            except ValueError:
+                return None
+        if not filepath.exists() or not filepath.is_file():
+            return None
+        try:
+            size = filepath.stat().st_size
+            if size > self.MAX_FILE_SIZE:
+                return None
+        except OSError:
+            return None
+        return filepath
+
     def _parse_evidence_string(self, ev_str: str) -> Optional[dict]:
         if not isinstance(ev_str, str):
             return ev_str if isinstance(ev_str, dict) else None
@@ -201,19 +248,27 @@ class Analyzer:
         path = m.group(1)
         line_start = int(m.group(2))
         line_end = int(m.group(3)) if m.group(3) else line_start
+        if line_end - line_start > self.MAX_SNIPPET_LINES:
+            line_end = line_start + self.MAX_SNIPPET_LINES
         snippet = self._read_line_from_repo(path, line_start)
+        if snippet is None:
+            return None
         return make_evidence(path, line_start, line_end, snippet)
 
-    def _read_line_from_repo(self, path: str, line_num: int) -> str:
+    def _read_line_from_repo(self, path: str, line_num: int) -> Optional[str]:
+        filepath = self._safe_resolve_path(path)
+        if filepath is None:
+            return None
         try:
-            filepath = self.repo_dir / path
-            if filepath.exists():
-                lines = filepath.read_text(errors='ignore').splitlines()
-                if 0 < line_num <= len(lines):
-                    return lines[line_num - 1].strip()
+            content = filepath.read_text(errors='ignore')
+            if '\x00' in content[:1024]:
+                return None
+            lines = content.splitlines()
+            if 0 < line_num <= len(lines):
+                return lines[line_num - 1].strip()
         except Exception:
             pass
-        return f"(line {line_num} from {path})"
+        return None
 
     def _normalize_howto_evidence(self, howto: dict) -> dict:
         evidence_fields = ["install_steps", "config", "run_dev", "run_prod", "verification_steps", "common_failures"]
@@ -271,11 +326,14 @@ class Analyzer:
                 line_start = ev.get("line_start", 0)
                 if path and line_start > 0:
                     snippet = self._read_line_from_repo(path, line_start)
-                    correct_hash = hashlib.sha256(
-                        snippet.encode("utf-8", errors="ignore")
-                    ).hexdigest()[:12]
-                    ev["snippet_hash"] = correct_hash
-                    ev["snippet_hash_verified"] = True
+                    if snippet is not None:
+                        correct_hash = hashlib.sha256(
+                            snippet.encode("utf-8", errors="ignore")
+                        ).hexdigest()[:12]
+                        ev["snippet_hash"] = correct_hash
+                        ev["snippet_hash_verified"] = True
+                    else:
+                        ev["snippet_hash_verified"] = False
                 else:
                     ev["snippet_hash_verified"] = False
 
@@ -294,69 +352,130 @@ class Analyzer:
         claims_data["claims"] = claims
         return claims_data
 
+    def _verify_single_evidence(self, ev: dict) -> bool:
+        path = ev.get("path", "")
+        line_start = ev.get("line_start", 0)
+        claimed_hash = ev.get("snippet_hash", "")
+        if not path or line_start <= 0 or not claimed_hash:
+            return False
+        snippet = self._read_line_from_repo(path, line_start)
+        if snippet is None:
+            return False
+        actual_hash = hashlib.sha256(
+            snippet.encode("utf-8", errors="ignore")
+        ).hexdigest()[:12]
+        return actual_hash == claimed_hash
+
     def _compute_completeness(self, howto: dict) -> dict:
         score = 0
         missing = []
+        deductions = []
 
-        def _has_evidence(items):
-            if not isinstance(items, list):
+        def _is_verified_evidence(ev):
+            if not isinstance(ev, dict):
                 return False
+            if ev.get("snippet_hash_verified") is True:
+                return True
+            if ev.get("snippet_hash") and self._verify_single_evidence(ev):
+                return True
+            return False
+
+        def _has_actionable_evidence(items, require_command=False):
+            if not isinstance(items, list) or len(items) == 0:
+                return False
+            actionable_count = 0
             for s in items:
                 ev = s.get("evidence")
-                if ev:
+                has_ev = _is_verified_evidence(ev)
+                if require_command:
+                    cmd = s.get("command")
+                    has_cmd = isinstance(cmd, str) and len(cmd.strip()) > 0 and cmd.strip().lower() not in ("unknown", "null", "n/a", "none")
+                    if has_ev and has_cmd:
+                        actionable_count += 1
+                else:
+                    if has_ev:
+                        actionable_count += 1
+            return actionable_count > 0
+
+        def _has_config_evidence(items):
+            if not isinstance(items, list) or len(items) == 0:
+                return False
+            for c in items:
+                ev = c.get("evidence")
+                name = c.get("name", "")
+                purpose = c.get("purpose", "")
+                has_ev = _is_verified_evidence(ev)
+                has_content = bool(name) and bool(purpose) and len(purpose) > 5
+                if has_ev and has_content:
                     return True
             return False
 
         run_steps = howto.get("run_dev", [])
-        if _has_evidence(run_steps):
+        if _has_actionable_evidence(run_steps, require_command=True):
             score += 20
         else:
-            missing.append("run_dev")
+            missing.append("run_dev: no step with both a runnable command and verified evidence")
 
         config = howto.get("config", [])
-        if _has_evidence(config):
+        if _has_config_evidence(config):
             score += 15
         else:
-            missing.append("config_with_evidence")
+            missing.append("config: no config item with name+purpose+verified evidence")
 
         port_found = False
         rp = howto.get("replit_execution_profile", {})
         if isinstance(rp, dict):
             pb = rp.get("port_binding", {})
-            if isinstance(pb, dict) and pb.get("evidence"):
-                port_found = True
+            if isinstance(pb, dict):
+                ev_list = pb.get("evidence", [])
+                if isinstance(ev_list, list) and any(
+                    _is_verified_evidence(e) for e in ev_list
+                ):
+                    port_found = True
         if not port_found and self.replit_profile:
             rpb = self.replit_profile.get("port_binding", {})
-            if isinstance(rpb, dict) and rpb.get("evidence"):
-                port_found = True
+            if isinstance(rpb, dict):
+                ev_list = rpb.get("evidence", [])
+                if isinstance(ev_list, list) and any(
+                    _is_verified_evidence(e) for e in ev_list
+                ):
+                    port_found = True
         if port_found:
             score += 15
         else:
-            missing.append("port_behavior")
+            missing.append("port_behavior: no port evidence with verified snippet_hash")
 
         verify = howto.get("verification_steps", [])
-        if _has_evidence(verify):
+        if _has_actionable_evidence(verify, require_command=True):
             score += 20
         else:
-            missing.append("verification_steps")
+            missing.append("verification_steps: no step with both a runnable command and verified evidence")
 
         examples = howto.get("usage_examples", [])
-        if examples:
+        valid_examples = [
+            e for e in (examples if isinstance(examples, list) else [])
+            if isinstance(e, dict) and e.get("description") and len(e.get("description", "")) > 5
+        ]
+        if len(valid_examples) >= 1:
             score += 15
         else:
-            missing.append("usage_examples")
+            missing.append("usage_examples: no examples with meaningful descriptions")
 
         install = howto.get("install_steps", [])
-        if _has_evidence(install):
+        if _has_actionable_evidence(install, require_command=True):
             score += 15
         else:
-            missing.append("install_steps")
-
-        notes_parts = []
-        if not (Path(self.repo_dir) / "Dockerfile").exists():
-            notes_parts.append("No Dockerfile found")
+            missing.append("install_steps: no step with both a runnable command and verified evidence")
 
         unknowns = howto.get("unknowns", [])
+        if isinstance(unknowns, list) and len(unknowns) > 0:
+            penalty = min(len(unknowns) * 3, 15)
+            score = max(0, score - penalty)
+            deductions.append(f"-{penalty} for {len(unknowns)} unknown(s)")
+
+        notes_parts = list(deductions)
+        if not (Path(self.repo_dir) / "Dockerfile").exists():
+            notes_parts.append("No Dockerfile found")
         if unknowns:
             notes_parts.append(f"{len(unknowns)} unknown(s) reported")
 
@@ -364,6 +483,7 @@ class Analyzer:
             "score": score,
             "max": 100,
             "missing": missing,
+            "deductions": deductions,
             "notes": "; ".join(notes_parts) if notes_parts else None
         }
 
@@ -609,6 +729,138 @@ RULES:
                 "run_id": self.acquire_result.run_id if self.acquire_result else None,
                 "is_replit": self.replit_profile is not None and self.replit_profile.get("is_replit", False),
             }
+
+    def _build_deterministic_howto(self) -> dict:
+        howto: Dict[str, Any] = {
+            "prereqs": [],
+            "install_steps": [],
+            "config": [],
+            "run_dev": [],
+            "run_prod": [],
+            "usage_examples": [],
+            "verification_steps": [],
+            "common_failures": [],
+            "unknowns": [],
+            "missing_evidence_requests": [],
+        }
+
+        pkg_json = self.repo_dir / "package.json"
+        if pkg_json.exists():
+            howto["prereqs"].append("Node.js")
+            try:
+                pkg_lines = pkg_json.read_text(errors="ignore").splitlines()
+                pkg = json.loads("\n".join(pkg_lines))
+                scripts = pkg.get("scripts", {})
+                if "dev" in scripts:
+                    line_num = self._find_line(pkg_json, '"dev"')
+                    actual_line = pkg_lines[line_num - 1].strip() if line_num and line_num <= len(pkg_lines) else ""
+                    ev = make_evidence_from_line("package.json", line_num, actual_line) if line_num else None
+                    howto["run_dev"].append({"step": "Start dev server", "command": "npm run dev", "evidence": ev})
+                if "build" in scripts:
+                    line_num = self._find_line(pkg_json, '"build"')
+                    actual_line = pkg_lines[line_num - 1].strip() if line_num and line_num <= len(pkg_lines) else ""
+                    ev = make_evidence_from_line("package.json", line_num, actual_line) if line_num else None
+                    howto["run_prod"].append({"step": "Build for production", "command": "npm run build", "evidence": ev})
+                if "start" in scripts:
+                    line_num = self._find_line(pkg_json, '"start"')
+                    actual_line = pkg_lines[line_num - 1].strip() if line_num and line_num <= len(pkg_lines) else ""
+                    ev = make_evidence_from_line("package.json", line_num, actual_line) if line_num else None
+                    howto["run_prod"].append({"step": "Start production", "command": "npm start", "evidence": ev})
+
+                line1 = self._find_line(pkg_json, '"name"') or 1
+                actual_line = pkg_lines[line1 - 1].strip() if line1 <= len(pkg_lines) else ""
+                howto["install_steps"].append({"step": "Install Node dependencies", "command": "npm install", "evidence": make_evidence_from_line("package.json", line1, actual_line)})
+            except json.JSONDecodeError:
+                pass
+
+        pyproject = self.repo_dir / "pyproject.toml"
+        if pyproject.exists():
+            howto["prereqs"].append("Python")
+            try:
+                first_line = pyproject.read_text(errors="ignore").splitlines()[0].strip()
+            except (IndexError, OSError):
+                first_line = "[project]"
+            howto["install_steps"].append({"step": "Install Python dependencies", "command": "pip install .", "evidence": make_evidence_from_line("pyproject.toml", 1, first_line)})
+
+        requirements = self.repo_dir / "requirements.txt"
+        if requirements.exists() and not pyproject.exists():
+            howto["prereqs"].append("Python")
+            howto["install_steps"].append({"step": "Install Python dependencies", "command": "pip install -r requirements.txt", "evidence": make_evidence_from_line("requirements.txt", 1, "requirements.txt")})
+
+        if self.replit_profile:
+            rp = self.replit_profile
+            howto["replit_execution_profile"] = {
+                "run_command": rp.get("run_command"),
+                "language": rp.get("language"),
+                "port_binding": rp.get("port_binding"),
+                "required_secrets": rp.get("required_secrets", []),
+                "external_apis": rp.get("external_apis", []),
+                "deployment_assumptions": rp.get("deployment_assumptions", []),
+                "observability": rp.get("observability"),
+                "limitations": ["Deterministic mode (--no-llm): no semantic analysis performed"],
+            }
+            for s in rp.get("required_secrets", []):
+                howto["config"].append({
+                    "name": s["name"],
+                    "purpose": f"Secret referenced in code (see evidence)",
+                    "evidence": s["referenced_in"][0] if s.get("referenced_in") else None,
+                })
+
+        howto["unknowns"].append({
+            "what_is_missing": "Semantic analysis of code purpose and architecture",
+            "why_it_matters": "Cannot determine system intent, integration patterns, or risk factors without LLM analysis",
+            "what_evidence_needed": "Re-run without --no-llm flag for full analysis",
+        })
+
+        return howto
+
+    def _find_line(self, filepath: Path, needle: str) -> Optional[int]:
+        try:
+            for i, line in enumerate(filepath.read_text(errors="ignore").splitlines(), 1):
+                if needle in line:
+                    return i
+        except Exception:
+            pass
+        return None
+
+    def _build_deterministic_dossier(self, howto: dict) -> str:
+        lines = ["# Program Totality Analyzer — Deterministic Dossier", ""]
+        lines.append("**Mode:** `--no-llm` (deterministic extraction only, no LLM calls)")
+        lines.append("")
+
+        lines.append("## 1. File Index Summary")
+        lines.append(f"- Files scanned: see index.json")
+        lines.append(f"- Self-skip: {self._skipped_count} analyzer files excluded")
+        lines.append("")
+
+        if self.replit_profile:
+            rp = self.replit_profile
+            lines.append("## 2. Replit Execution Profile")
+            lines.append(f"- **Is Replit:** {rp.get('is_replit')}")
+            lines.append(f"- **Run command:** `{rp.get('run_command', 'unknown')}`")
+            lines.append(f"- **Language:** {rp.get('language', 'unknown')}")
+            pb = rp.get("port_binding", {})
+            if pb:
+                lines.append(f"- **Port:** {pb.get('port', 'env PORT')}, binds_all={pb.get('binds_all_interfaces')}, env_port={pb.get('uses_env_port')}")
+            secrets = rp.get("required_secrets", [])
+            if secrets:
+                lines.append(f"- **Secrets ({len(secrets)}):** {', '.join(s['name'] for s in secrets)}")
+            apis = rp.get("external_apis", [])
+            if apis:
+                lines.append(f"- **External APIs:** {', '.join(a['api'] for a in apis)}")
+            lines.append("")
+
+        lines.append("## 3. Operator Manual (Deterministic)")
+        howto_str = json.dumps(howto, indent=2, default=str)
+        lines.append(f"```json\n{howto_str}\n```")
+        lines.append("")
+
+        lines.append("## 4. Limitations")
+        lines.append("- This dossier was generated in `--no-llm` mode")
+        lines.append("- No semantic analysis, claims extraction, or architecture inference was performed")
+        lines.append("- For full analysis, re-run without `--no-llm`")
+
+        return "\n".join(lines)
 
     def save_json(self, filename: str, data: Any):
         with open(self.output_dir / filename, "w") as f:
