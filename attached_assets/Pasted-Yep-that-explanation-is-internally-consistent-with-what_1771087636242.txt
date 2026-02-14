@@ -1,0 +1,220 @@
+Yep — that explanation is internally consistent with what we observed in out/13/ (no evidence_pack*.json anywhere). The only thing left is to prove the new behavior from disk (not narration) and lock the contract with a repeatable end-to-end verify script.
+
+Below is an exact end-to-end contract verification you can run for out/14/ (and out/15/ for diff). This will either confirm your summary, or surface the precise mismatch.
+
+⸻
+
+1) Identify latest run(s) and confirm expected files exist
+
+ls -1 out | sort -n | tail -n 5
+LATEST="$(ls -1 out | sort -n | tail -n 1)"
+PREV="$(ls -1 out | sort -n | tail -n 2 | head -n 1)"
+
+echo "PREV=out/$PREV"
+echo "LATEST=out/$LATEST"
+
+ls -la "out/$LATEST"
+
+Contract expectation: evidence_pack.v1.json, claims.json, coverage.json, index.json, target_howto.json, plus your new artifacts (known_unknowns.json, REPORT_ENGINEER.md, etc.).
+
+⸻
+
+2) Validate EvidencePack v1: keys + byte size + core fields
+
+EP="out/$LATEST/evidence_pack.v1.json"
+ls -la "$EP"
+
+python - <<'PY'
+import json, os
+ep = os.environ["EP"]
+d = json.load(open(ep))
+print("EP_PATH=", ep)
+print("TOP_KEYS=", list(d.keys()))
+print("evidence_pack_version=", d.get("evidence_pack_version"))
+print("run_id=", d.get("run_id"))
+print("mode=", d.get("mode"))
+print("generated_at=", d.get("generated_at"))
+
+# show the exact presence of contract-critical sections
+for k in ["verified","verified_structural","unknowns","metrics","hashes","summary","replit_profile"]:
+    print(f"{k}:", "PRESENT" if k in d else "MISSING")
+PY
+
+If any of those are missing, the contract still isn’t stable.
+
+⸻
+
+3) Prove the verified-claims count is real (computed from claims.json)
+
+This checks the count independently instead of trusting evidence_pack.v1.json.
+
+python - <<'PY'
+import json, os
+run = os.popen("ls -1 out | sort -n | tail -n 1").read().strip()
+claims_path = f"out/{run}/claims.json"
+c = json.load(open(claims_path))
+items = c.get("claims", c) if isinstance(c, dict) else c
+
+def ok(x):
+    e = x.get("evidence", []) if isinstance(x, dict) else []
+    return any(isinstance(i, dict) and i.get("snippet_hash_verified") is True for i in e)
+
+claims_total = sum(1 for x in items if isinstance(x, dict))
+verified_claims = sum(1 for x in items if isinstance(x, dict) and ok(x))
+
+print("CLAIMS_PATH=", claims_path)
+print("claims_total=", claims_total)
+print("verified_claims=", verified_claims)
+
+# Optional: show grouping keys if present
+sample = next((x for x in items if isinstance(x, dict) and ok(x)), None)
+print("sample_verified_claim_keys=", sorted(sample.keys()) if sample else None)
+PY
+
+This should match whatever evidence_pack.v1.json["verified"] reports.
+
+⸻
+
+4) Validate structural bucket emptiness + _notes presence
+
+You said: routes/dependencies/schemas/enforcement empty arrays with _notes.
+
+This confirms that shape.
+
+python - <<'PY'
+import json, os
+run = os.popen("ls -1 out | sort -n | tail -n 1").read().strip()
+ep_path = f"out/{run}/evidence_pack.v1.json"
+d = json.load(open(ep_path))
+
+vs = d.get("verified_structural", {})
+print("verified_structural type:", type(vs).__name__)
+print("verified_structural keys:", list(vs.keys())[:50])
+
+# Heuristic checks (adjust key names if your schema differs)
+def check_bucket(name):
+    v = vs.get(name)
+    print(f"\n{name}:")
+    print("  present:", name in vs)
+    print("  type:", type(v).__name__)
+    if isinstance(v, list):
+        print("  len:", len(v))
+    elif isinstance(v, dict):
+        # common pattern: {"items": [...], "_notes": "..."}
+        for kk in ["items","_notes","notes","required_extractor"]:
+            if kk in v:
+                print(f"  {kk}:", (v[kk] if kk != "items" else f"len={len(v[kk])}"))
+    else:
+        print("  value:", v)
+
+for name in ["routes","dependencies","schemas","enforcement"]:
+    check_bucket(name)
+PY
+
+If your schema is slightly different (e.g., verified_structural.routes.items), this will show it and we can adapt.
+
+⸻
+
+5) Verify metrics match your stated numbers (and not-implemented null)
+
+python - <<'PY'
+import json, os
+run = os.popen("ls -1 out | sort -n | tail -n 1").read().strip()
+ep_path = f"out/{run}/evidence_pack.v1.json"
+d = json.load(open(ep_path))
+m = d.get("metrics", {})
+
+keys = ["DCI_v1_claim_visibility","RCI_reporting_completeness","DCI_v2_structural_visibility"]
+print("METRICS_KEYS_PRESENT=", {k:(k in m) for k in keys})
+for k in keys:
+    print(k, "=", m.get(k))
+PY
+
+
+⸻
+
+6) Diff verification: prove “zero delta” between run 14 and 15
+
+If you have a DIFF_REPORT.md/json, show it. If not, compute a minimal cryptographic diff: compare snippet hashes and the metrics bundle.
+
+python - <<'PY'
+import json, os
+
+runs = os.popen("ls -1 out | sort -n | tail -n 2").read().strip().split()
+prev, latest = runs[0], runs[1]
+
+def load_ep(r):
+    return json.load(open(f"out/{r}/evidence_pack.v1.json"))
+
+a = load_ep(prev)
+b = load_ep(latest)
+
+# Compare metrics
+ma, mb = a.get("metrics", {}), b.get("metrics", {})
+metric_keys = sorted(set(ma.keys()) | set(mb.keys()))
+metric_delta = [(k, ma.get(k), mb.get(k)) for k in metric_keys if ma.get(k) != mb.get(k)]
+
+# Compare snippet hash inventory (best effort: find a place where you store them)
+# Common: evidence_pack["hashes"]["snippets"] or similar.
+def extract_snippet_hashes(ep):
+    h = ep.get("hashes", {})
+    # try several likely shapes
+    for path in [
+        ("snippets",),
+        ("snippet_hashes",),
+        ("evidence_snippets",),
+        ("snippets_by_id",),
+    ]:
+        cur = h
+        ok = True
+        for p in path:
+            if isinstance(cur, dict) and p in cur:
+                cur = cur[p]
+            else:
+                ok = False
+                break
+        if ok:
+            return cur
+    return None
+
+sa = extract_snippet_hashes(a)
+sb = extract_snippet_hashes(b)
+
+print("PREV_RUN=", prev, "LATEST_RUN=", latest)
+print("metrics_delta_count=", len(metric_delta))
+if metric_delta:
+    print("metrics_deltas (first 20):")
+    for row in metric_delta[:20]:
+        print(" ", row)
+
+print("\nsnippet_hashes_present_prev=", sa is not None)
+print("snippet_hashes_present_latest=", sb is not None)
+
+# If snippet hash maps/lists exist, compare deterministically
+if sa is not None and sb is not None:
+    if sa == sb:
+        print("snippet_hash_delta=NONE (exact match)")
+    else:
+        print("snippet_hash_delta=CHANGED")
+        # show small diff signal
+        import hashlib, json as js
+        ha = hashlib.sha256(js.dumps(sa, sort_keys=True).encode()).hexdigest()
+        hb = hashlib.sha256(js.dumps(sb, sort_keys=True).encode()).hexdigest()
+        print("prev_sha256=", ha)
+        print("latest_sha256=", hb)
+PY
+
+This gives you hard proof of “zero delta” without relying on a report.
+
+⸻
+
+What I need from you (if anything breaks)
+
+If any command prints missing keys / missing snippet hashes / metrics mismatch, paste just that output, and I’ll tell you exactly which emitter/extractor is still drifting and the minimal patch to fix it.
+
+But if all of the above passes, then you’ve successfully transitioned from:
+	•	“claims-only verification” (out/13)
+to
+	•	“contractual gate artifact emission” (out/14+)
+
+…and your contract audit summary is no longer a narrative — it’s provable.
