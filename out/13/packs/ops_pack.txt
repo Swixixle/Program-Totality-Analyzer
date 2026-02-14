@@ -1,0 +1,268 @@
+
+--- FILE: attached_assets/Pasted-Got-it-Copilot-said-it-did-it-but-you-need-reproducible_1771067676312.txt ---
+L1: Got it. Copilot “said it did it,” but you need **reproducible, mechanical steps** that a Replit agent can execute (and that you can verify) — not narrative.
+L2: 
+L3: Below is a **single, concrete instruction block** you can paste to the Replit agent. It assumes your current reality:
+L4: 
+L5: * CLI currently lives at: `server/analyzer/analyzer_cli.py` (NOT under `src/`)
+L6: * Your python package code lives at: `server/analyzer/src/`
+L7: * Some imports are `from core...` and break when importing as a package
+L8: * You want: **`pta` console command + `python -m ...` + direct file execution** all working
+L9: 
+L10: ---
+L11: 
+L12: ## Paste this to Replit agent (verbatim)
+L13: 
+L14: ### Objective
+L15: 
+L16: Make PTA installable + runnable in 3 ways:
+L17: 
+L18: 1. `pta --help` (console script)
+L19: 2. `python -m server.analyzer.src.analyzer_cli --help` (module invocation)
+L20: 3. `python server/analyzer/analyzer_cli.py --help` (direct file)
+L21: 
+L22: Also add `scripts/smoke_test.sh`, `examples/out/*.sample.json`, and an operator-grade `README.md`.
+L23: 
+L24: ### Rules
+L25: 
+L26: * No “try/except import hacks” unless absolutely necessary.
+L27: * Prefer **proper packages + relative imports**.
+L28: * Do not change analyzer behavior. Only packaging/entrypoints/docs.
+L29: 
+L30: ---
+L31: 
+L32: ### Step 1 — Confirm package init files exist
+L33: 
+L34: Create these files if missing (empty is fine):
+L35: 
+L36: * `server/analyzer/__init__.py`
+L37: * `server/analyzer/src/__init__.py`
+L38: * `server/analyzer/src/core/__init__.py`
+L39: 
+L40: Command:
+L41: 
+L42: ```bash
+L43: mkdir -p server/analyzer/src/core
+L44: touch server/analyzer/__init__.py server/analyzer/src/__init__.py server/analyzer/src/core/__init__.py
+L45: ```
+L46: 
+L47: ---
+L48: 
+L49: ### Step 2 — Fix `core` import break (the reason you saw ModuleNotFoundError)
+L50: 
+L51: Right now `server/analyzer/src/analyzer.py` imports `core.acquire` etc, which only works when `src/` is manually on PYTHONPATH.
+L52: 
+L53: **Replace all `from core...` and `import core...` inside `server/analyzer/src/**` with relative imports.**
+L54: 
+L55: Example conversions:
+L56: 
+L57: * `from core.acquire import ...` → `from .core.acquire import ...`
+L58: * `from core.evidence import ...` → `from .core.evidence import ...`
+L59: * `import core.replit_profile as rp` → `from .core import replit_profile as rp`
+L60: 
+L61: Command to find offenders:
+L62: 
+L63: ```bash
+L64: grep -RIn --exclude-dir=node_modules --exclude-dir=.git "from core\.|import core\." server/analyzer/src
+L65: ```
+L66: 
+L67: Then edit each file and fix imports.
+L68: 
+L69: ---
+L70: 
+L71: ### Step 3 — Make a single canonical CLI module in `src/`
+L72: 
+L73: Create: `server/analyzer/src/analyzer_cli.py`
+L74: 
+L75: This file should be the *only* “real” CLI implementation.
+L76: 
+L77: Then update the root CLI `server/analyzer/analyzer_cli.py` to become a **thin wrapper** that imports and runs the src CLI.
+L78: 
+L79: #### 3A) `server/analyzer/src/analyzer_cli.py`
+L80: 
+L81: * Must define Typer app: `app = typer.Typer(...)`
+L82: * Must end with:
+L83: 
+L84: ```python
+L85: if __name__ == "__main__":
+L86:     app()
+L87: ```
+L88: 
+L89: * Must import Analyzer using package-relative import:
+L90: 
+L91: ```python
+L92: from .analyzer import Analyzer
+L93: ```
+L94: 
+L95: #### 3B) wrapper file `server/analyzer/analyzer_cli.py`
+L96: 
+L97: Replace contents with:
+L98: 
+L99: ```python
+L100: from server.analyzer.src.analyzer_cli import app
+L101: 
+L102: if __name__ == "__main__":
+L103:     app()
+L104: ```
+L105: 
+L106: No sys.path hacks. No environment assumptions.
+L107: 
+L108: ---
+L109: 
+L110: ### Step 4 — Add module entrypoint (optional but clean)
+L111: 
+L112: Create `server/analyzer/src/__main__.py`:
+L113: 
+L114: ```python
+L115: from .analyzer_cli import app
+L116: 
+L117: if __name__ == "__main__":
+L118:     app()
+L119: ```
+L120: 
+L121: This allows:
+L122: 
+L123: ```bash
+L124: python -m server.analyzer.src --help
+L125: ```
+L126: 
+L127: ---
+L128: 
+L129: ### Step 5 — Configure `pyproject.toml` for console script
+L130: 
+L131: In repo root `pyproject.toml`, ensure:
+L132: 
+L133: * project name/version exist
+L134: * includes packages so `server` is importable
+L135: * console script:
+L136: 
+L137: ```toml
+L138: [project.scripts]
+L139: pta = "server.analyzer.src.analyzer_cli:app"
+L140: ```
+L141: 
+L142: If you’re using setuptools, ensure package discovery includes `server`. If using hatch/poetry, set packages accordingly.
+L143: 
+L144: Then test editable install:
+L145: 
+L146: ```bash
+L147: python -m pip install -e .
+L148: pta --help
+L149: ```
+L150: 
+L151: ---
+L152: 
+L153: ### Step 6 — Smoke test script
+L154: 
+L155: Create `scripts/smoke_test.sh`:
+L156: 
+L157: Requirements:
+L158: 
+L159: * `set -euo pipefail`
+L160: * verifies all 3 invocation methods
+L161: * runs deterministic analysis and checks output files exist
+L162: 
+L163: Minimum script:
+L164: 
+L165: ```bash
+L166: #!/usr/bin/env bash
+L167: set -euo pipefail
+L168: 
+L169: TMP="$(mktemp -d)"
+L170: OUT="$TMP/out"
+L171: 
+L172: echo "1) pta --help"
+L173: pta --help >/dev/null
+L174: 
+L175: echo "2) python -m server.analyzer.src --help"
+L176: python -m server.analyzer.src --help >/dev/null
+L177: 
+L178: echo "3) python server/analyzer/analyzer_cli.py --help"
+L179: python server/analyzer/analyzer_cli.py --help >/dev/null
+L180: 
+L181: echo "4) deterministic run"
+L182: pta analyze --replit -o "$OUT" --no-llm
+L183: 
+L184: test -f "$OUT/target_howto.json"
+L185: test -f "$OUT/coverage.json"
+L186: 
+L187: echo "PASS"
+L188: ```
+L189: 
+L190: Then:
+L191: 
+L192: ```bash
+L193: chmod +x scripts/smoke_test.sh
+L194: bash scripts/smoke_test.sh
+L195: ```
+L196: 
+L197: ---
+L198: 
+L199: ### Step 7 — Examples snapshot
+L200: 
+L201: Create:
+L202: 
+L203: * `examples/out/target_howto.sample.json`
+L204: * `examples/out/coverage.sample.json`
+L205: 
+L206: Generate fresh:
+L207: 
+L208: ```bash
+L209: rm -rf /tmp/pta_out_sample
+L210: pta analyze --replit -o /tmp/pta_out_sample --no-llm
+L211: mkdir -p examples/out
+L212: cp /tmp/pta_out_sample/target_howto.json examples/out/target_howto.sample.json
+L213: cp /tmp/pta_out_sample/coverage.json examples/out/coverage.sample.json
+L214: ```
+L215: 
+L216: Commit these.
+L217: 
+L218: ---
+L219: 
+L220: ### Step 8 — README.md (operator-grade)
+L221: 
+L222: Write README sections:
+L223: 
+L224: * What PTA does
+L225: * Install (`pip install -e .`)
+L226: * Run modes:
+L227: 
+L228:   * GitHub URL
+L229:   * local path
+L230:   * `--replit`
+L231: * Deterministic mode: `--no-llm`
+L232: * Outputs (target_howto.json, coverage.json, etc)
+L233: * Evidence model (snippet_hash, line_start/line_end, file_exists)
+L234: * Troubleshooting:
+L235: 
+L236:   * `ModuleNotFoundError: core`
+L237:   * missing env vars (`DATABASE_URL`, etc)
+L238:   * port conflicts
+L239: 
+L240: ---
+L241: 
+L242: ### Step 9 — Final verification commands (must paste results)
+L243: 
+L244: Run and paste outputs:
+L245: 
+L246: ```bash
+L247: python -m pip install -e .
+L248: pta --help | head
+L249: python -m server.analyzer.src --help | head
+L250: python server/analyzer/analyzer_cli.py --help | head
+L251: bash scripts/smoke_test.sh
+L252: ```
+L253: 
+L254: If all pass, repo is “functional and shippable”.
+L255: 
+L256: ---
+L257: 
+L258: ## Why Copilot “said it worked” but you still saw failures
+L259: 
+L260: * Your first attempt imported `server.analyzer.src.analyzer` directly, which triggered `from core.acquire...` and failed because `core` wasn’t a real package on sys.path.
+L261: * Your later `PYTHONPATH=server/analyzer/src python ...` worked because you *manually* made `core` importable. That’s not shippable.
+L262: * The fix is what you already proved in the live dump: **relative imports + real packaging**.
+L263: 
+L264: ---
+L265: 
+L266: If you want to “wrap this up” even harder: after the Replit agent runs those steps, have it paste **only** the output of Step 9. That’s your proof that the setup is actually functional (not “agent narrative”).
