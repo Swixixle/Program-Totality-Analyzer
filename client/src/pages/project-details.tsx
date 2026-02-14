@@ -78,24 +78,31 @@ export default function ProjectDetails() {
                   </CardContent>
                 </Card>
 
-                {analysis?.unknowns && (
-                  <Card className="bg-yellow-500/5 border-yellow-500/10">
-                    <CardHeader>
-                      <CardTitle className="text-sm font-mono text-yellow-500 uppercase tracking-wider flex items-center gap-2">
-                        <HelpCircle className="w-4 h-4" /> Unknowns
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ul className="text-sm space-y-2 text-muted-foreground">
-                        {(analysis.unknowns as string[]).map((u, i) => (
-                          <li key={i} className="flex gap-2">
-                            <span className="text-yellow-500">•</span> {u}
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                  </Card>
-                )}
+                {analysis?.unknowns && (() => {
+                  const raw = analysis.unknowns as any;
+                  const items: string[] = Array.isArray(raw)
+                    ? raw.map((u: any) => typeof u === "string" ? u : u.description || u.item || JSON.stringify(u))
+                    : [];
+                  if (!items.length) return null;
+                  return (
+                    <Card className="bg-yellow-500/5 border-yellow-500/10">
+                      <CardHeader>
+                        <CardTitle className="text-sm font-mono text-yellow-500 uppercase tracking-wider flex items-center gap-2">
+                          <HelpCircle className="w-4 h-4" /> Unknowns
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <ul className="text-sm space-y-2 text-muted-foreground" data-testid="list-unknowns">
+                          {items.map((u, i) => (
+                            <li key={i} className="flex gap-2">
+                              <span className="text-yellow-500">•</span> {u}
+                            </li>
+                          ))}
+                        </ul>
+                      </CardContent>
+                    </Card>
+                  );
+                })()}
               </div>
 
               {/* Main Content */}
@@ -131,27 +138,54 @@ export default function ProjectDetails() {
                         </div>
                         
                         <div className="space-y-6">
-                          {analysis?.howto && (analysis.howto as any[]).map((step: any, i: number) => (
-                            <div key={i} className="flex gap-4">
-                              <div className="flex-none flex flex-col items-center">
-                                <div className="w-8 h-8 rounded-full bg-secondary border border-border flex items-center justify-center font-mono text-sm font-bold text-primary">
-                                  {i + 1}
+                          {(() => {
+                            const howto = analysis?.howto as any;
+                            const steps: any[] = Array.isArray(howto)
+                              ? howto
+                              : howto && typeof howto === "object"
+                              ? [
+                                  ...(howto.prereqs ?? []).map((s: any) => ({ section: "Prerequisites", title: s.name || s.runtime, description: s.version || s.command || "", evidence: s.evidence })),
+                                  ...(howto.install_steps ?? []).map((s: any) => ({ section: "Install", title: s.command || s.title, description: s.description || "", code: s.command, evidence: s.evidence })),
+                                  ...(howto.config ?? []).map((s: any) => ({ section: "Configuration", title: s.name || s.key, description: s.description || s.source || "", evidence: s.evidence })),
+                                  ...(howto.run_dev ? [howto.run_dev] : []).map((s: any) => ({ section: "Run (Dev)", title: s.command || "Dev Server", description: s.description || "", code: s.command, evidence: s.evidence })),
+                                  ...(howto.run_prod ? [howto.run_prod] : []).map((s: any) => ({ section: "Run (Prod)", title: s.command || "Production", description: s.description || "", code: s.command, evidence: s.evidence })),
+                                ]
+                              : [];
+
+                            if (!steps.length) return <p className="text-muted-foreground" data-testid="text-no-howto">No how-to data available.</p>;
+
+                            return steps.map((step: any, i: number) => (
+                              <div key={i} className="flex gap-4" data-testid={`howto-step-${i}`}>
+                                <div className="flex-none flex flex-col items-center">
+                                  <div className="w-8 h-8 rounded-full bg-secondary border border-border flex items-center justify-center font-mono text-sm font-bold text-primary">
+                                    {i + 1}
+                                  </div>
+                                  {i !== steps.length - 1 && (
+                                    <div className="w-px h-full bg-border mt-2" />
+                                  )}
                                 </div>
-                                {i !== (analysis.howto as any[]).length - 1 && (
-                                  <div className="w-px h-full bg-border mt-2" />
-                                )}
+                                <div className="flex-1 pb-6">
+                                  {step.section && (
+                                    <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1">{step.section}</div>
+                                  )}
+                                  <h3 className="text-lg font-semibold mb-2">{step.title || "Step"}</h3>
+                                  {step.description && <p className="text-muted-foreground mb-3">{step.description}</p>}
+                                  {step.code && (
+                                    <pre className="bg-secondary/40 p-3 rounded-lg border border-white/5 font-mono text-sm text-primary/80 overflow-x-auto">
+                                      {step.code}
+                                    </pre>
+                                  )}
+                                  {step.evidence && Array.isArray(step.evidence) && step.evidence.length > 0 && (
+                                    <div className="mt-2 text-xs font-mono text-muted-foreground">
+                                      {step.evidence.map((ev: any, j: number) => (
+                                        <span key={j} className="mr-2">{ev.display || `${ev.path}:${ev.line_start}`}</span>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
                               </div>
-                              <div className="flex-1 pb-6">
-                                <h3 className="text-lg font-semibold mb-2">{step.title}</h3>
-                                <p className="text-muted-foreground mb-3">{step.description}</p>
-                                {step.code && (
-                                  <pre className="bg-secondary/40 p-3 rounded-lg border border-white/5 font-mono text-sm text-primary/80 overflow-x-auto">
-                                    {step.code}
-                                  </pre>
-                                )}
-                              </div>
-                            </div>
-                          ))}
+                            ));
+                          })()}
                         </div>
                       </div>
                     </Card>
@@ -159,36 +193,56 @@ export default function ProjectDetails() {
 
                   <TabsContent value="claims" className="mt-6">
                     <div className="grid gap-4">
-                      {analysis?.claims && (analysis.claims as any[]).map((claim: any, i: number) => (
-                        <Card key={i} className="border-white/5 bg-secondary/10">
-                          <CardContent className="pt-6">
-                            <div className="flex items-start gap-4">
-                              <div className={cn(
-                                "p-2 rounded-lg mt-1",
-                                claim.verified 
-                                  ? "bg-green-500/10 text-green-500" 
-                                  : "bg-red-500/10 text-red-500"
-                              )}>
-                                {claim.verified ? <CheckCircle className="w-5 h-5" /> : <AlertTriangle className="w-5 h-5" />}
-                              </div>
-                              <div>
-                                <h3 className="text-lg font-semibold mb-1">{claim.claim}</h3>
-                                <p className="text-sm text-muted-foreground mb-3">{claim.evidence}</p>
-                                <div className="flex items-center gap-2">
-                                  <span className={cn(
-                                    "text-xs font-bold px-2 py-0.5 rounded border uppercase tracking-wide",
-                                    claim.verified 
-                                      ? "border-green-500/20 text-green-500 bg-green-500/5" 
-                                      : "border-red-500/20 text-red-500 bg-red-500/5"
+                      {(() => {
+                        const raw = analysis?.claims as any;
+                        const claims: any[] = Array.isArray(raw) ? raw : (raw?.claims && Array.isArray(raw.claims)) ? raw.claims : [];
+                        if (!claims.length) return <p className="text-muted-foreground" data-testid="text-no-claims">No claims data available.</p>;
+
+                        return claims.map((claim: any, i: number) => {
+                          const isVerified = claim.verified === true || claim.status === "evidenced";
+                          const title = claim.claim || claim.statement || "Claim";
+                          const evidenceDisplay = Array.isArray(claim.evidence)
+                            ? claim.evidence.map((ev: any) => ev.display || `${ev.path}:${ev.line_start}`).join(", ")
+                            : typeof claim.evidence === "string" ? claim.evidence : "";
+                          const confidence = typeof claim.confidence === "number" ? claim.confidence : null;
+
+                          return (
+                            <Card key={i} className="border-white/5 bg-secondary/10" data-testid={`card-claim-${i}`}>
+                              <CardContent className="pt-6">
+                                <div className="flex items-start gap-4">
+                                  <div className={cn(
+                                    "p-2 rounded-lg mt-1",
+                                    isVerified
+                                      ? "bg-green-500/10 text-green-500"
+                                      : "bg-red-500/10 text-red-500"
                                   )}>
-                                    {claim.verified ? "VERIFIED" : "UNVERIFIED"}
-                                  </span>
+                                    {isVerified ? <CheckCircle className="w-5 h-5" /> : <AlertTriangle className="w-5 h-5" />}
+                                  </div>
+                                  <div className="flex-1">
+                                    <h3 className="text-lg font-semibold mb-1">{title}</h3>
+                                    {evidenceDisplay && <p className="text-sm text-muted-foreground font-mono mb-3">{evidenceDisplay}</p>}
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                      <span className={cn(
+                                        "text-xs font-bold px-2 py-0.5 rounded border uppercase tracking-wide",
+                                        isVerified
+                                          ? "border-green-500/20 text-green-500 bg-green-500/5"
+                                          : "border-red-500/20 text-red-500 bg-red-500/5"
+                                      )}>
+                                        {isVerified ? "VERIFIED" : "UNVERIFIED"}
+                                      </span>
+                                      {confidence !== null && (
+                                        <span className="text-xs font-mono text-muted-foreground">
+                                          Confidence: {(confidence * 100).toFixed(0)}%
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
                                 </div>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
+                              </CardContent>
+                            </Card>
+                          );
+                        });
+                      })()}
                     </div>
                   </TabsContent>
                 </Tabs>

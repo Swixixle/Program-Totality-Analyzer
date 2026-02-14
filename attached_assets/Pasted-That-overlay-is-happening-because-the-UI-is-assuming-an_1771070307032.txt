@@ -1,0 +1,97 @@
+That overlay is happening because the UI is assuming **`analysis.howto` is an array**, but the analyzer is returning **an object** (very likely `target_howto.json`-shaped: `{ prereqs, install_steps, config, run_dev, ... }`). So `.map()` crashes.
+
+You do **not** need to “do something in the overlay.” You fix the code and it disappears as soon as Vite hot-reloads.
+
+## Fix (fastest): make the UI accept either array OR object
+
+### Tell the Replit agent to do this exact edit
+
+**File:** `client/src/pages/project-details.tsx`
+**Find:** the line that looks like:
+
+```tsx
+{analysis?.howto && (analysis.howto as any[]).map((step: any, i: number) => (
+```
+
+**Replace that whole mapping block** with this safe normalization:
+
+```tsx
+{(() => {
+  const howto = analysis?.howto as any;
+
+  // Case A: already an array of steps
+  const steps: any[] = Array.isArray(howto)
+    ? howto
+    : // Case B: object shaped like target_howto.json → render a flattened “steps” list
+      howto && typeof howto === "object"
+      ? [
+          ...(howto.install_steps ?? []).map((s: any) => ({ section: "Install", ...s })),
+          ...(howto.run_dev ?? []).map((s: any) => ({ section: "Run (Dev)", ...s })),
+          ...(howto.run_prod ?? []).map((s: any) => ({ section: "Run (Prod)", ...s })),
+          ...(howto.verification_steps ?? []).map((s: any) => ({ section: "Verify", ...s })),
+          ...(howto.common_failures ?? []).map((s: any) => ({ section: "Failures", ...s })),
+        ]
+      : [];
+
+  if (!steps.length) return null;
+
+  return steps.map((step: any, i: number) => (
+    <div key={i} className="flex gap-4">
+      <div className="flex-none flex flex-col items-center">
+        {/* keep your existing UI here */}
+      </div>
+
+      <div className="flex-1">
+        {step.section && (
+          <div className="text-xs opacity-70 mb-1">{step.section}</div>
+        )}
+        {/* keep your existing rendering of step contents here */}
+      </div>
+    </div>
+  ));
+})()}
+```
+
+That stops the crash **and** makes the UI render something sensible for the real `howto` format.
+
+---
+
+## If you want the absolute minimum change (no formatting)
+
+Replace just the `.map` line with:
+
+```tsx
+{Array.isArray(analysis?.howto) && (analysis.howto as any[]).map((step: any, i: number) => (
+```
+
+…but this will hide the howto entirely if it’s an object. The “flatten sections” version above is better.
+
+---
+
+## If the overlay is blocking clicks
+
+You can temporarily disable the Vite error overlay:
+
+**File:** `vite.config.ts` (or `vite.config.js`)
+Add:
+
+```ts
+server: {
+  hmr: { overlay: false }
+}
+```
+
+…but you shouldn’t need this if you apply the UI fix.
+
+---
+
+## What I need you to paste back (so I can confirm in one shot)
+
+After the agent edits, run:
+
+```bash
+sed -n '120,170p' client/src/pages/project-details.tsx
+npm run dev
+```
+
+…and paste the snippet + whether the page loads.
