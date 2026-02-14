@@ -1,0 +1,199 @@
+Below is a **copy/paste instruction block** for the Replit agent. It is written to *close the loop* with a clean “proof pack” and to eliminate the remaining confusion (import path, evidence verification, and the last two hardening choices).
+
+---
+
+## Replit Agent Instructions (final wrap-up)
+
+**Objective:** Produce a final proof pack that (a) demonstrates the analyzer module actually executing, (b) proves the 3 blocker fixes are in the running code, and (c) resolves the two remaining hardening choices (symlink-components + whitespace hashing) OR explicitly documents why we’re not doing them.
+
+### 0) Always run with correct import path
+
+Use **PYTHONPATH=server/analyzer/src** so `import analyzer` resolves its local `core/*` deps:
+
+```bash
+cd /home/runner/workspace
+PYTHONPATH=server/analyzer/src python -c "import analyzer; print(analyzer.__file__)"
+```
+
+### 1) Dump the safety-critical functions from the *actual executing module*
+
+Run:
+
+```bash
+cd /home/runner/workspace
+PYTHONPATH=server/analyzer/src python - <<'PY'
+import analyzer as m, inspect
+print("MODULE FILE:", m.__file__)
+for fn in ["_safe_resolve_path","_read_lines_from_repo","_read_line_from_repo","_parse_evidence_string","_verify_single_evidence","_compute_completeness"]:
+    print("\n---", fn, "---\n")
+    print(inspect.getsource(getattr(m.Analyzer, fn)))
+PY
+```
+
+**Expected:** `_read_lines_from_repo` exists and uses `read_bytes()` null-byte check; `_parse_evidence_string` calls `_read_lines_from_repo` with `line_start,line_end`; `_verify_single_evidence` reads the range and hashes it; `_safe_resolve_path` rejects symlinks before resolve.
+
+### 2) Run deterministic analysis and write outputs to a clean folder
+
+```bash
+rm -rf /tmp/pta_out_final
+python server/analyzer/analyzer_cli.py analyze --replit --no-llm -o /tmp/pta_out_final
+ls -la /tmp/pta_out_final
+```
+
+### 3) Prove there is **no** invalid evidence in outputs
+
+#### 3a) No `line_start < 1` anywhere
+
+```bash
+python - <<'PY'
+import json, glob
+paths=glob.glob("/tmp/pta_out_final/**/*.json", recursive=True)
+bad=[]
+def walk(x, where=""):
+  if isinstance(x, dict):
+    if "line_start" in x and isinstance(x["line_start"], int) and x["line_start"] < 1:
+      bad.append((where, x))
+    for k,v in x.items(): walk(v, where+f".{k}")
+  elif isinstance(x, list):
+    for i,v in enumerate(x): walk(v, where+f"[{i}]")
+for p in paths:
+  try: j=json.load(open(p))
+  except: continue
+  walk(j, p)
+print("BAD line_start<1:", len(bad))
+for where,ev in bad[:20]:
+  print(where, ev)
+PY
+```
+
+**Expected:** `BAD line_start<1: 0`
+
+#### 3b) Confirm external API evidence has real line numbers
+
+Print just that section:
+
+```bash
+python - <<'PY'
+import json
+j=json.load(open("/tmp/pta_out_final/target_howto.json"))
+apis=j.get("replit_execution_profile", {}).get("external_apis", [])
+print(json.dumps(apis, indent=2))
+PY
+```
+
+**Expected:** no `line_start: 0` entries; each evidence file has real line numbers.
+
+### 4) Run the 3 blocker tests as a single proof script
+
+Create and run `/tmp/pta_proof.py`:
+
+```bash
+cat > /tmp/pta_proof.py <<'PY'
+import os, pathlib, json, tempfile
+from pathlib import Path
+
+# Import analyzer from correct path
+import sys
+sys.path.insert(0, "server/analyzer/src")
+import analyzer as m
+
+repo = Path("/home/runner/workspace")
+
+A = m.Analyzer.__new__(m.Analyzer)
+A.repo_dir = repo
+A.MAX_FILE_SIZE = 2 * 1024 * 1024
+A.MAX_SNIPPET_LINES = 50
+A.BINARY_EXTENSIONS = getattr(m.Analyzer, "BINARY_EXTENSIONS", set([".png",".jpg",".jpeg",".gif",".pdf",".zip",".gz",".tar",".7z",".woff",".woff2",".mp4",".mov",".avi",".mp3",".wav",".dat"]))
+
+# --- Test 1: symlink escape ---
+with tempfile.TemporaryDirectory() as td:
+    tdir = Path(td)
+    outside = tdir / "outside.txt"
+    outside.write_text("OUTSIDE\n")
+    (tdir / "real.txt").write_text("REAL\n")
+    os.symlink(str(outside), str(tdir / "link.txt"))
+
+    A.repo_dir = tdir
+    assert A._safe_resolve_path("real.txt") is not None, "real.txt should resolve"
+    assert A._safe_resolve_path("link.txt") is None, "link.txt symlink must be rejected"
+print("PASS: symlink escape")
+
+# --- Test 2: multi-line hashing ---
+tdir = Path(tempfile.mkdtemp())
+A.repo_dir = tdir
+p = tdir / "multi.txt"
+p.write_text("line1\nline2\nline3\nline4\nline5\n", encoding="utf-8")
+
+ev = A._parse_evidence_string("multi.txt:2-4")
+assert ev and ev["line_start"]==2 and ev["line_end"]==4, "evidence parse failed"
+assert A._verify_single_evidence(ev) is True, "multiline evidence should verify"
+print("PASS: multi-line hashing")
+
+# --- Test 3: binary detection ---
+b = tdir / "binary.txt"
+b.write_bytes(b"\x00\x01\x02hello")
+assert A._read_lines_from_repo("binary.txt", 1, 1) is None, "binary file must be rejected"
+print("PASS: binary detection")
+
+# --- Test 4: audit outputs ---
+out = Path("/tmp/pta_out_final")
+bad=[]
+for fp in out.rglob("*.json"):
+    try:
+        j=json.loads(fp.read_text())
+    except Exception:
+        continue
+    def walk(x):
+        if isinstance(x, dict):
+            ls=x.get("line_start")
+            if isinstance(ls,int) and ls<1:
+                bad.append((str(fp),x))
+            for v in x.values(): walk(v)
+        elif isinstance(x, list):
+            for v in x: walk(v)
+    walk(j)
+assert len(bad)==0, f"Found invalid evidence entries: {bad[:3]}"
+print("PASS: output audit (no line_start<1)")
+PY
+
+PYTHONPATH=server/analyzer/src python /tmp/pta_proof.py
+```
+
+**Expected:** 4 PASS lines.
+
+### 5) Decide + implement final hardening (pick one of two options)
+
+**Option A (recommended for maximum security):** Reject **any symlink component** in the path, not just the final leaf.
+
+Implement in `_safe_resolve_path`:
+
+* After `raw = self.repo_dir / norm`, iterate components from `repo_dir` down to `raw`:
+
+  * if any `candidate.is_symlink()` → return None
+
+**Option B (acceptable if you want minimal change):** Keep current `raw.is_symlink()` check and document limitation in a comment.
+
+### 6) Decide + implement whitespace hashing policy (pick one)
+
+Current behavior: `_read_lines_from_repo` does `line.strip()` before joining; evidence hashes are therefore **whitespace-insensitive**.
+
+**Option A (forensic exactness):**
+
+* Remove `.strip()` and preserve exact line content
+* If you need display-friendly text, strip only in UI rendering fields, not hashing.
+
+**Option B (operator stability):**
+
+* Keep `.strip()` and document explicitly: “hashes are normalized (trimmed) to reduce noise.”
+
+### 7) Final deliverable: paste these artifacts verbatim into chat
+
+* Full function dump from Step 1
+* The `/tmp/pta_proof.py` output (the 4 PASS lines)
+* `target_howto.json` first ~260 lines
+* `coverage.json` full content
+* `claims.json` (or claims section) first ~120 lines showing deterministic claims exist in `--no-llm`
+
+---
+
+If you send that to the Replit agent exactly, they’ll either (a) produce the proof pack and close, or (b) get blocked on a specific missing file/path and you’ll have a concrete error to fix (instead of “it’s done”).

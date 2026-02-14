@@ -222,12 +222,15 @@ class Analyzer:
         ext = os.path.splitext(norm)[1].lower()
         if ext in self.BINARY_EXTENSIONS:
             return None
-        raw = self.repo_dir / norm
         repo_resolved = self.repo_dir.resolve()
-        if raw.is_symlink():
-            return None
+        parts = Path(norm).parts
+        candidate = self.repo_dir
+        for part in parts:
+            candidate = candidate / part
+            if candidate.is_symlink():
+                return None
         try:
-            resolved = raw.resolve()
+            resolved = candidate.resolve()
             resolved.relative_to(repo_resolved)
         except ValueError:
             return None
@@ -273,6 +276,10 @@ class Analyzer:
                 return None
             clamped_end = min(line_end, len(lines))
             selected = lines[line_start - 1 : clamped_end]
+            # Whitespace policy: lines are stripped (trimmed) before hashing.
+            # This normalizes indentation differences and reduces noise in
+            # evidence verification. Both make_evidence() and _verify_single_evidence()
+            # use this same canonicalization, ensuring hash consistency.
             return "\n".join(line.strip() for line in selected)
         except Exception:
             pass
