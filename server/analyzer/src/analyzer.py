@@ -12,12 +12,15 @@ from dotenv import load_dotenv
 from .core.acquire import acquire_target, AcquireResult
 from .core.replit_profile import ReplitProfiler
 from .core.evidence import make_evidence, make_evidence_from_line, make_file_exists_evidence, validate_evidence_list
+from .core.unknowns import compute_known_unknowns
+from .core.adapter import build_evidence_pack, save_evidence_pack
+from .core.render import render_report, save_report
 
 load_dotenv()
 
 
 class Analyzer:
-    def __init__(self, source: str, output_dir: str, mode: str = "github", root: Optional[str] = None, no_llm: bool = False):
+    def __init__(self, source: str, output_dir: str, mode: str = "github", root: Optional[str] = None, no_llm: bool = False, render_mode: str = "engineer"):
         self.source = source
         self.mode = mode
         self.output_dir = Path(output_dir)
@@ -30,6 +33,7 @@ class Analyzer:
         self._self_skip_paths: set = set()
         self._skipped_count: int = 0
         self.no_llm = no_llm
+        self.render_mode = render_mode
 
         self.output_dir.mkdir(parents=True, exist_ok=True)
         self.packs_dir.mkdir(parents=True, exist_ok=True)
@@ -134,6 +138,43 @@ class Analyzer:
 
         with open(self.output_dir / "DOSSIER.md", "w") as f:
             f.write(dossier)
+
+        self.console.print("[bold]Step 6: Computing Known Unknowns...[/bold]")
+        known_unknowns = compute_known_unknowns(
+            howto=howto,
+            claims=claims,
+            coverage={
+                "mode": self.mode,
+                "scanned": len(file_index),
+            },
+            file_index=file_index,
+        )
+        self.save_json("known_unknowns.json", known_unknowns)
+        verified_count = len([u for u in known_unknowns if u["status"] == "VERIFIED"])
+        unknown_count = len([u for u in known_unknowns if u["status"] == "UNKNOWN"])
+        self.console.print(f"  {verified_count} VERIFIED, {unknown_count} UNKNOWN out of {len(known_unknowns)} categories")
+
+        self.console.print("[bold]Step 7: Building EvidencePack v1...[/bold]")
+        evidence_pack = build_evidence_pack(
+            howto=howto,
+            claims=claims,
+            coverage={
+                "mode": self.mode,
+                "scanned": len(file_index),
+            },
+            file_index=file_index,
+            known_unknowns=known_unknowns,
+            replit_profile=self.replit_profile,
+            mode=self.mode,
+            run_id=self.acquire_result.run_id if self.acquire_result else None,
+        )
+        pack_path = save_evidence_pack(evidence_pack, self.output_dir)
+        self.console.print(f"  EvidencePack saved to {pack_path}")
+
+        self.console.print(f"[bold]Step 8: Rendering {self.render_mode} report...[/bold]")
+        report_content = render_report(evidence_pack, mode=self.render_mode)
+        report_path = save_report(report_content, self.output_dir, self.render_mode)
+        self.console.print(f"  Report saved to {report_path}")
 
         self.console.print("[bold green]All outputs written.[/bold green]")
 
