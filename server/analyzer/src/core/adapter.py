@@ -135,101 +135,39 @@ def _build_verified_structural(
     verified_claims: List[Dict[str, Any]],
     howto: Dict[str, Any],
     file_index: List[str],
-) -> Dict[str, List[Dict[str, Any]]]:
+) -> Dict[str, Any]:
     """
-    Structural namespace populated ONLY from deterministic structural
-    extractor outputs. Never from claims, never from file-index pattern
-    matching. If a structural source doesn't exist yet, the bucket stays
-    empty with a "not_yet_extractable" note.
+    Structural namespace for governance-grade surface mapping.
 
-    Inputs per bucket:
-      - dependencies: howto install_steps with snippet_hash_verified evidence
-      - routes: howto route_inventory (when extractor exists)
-      - schemas: howto schema_inventory (when extractor exists)
-      - enforcement: howto enforcement_inventory (when extractor exists)
+    All buckets are currently empty — populated ONLY when dedicated
+    deterministic structural extractors exist that:
+      1. Scan actual source artifacts (lockfiles, route definitions, etc.)
+      2. Extract exact lines from those artifacts
+      3. Compute and verify snippet_hash against the source file
+
+    NOT populated from:
+      - Claims (claims are outputs, not structural inputs)
+      - Howto/documentation surface (narrative, not system surface)
+      - File-index pattern matching (filename presence != verified structure)
+
+    Each bucket will be implemented by a dedicated extractor:
+      - dependencies: lockfile parser (package-lock.json, requirements.txt, etc.)
+      - routes: AST/regex route extractor over source files
+      - schemas: migration/model file parser
+      - enforcement: auth/middleware pattern detector over source files
     """
-    structural: Dict[str, List[Dict[str, Any]]] = {
+    return {
         "routes": [],
         "dependencies": [],
         "schemas": [],
         "enforcement": [],
+        "_notes": {
+            "routes": "not_implemented: requires AST/regex route extractor over source files",
+            "dependencies": "not_implemented: requires lockfile parser (package-lock.json, requirements.txt, etc.)",
+            "schemas": "not_implemented: requires migration/model file parser",
+            "enforcement": "not_implemented: requires auth/middleware pattern detector over source files",
+        },
     }
-    structural_notes: Dict[str, str] = {}
-
-    install_steps = howto.get("install_steps", [])
-    if isinstance(install_steps, list):
-        for step in install_steps:
-            if not isinstance(step, dict):
-                continue
-            ev = step.get("evidence")
-            if isinstance(ev, dict) and ev.get("snippet_hash") and ev.get("path"):
-                structural["dependencies"].append({
-                    "id": f"howto_dep_{len(structural['dependencies'])}",
-                    "statement": step.get("description", step.get("command", "")),
-                    "section": "howto:install_steps",
-                    "evidence": [ev],
-                    "confidence": 0.5,
-                    "source": "deterministic_extractor:howto",
-                })
-
-    route_inventory = howto.get("route_inventory", [])
-    if isinstance(route_inventory, list):
-        for entry in route_inventory:
-            if not isinstance(entry, dict):
-                continue
-            ev = entry.get("evidence")
-            if isinstance(ev, dict) and ev.get("snippet_hash") and ev.get("path"):
-                structural["routes"].append({
-                    "id": f"howto_route_{len(structural['routes'])}",
-                    "statement": entry.get("description", entry.get("route", "")),
-                    "section": "howto:route_inventory",
-                    "evidence": [ev],
-                    "confidence": 0.5,
-                    "source": "deterministic_extractor:howto",
-                })
-    if not structural["routes"]:
-        structural_notes["routes"] = "not_yet_extractable: route inventory extractor not implemented"
-
-    schema_inventory = howto.get("schema_inventory", [])
-    if isinstance(schema_inventory, list):
-        for entry in schema_inventory:
-            if not isinstance(entry, dict):
-                continue
-            ev = entry.get("evidence")
-            if isinstance(ev, dict) and ev.get("snippet_hash") and ev.get("path"):
-                structural["schemas"].append({
-                    "id": f"howto_schema_{len(structural['schemas'])}",
-                    "statement": entry.get("description", entry.get("schema", "")),
-                    "section": "howto:schema_inventory",
-                    "evidence": [ev],
-                    "confidence": 0.5,
-                    "source": "deterministic_extractor:howto",
-                })
-    if not structural["schemas"]:
-        structural_notes["schemas"] = "not_yet_extractable: schema inventory extractor not implemented"
-
-    enforcement_inventory = howto.get("enforcement_inventory", [])
-    if isinstance(enforcement_inventory, list):
-        for entry in enforcement_inventory:
-            if not isinstance(entry, dict):
-                continue
-            ev = entry.get("evidence")
-            if isinstance(ev, dict) and ev.get("snippet_hash") and ev.get("path"):
-                structural["enforcement"].append({
-                    "id": f"howto_enforce_{len(structural['enforcement'])}",
-                    "statement": entry.get("description", ""),
-                    "section": "howto:enforcement_inventory",
-                    "evidence": [ev],
-                    "confidence": 0.5,
-                    "source": "deterministic_extractor:howto",
-                })
-    if not structural["enforcement"]:
-        structural_notes["enforcement"] = "not_yet_extractable: enforcement inventory extractor not implemented"
-
-    if structural_notes:
-        structural["_notes"] = structural_notes
-
-    return structural
 
 
 def _build_metrics(
