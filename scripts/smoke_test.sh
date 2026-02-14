@@ -24,7 +24,7 @@ done
 echo "  PASS: all expected files present"
 
 echo "[4/4] Validating no invalid evidence (line_start < 1)..."
-python3 - <<'PY'
+python3 - "$TMP/out" <<'PY'
 import json, glob, sys
 paths = glob.glob(sys.argv[1] + "/**/*.json", recursive=True)
 bad = []
@@ -49,7 +49,7 @@ if bad:
         print(f"    {w}: {e}")
     sys.exit(1)
 print("  PASS: zero invalid evidence entries")
-PY "$TMP/out"
+PY
 
 echo ""
 echo "=== ALL SMOKE TESTS PASSED ==="
