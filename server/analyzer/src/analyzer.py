@@ -222,27 +222,24 @@ class Analyzer:
         ext = os.path.splitext(norm)[1].lower()
         if ext in self.BINARY_EXTENSIONS:
             return None
-        filepath = (self.repo_dir / norm).resolve()
+        raw = self.repo_dir / norm
         repo_resolved = self.repo_dir.resolve()
+        if raw.is_symlink():
+            return None
         try:
-            filepath.relative_to(repo_resolved)
+            resolved = raw.resolve()
+            resolved.relative_to(repo_resolved)
         except ValueError:
             return None
-        if filepath.is_symlink():
-            real = filepath.resolve()
-            try:
-                real.relative_to(repo_resolved)
-            except ValueError:
-                return None
-        if not filepath.exists() or not filepath.is_file():
+        if not resolved.exists() or not resolved.is_file():
             return None
         try:
-            size = filepath.stat().st_size
+            size = resolved.stat().st_size
             if size > self.MAX_FILE_SIZE:
                 return None
         except OSError:
             return None
-        return filepath
+        return resolved
 
     def _parse_evidence_string(self, ev_str: str) -> Optional[dict]:
         if not isinstance(ev_str, str):
@@ -255,25 +252,34 @@ class Analyzer:
         line_end = int(m.group(3)) if m.group(3) else line_start
         if line_end - line_start > self.MAX_SNIPPET_LINES:
             line_end = line_start + self.MAX_SNIPPET_LINES
-        snippet = self._read_line_from_repo(path, line_start)
+        snippet = self._read_lines_from_repo(path, line_start, line_end)
         if snippet is None:
             return None
         return make_evidence(path, line_start, line_end, snippet)
 
-    def _read_line_from_repo(self, path: str, line_num: int) -> Optional[str]:
+    def _read_lines_from_repo(self, path: str, line_start: int, line_end: int = 0) -> Optional[str]:
+        if line_end < line_start:
+            line_end = line_start
         filepath = self._safe_resolve_path(path)
         if filepath is None:
             return None
         try:
-            content = filepath.read_text(errors='ignore')
-            if '\x00' in content[:1024]:
+            raw = filepath.read_bytes()
+            if b'\x00' in raw[:4096]:
                 return None
+            content = raw.decode("utf-8", errors="ignore")
             lines = content.splitlines()
-            if 0 < line_num <= len(lines):
-                return lines[line_num - 1].strip()
+            if line_start < 1 or line_start > len(lines):
+                return None
+            clamped_end = min(line_end, len(lines))
+            selected = lines[line_start - 1 : clamped_end]
+            return "\n".join(line.strip() for line in selected)
         except Exception:
             pass
         return None
+
+    def _read_line_from_repo(self, path: str, line_num: int) -> Optional[str]:
+        return self._read_lines_from_repo(path, line_num, line_num)
 
     def _normalize_howto_evidence(self, howto: dict) -> dict:
         evidence_fields = ["install_steps", "config", "run_dev", "run_prod", "verification_steps", "common_failures"]
@@ -360,10 +366,11 @@ class Analyzer:
     def _verify_single_evidence(self, ev: dict) -> bool:
         path = ev.get("path", "")
         line_start = ev.get("line_start", 0)
+        line_end = ev.get("line_end", line_start)
         claimed_hash = ev.get("snippet_hash", "")
         if not path or line_start <= 0 or not claimed_hash:
             return False
-        snippet = self._read_line_from_repo(path, line_start)
+        snippet = self._read_lines_from_repo(path, line_start, line_end)
         if snippet is None:
             return False
         actual_hash = hashlib.sha256(

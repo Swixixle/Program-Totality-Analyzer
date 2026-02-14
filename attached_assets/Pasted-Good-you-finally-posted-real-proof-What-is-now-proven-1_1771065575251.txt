@@ -1,0 +1,133 @@
+Good — you finally posted **real proof**.
+
+### What is now proven ✅
+
+1. **Typer CLI contract is correct**
+   `analyzer_cli.py [OPTIONS] COMMAND ...` with `analyze` as a subcommand. ✅
+
+2. **No `line_start: 0` evidence exists anywhere in `/tmp/pta_out`**
+   Your Python walk reports `BAD: 0`. ✅
+
+3. **Lockfile-based deterministic install steps are now present**
+   `npm ci` with `kind:"file_exists"` on `package-lock.json`, and `pip install .` with `file_exists` on `pyproject.toml`. ✅
+
+4. **External API evidence is now anchored to real file:line**
+   The OpenAI evidence list now uses real line numbers (1/2/3 etc.), not 0. ✅
+
+---
+
+## Security / correctness verdict: **NO-SHIP (still blocking)** ❌
+
+You have **one genuine security bug** and **two integrity bugs** in the safety-critical code you pasted.
+
+### Blocker 1 — symlink escape check is ineffective (real security issue)
+
+In `_safe_resolve_path`:
+
+```py
+filepath = (self.repo_dir / norm).resolve()
+...
+if filepath.is_symlink():
+    real = filepath.resolve()
+```
+
+`resolve()` returns the **real** path. After that, `filepath.is_symlink()` is almost always **False**, so your “symlink escape check” is basically dead.
+
+**Fix (required):**
+Do the symlink check on the *unresolved* path, then resolve and re-check containment.
+
+```py
+raw = (self.repo_dir / norm)              # NOT resolved
+repo_resolved = self.repo_dir.resolve()
+
+# reject if raw is a symlink anywhere on the path OR final target escapes
+try:
+    raw.resolve().relative_to(repo_resolved)
+except ValueError:
+    return None
+
+# optional: if raw itself is a symlink, block it outright
+if raw.is_symlink():
+    return None
+
+# then final filepath = raw.resolve()
+filepath = raw.resolve()
+```
+
+If you want to allow symlinks **inside** the repo, you must walk parents and ensure no component escapes. But your current code does not do that.
+
+### Blocker 2 — evidence hashing is semantically wrong for ranges
+
+`_parse_evidence_string` accepts `file:line_start-line_end`, but then does:
+
+```py
+snippet = self._read_line_from_repo(path, line_start)
+return make_evidence(path, line_start, line_end, snippet)
+```
+
+You hash **only one line** even when the evidence claims a multi-line range. That makes verification weaker and can be gamed.
+
+**Fix (required):**
+Read and hash the exact range `line_start..line_end` (bounded by `MAX_SNIPPET_LINES`) and ensure `display` matches what was hashed.
+
+### Blocker 3 — binary detection method is not reliable
+
+You do:
+
+```py
+content = filepath.read_text(errors='ignore')
+if '\x00' in content[:1024]:
+    return None
+```
+
+Reading as text with `errors='ignore'` can mangle bytes before you check for nulls. It’s not catastrophic given your file-size cap, but it’s not a “safety bound” implementation.
+
+**Fix (recommended, not optional if you’re calling this “security hardened”):**
+Open as bytes, check first 1–4KB for `b'\x00'`, then decode safely only if it passes.
+
+---
+
+## Other notes (not blockers, but should be cleaned)
+
+* In `_verify_claims_evidence`, you recompute hashes from `strip()`ed line text. That is OK if `make_evidence()` also hashes the stripped version consistently — but you should explicitly standardize the canonicalization (either raw line including whitespace or stripped) and use the **same** in both places.
+* `file_exists` evidence: you’re currently treating it as verified if the file exists. That’s acceptable **only if** the schema clearly separates it from snippet evidence and you don’t let it satisfy requirements that are supposed to be “runnable command + snippet-backed proof.” Right now, you *are* using it for install steps; that’s fine.
+
+---
+
+# Ship/no-ship decision
+
+**NO-SHIP until you fix Blocker 1 and Blocker 2.**
+Blocker 3 I would treat as required if you’re going to advertise “safety-critical hardening.”
+
+---
+
+## Exact commands to prove the fix after you patch
+
+After you implement the changes, run and paste:
+
+1. Re-run the `BAD line_start` walk (you already have it)
+2. Dump `_safe_resolve_path`, `_read_line_from_repo`, `_parse_evidence_string`, `_verify_single_evidence`
+3. Add this symlink escape test to prove containment:
+
+```bash
+python - <<'PY'
+import os, pathlib, tempfile, shutil
+repo = pathlib.Path("/tmp/symlinktest")
+shutil.rmtree(repo, ignore_errors=True)
+repo.mkdir(parents=True)
+(repo/"real.txt").write_text("ok\n")
+outside = pathlib.Path("/tmp/outside.txt")
+outside.write_text("nope\n")
+(repo/"link.txt").symlink_to(outside)
+
+print("repo:", repo)
+print("link is symlink:", (repo/"link.txt").is_symlink())
+print("link resolve:", (repo/"link.txt").resolve())
+PY
+```
+
+Then run analyzer pointed at that repo and confirm it refuses `link.txt`.
+
+---
+
+If you paste the post-fix safety dump and the symlink test proof, I’ll flip this to **SHIP** immediately.
