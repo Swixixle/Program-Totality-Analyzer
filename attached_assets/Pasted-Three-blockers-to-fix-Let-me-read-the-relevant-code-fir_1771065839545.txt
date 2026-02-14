@@ -1,0 +1,192 @@
+Three blockers to fix. Let me read the relevant code first, then fix all three.
+
+Now I have full context. Let me create the task list and fix all three blockers:
+
+## Task list
+
+1. **Symlink escape**: `_safe_resolve_path` currently checks `is_symlink()` *after* `.resolve()` → ineffective. Fix by checking raw path first, and (at minimum) rejecting symlinks outright + containment check on resolved target.
+2. **Multi-line evidence hashing**: `file:line_start-line_end` currently hashes only `line_start`. Fix by reading and hashing the full range consistently in:
+
+   * `_parse_evidence_string` (creation)
+   * `_verify_single_evidence` (verification)
+   * add `_read_lines_from_repo(path, line_start, line_end)`
+3. **Binary detection**: current `read_text(errors="ignore")` + null check is unreliable. Fix by `read_bytes()` null check first, then decode.
+
+---
+
+## Fix Blocker 1 — Symlink escape (security)
+
+### Change `_safe_resolve_path` to operate on raw path first
+
+**Replace** the current logic that does:
+
+* `filepath = (repo_dir / norm).resolve()` then `filepath.is_symlink()`
+
+**With**:
+
+* build `raw = (self.repo_dir / norm)` (NOT resolved)
+* reject any `raw.is_symlink()` (simple + safest)
+* then `resolved = raw.resolve()` and enforce `resolved.relative_to(repo_resolved)` containment
+
+**Patch sketch:**
+
+```py
+raw = (self.repo_dir / norm)
+repo_resolved = self.repo_dir.resolve()
+
+# Reject obvious traversal earlier (keep your existing checks)
+if raw.is_symlink():
+    return None
+
+try:
+    resolved = raw.resolve()
+except OSError:
+    return None
+
+try:
+    resolved.relative_to(repo_resolved)
+except ValueError:
+    return None
+
+if not resolved.exists() or not resolved.is_file():
+    return None
+
+# size cap check using resolved.stat()
+return resolved
+```
+
+> Policy choice: *reject all symlinks* is the simplest “fail-secure” posture. If you later want “allow symlinks that stay inside repo,” you must walk parents and validate each hop — but for now, hard reject is correct.
+
+---
+
+## Fix Blocker 2 — Multi-line evidence hashing (integrity)
+
+### Add `_read_lines_from_repo(path, line_start, line_end)`
+
+* Must reuse `_safe_resolve_path`
+* Must enforce range bounds:
+
+  * `line_start >= 1`
+  * `line_end >= line_start`
+  * cap at `MAX_SNIPPET_LINES` (already present)
+* Must return canonical snippet used for hashing:
+
+  * **strip each line**, join with `\n` (or choose raw; but must be consistent everywhere)
+
+**Patch sketch:**
+
+```py
+def _read_lines_from_repo(self, path: str, line_start: int, line_end: int) -> Optional[str]:
+    filepath = self._safe_resolve_path(path)
+    if filepath is None:
+        return None
+
+    # binary check happens here too (see blocker 3)
+    raw = filepath.read_bytes()
+    if b"\x00" in raw[:4096]:
+        return None
+
+    text = raw.decode("utf-8", errors="ignore")
+    lines = text.splitlines()
+
+    if line_start < 1:
+        return None
+    if line_end < line_start:
+        return None
+    if line_start > len(lines):
+        return None
+
+    line_end = min(line_end, len(lines))
+    # snippet canonicalization
+    snippet_lines = [lines[i-1].strip() for i in range(line_start, line_end + 1)]
+    return "\n".join(snippet_lines)
+```
+
+### Update `_read_line_from_repo` to call `_read_lines_from_repo(path, line_num, line_num)`
+
+Keeps API compatibility.
+
+### Update `_parse_evidence_string`
+
+Currently hashes only `line_start`. Change to:
+
+* parse `line_start`, `line_end`
+* clamp `line_end` using `MAX_SNIPPET_LINES`
+* call `_read_lines_from_repo(path, line_start, line_end)`
+* call `make_evidence(path, line_start, line_end, snippet)`
+
+### Update `_verify_single_evidence`
+
+Currently reads only `line_start`. Change to:
+
+* read `line_start`..`line_end` (default end=start if missing)
+* hash full snippet and compare to claimed hash
+
+**Patch sketch:**
+
+```py
+line_end = ev.get("line_end", line_start)
+snippet = self._read_lines_from_repo(path, line_start, line_end)
+...
+```
+
+---
+
+## Fix Blocker 3 — Binary detection (safety)
+
+Move null-byte detection to byte domain:
+
+* `raw = filepath.read_bytes()`
+* `if b"\x00" in raw[:4096]: return None`
+* decode only after passing
+
+This should live inside `_read_lines_from_repo`, and then `_read_line_from_repo` inherits it automatically.
+
+---
+
+## Tests to run (must paste raw outputs)
+
+### 1) Symlink escape test
+
+```bash
+python - <<'PY'
+import pathlib, shutil
+repo = pathlib.Path("/tmp/symlinktest")
+shutil.rmtree(repo, ignore_errors=True)
+repo.mkdir(parents=True)
+(repo/"real.txt").write_text("ok\n")
+outside = pathlib.Path("/tmp/outside.txt")
+outside.write_text("nope\n")
+(repo/"link.txt").symlink_to(outside)
+print("repo:", repo)
+print("link is symlink:", (repo/"link.txt").is_symlink())
+print("link resolve:", (repo/"link.txt").resolve())
+PY
+```
+
+Then run analyzer pointed at `/tmp/symlinktest` and prove `link.txt` is rejected.
+
+### 2) Multi-line hashing consistency test
+
+Create a file with multiple lines and generate evidence `file:2-4`, confirm:
+
+* evidence object has `line_start=2`, `line_end=4`
+* `snippet_hash` verifies via `_verify_single_evidence`
+
+### 3) Binary detection test
+
+Write a file with embedded null and confirm `_read_lines_from_repo` returns `None`.
+
+### 4) Global audit
+
+Re-run the `BAD line_start` walk you already have. Must remain `BAD: 0`.
+
+---
+
+If you implement exactly the above, you will have:
+
+* **real containment** (no symlink escape)
+* **evidence hashing aligned to claimed range**
+* **binary detection that isn’t text-mangled**
+
+Now do the edits, run the 4 tests, and paste the raw outputs + the updated safety-critical function dumps.
