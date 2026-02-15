@@ -4,6 +4,18 @@ A static-artifact-anchored analysis tool that generates technical dossiers for s
 
 **Scope limitation:** PTA analyzes static artifacts only (source files, config, lockfiles). It does not observe runtime behavior, prove correctness, or guarantee security. Claims labeled VERIFIED mean "anchored to a hash-verified source snippet," not "proven true at runtime."
 
+## Supported Artifact Types
+
+PTA analyzes static artifacts across multiple domains:
+
+- **Application**: Source code (TypeScript, Python, Go, etc.) and configuration files
+- **Infrastructure**: Terraform resources, Kubernetes manifests
+- **Data**: dbt models, SQL scripts, analytics pipelines
+- **Machine Learning**: Training pipelines, model configs, prompt templates
+- **Policy**: OPA/Rego policies, policy-as-code packages
+
+For complete artifact type coverage, file patterns, status (SUPPORTED/EXPERIMENTAL/PLANNED), and limitations, see **[docs/artifact-types.md](docs/artifact-types.md)**.
+
 ## What It Does
 
 Given a software project (GitHub repo, local folder, or Replit workspace), the analyzer produces:
@@ -18,6 +30,18 @@ Given a software project (GitHub repo, local folder, or Replit workspace), the a
 | `DOSSIER.md` | Human-readable markdown dossier summarizing all findings |
 | `index.json` | Full file index of scanned files |
 | `packs/` | Evidence packs (docs, config, code, ops) used during analysis |
+
+### Core Capabilities
+
+PTA extracts and maps:
+
+- **Application structure**: Functions, classes, imports, dependencies, package scripts, lockfile analysis
+- **Configuration discovery**: Environment variables, ports, API endpoints, auth mechanisms, service integrations
+- **Infrastructure mapping**: Terraform resources (compute, storage, network), Kubernetes workloads (deployments, services, ingresses)
+- **Data/analytics artifacts**: dbt model discovery, SQL dependencies, table/view references, data pipeline structure
+- **ML pipeline discovery**: Training scripts, model configs, serving endpoints, prompt templates, hyperparameter files
+- **Policy-as-code**: OPA/Rego package declarations, rule definitions, policy decision logic
+- **Operational readiness**: Boot commands, deployment config, runbook steps, gaps with severity ratings
 
 ## Live Static CI Feed
 
@@ -34,7 +58,7 @@ Event-driven static analysis triggered by GitHub push and pull request events. W
 ### What it is NOT
 
 - Not runtime monitoring, tracing, or telemetry
-- Not a security scanner or SCA tool
+- Not a security scanner, vulnerability detector, or SCA tool
 - Not a CI/CD runner replacement (it does not build, test, or deploy your code)
 - Not a compliance certification tool
 
@@ -176,6 +200,23 @@ Requires `AI_INTEGRATIONS_OPENAI_API_KEY` and `AI_INTEGRATIONS_OPENAI_BASE_URL` 
 ```bash
 pta analyze https://github.com/user/monorepo --root packages/api -o ./output
 ```
+
+### Example: Mixed Artifact Repo
+
+For a repository containing application code, infrastructure (Terraform), data models (dbt), ML pipelines, and policy files:
+
+```bash
+pta analyze https://github.com/example/platform -o ./output
+```
+
+PTA will scan and extract:
+- **App**: TypeScript/Python source, `package.json`, `pyproject.toml`
+- **Infra**: `terraform/*.tf` resources, `k8s/*.yaml` manifests
+- **Data**: `models/**/*.sql` dbt models, `dbt_project.yml`
+- **ML**: `ml/train.py`, `ml/model_config.yaml`, `prompts/*.md`
+- **Policy**: `policy/*.rego` OPA rules
+
+All findings are stored in `output/operate.json`, `output/DOSSIER.md`, and supporting JSON files with file:line evidence anchors.
 
 ## Evidence Model
 

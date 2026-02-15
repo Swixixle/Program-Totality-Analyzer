@@ -39,6 +39,20 @@ The analyzer home page includes:
 - "Open Portal (Direct Link)" button showing the stable portal URL
 - Real-time polling for analysis status updates
 
+## Supported Artifact Types
+
+PTA analyzes static artifacts across multiple domains without requiring additional Replit configuration:
+
+- **Application**: Source code and configuration files (TypeScript, Python, Go, etc.)
+- **Infrastructure**: Terraform resources, Kubernetes manifests
+- **Data**: dbt models, SQL scripts, analytics pipelines
+- **Machine Learning**: Training pipelines, model configs, prompt templates
+- **Policy**: OPA/Rego policies
+
+These analyzers use **static file parsing only** — no new dependencies, runtime hooks, or platform integrations are required. PTA reads files directly from the workspace/repository and extracts structural information.
+
+For complete artifact type coverage, file patterns, and limitations, see **[docs/artifact-types.md](docs/artifact-types.md)**.
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
