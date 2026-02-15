@@ -57,11 +57,10 @@ Event-driven static analysis triggered by GitHub push and pull request events. W
 
 ### What it is NOT
 
-- Not runtime monitoring, tracing, or telemetry
+- Not runtime monitoring, tracing, or telemetry (static analysis of source files, configs, IaC, data models, ML artifacts, and policy files only)
 - Not a security scanner, vulnerability scanner, or SCA tool
 - Not a CI/CD runner replacement (it does not build, test, or deploy your code)
 - Not a compliance certification tool
-- Not a runtime behavior analyzer (only static evidence from source files, configs, IaC, data models, ML artifacts, and policy files)
 
 ### Quick Setup
 

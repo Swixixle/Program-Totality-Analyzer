@@ -2,7 +2,9 @@
 
 **Source of truth for all artifact domains and types that PTA analyzes.**
 
-PTA performs static, evidence-bound analysis of software artifacts. Every finding is anchored to `file:line:hash` references. Epistemic labels (VERIFIED/INFERRED/UNKNOWN) reflect evidence quality, not runtime guarantees.
+PTA performs static, evidence-bound analysis of software artifacts. Every finding is anchored to `file:line:hash` references. Epistemic labels reflect evidence quality, not runtime guarantees:
+- In `operate.json`: EVIDENCED/INFERRED/UNKNOWN
+- In `claims.json`: VERIFIED/INFERRED/UNKNOWN (where VERIFIED means hash-verified source snippet)
 
 ## Supported Artifact Types
 
@@ -41,7 +43,9 @@ All findings reference:
 - **File path**: Relative to project root
 - **Line range**: 1-indexed (never 0)
 - **Snippet hash**: First 12 hex chars of SHA-256 of stripped line(s)
-- **Epistemic label**: EVIDENCED (hash-verified), INFERRED (pattern-based), or UNKNOWN (missing evidence)
+- **Epistemic label**: 
+  - In `operate.json`: EVIDENCED (hash-verified), INFERRED (pattern-based), or UNKNOWN (missing evidence)
+  - In `claims.json`: VERIFIED (hash-verified), INFERRED (pattern-based), or UNKNOWN (missing evidence)
 
 Example evidence object:
 ```json
