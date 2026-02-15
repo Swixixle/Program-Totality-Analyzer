@@ -168,8 +168,9 @@ Set these in the Replit Secrets tab (lock icon in sidebar):
 | Variable | Required | Purpose |
 |----------|----------|---------|
 | `GITHUB_WEBHOOK_SECRET` | Yes (for webhooks) | HMAC-SHA256 signature verification |
-| `GITHUB_TOKEN` | For private repos | Git clone authentication |
+| `GITHUB_TOKEN` | For private repos | Git clone authentication (sanitized in logs) |
 | `CI_TMP_DIR` | No (default: `/tmp/ci`) | Temp directory for cloned repos |
+| `CI_PRESERVE_WORKDIR` | No (default: `false`) | Set to `true` to preserve workspace directories after job completion (for debugging) |
 | `ANALYZER_TIMEOUT_MS` | No (default: 600000) | Analyzer process timeout in ms |
 
 To generate a strong webhook secret:
@@ -220,10 +221,13 @@ curl -X POST https://<your-app-domain>/api/ci/worker/tick
 | Symptom | Cause | Fix |
 |---------|-------|-----|
 | 401 on webhook delivery | `GITHUB_WEBHOOK_SECRET` mismatch or not set | Verify the secret matches in both Replit Secrets and GitHub webhook config |
+| 202 with `deduped:true` response | Webhook replay (duplicate delivery ID) | Expected behavior. GitHub redelivered the webhook; no duplicate run will be created |
 | Jobs stuck in DEAD | Clone failure, bad SHA, or analyzer crash | Check the `error` field on the run and `lastError` on the job. Common: private repo without `GITHUB_TOKEN` |
+| `ci_tmp_dir_low_disk` error | Free disk space below 1GB or below 5% | Free up disk space in `CI_TMP_DIR`. Cleanup removes workspaces automatically unless `CI_PRESERVE_WORKDIR=true` |
 | Feed shows no runs | Wrong owner/repo query, or no runs triggered | Verify owner/repo are correct (case-sensitive). Check GitHub webhook delivery log for 200 responses |
 | Run stays QUEUED | Worker not running | Check server logs for `[CI Worker] Starting background loop`. Restart the server if needed |
 | Analyzer timeout | Large repo or slow LLM calls | Increase `ANALYZER_TIMEOUT_MS` or use `--no-llm` mode |
+| Disk filling up with workspaces | `CI_PRESERVE_WORKDIR=true` is set | Workspaces are preserved for debugging. Set to `false` (or unset) to enable automatic cleanup |
 
 ### API Endpoints
 
@@ -240,7 +244,12 @@ See `docs/API.md` for full documentation with request/response examples.
 
 ### Operational Notes
 
-- **Deduplication**: Same (owner, repo, SHA) within 6 hours returns existing run
+- **Replay protection**: Webhook deliveries are deduplicated by `X-GitHub-Delivery` header. Redeliveries return `202 Accepted` with `{"ok": true, "deduped": true}` and do not create duplicate runs
+- **SHA-based deduplication**: Same (owner, repo, SHA) within 6 hours returns existing run
+- **Workspace isolation**: Each job runs in a dedicated directory `${CI_TMP_DIR}/run-${runId}`
+- **Automatic cleanup**: Workspace directories are deleted after job completion (success or failure) unless `CI_PRESERVE_WORKDIR=true`
+- **Token safety**: Git URLs containing `GITHUB_TOKEN` are sanitized before logging
+- **Disk guard**: Jobs fail immediately with `ci_tmp_dir_low_disk` if free space is below 1GB or below 5% of total disk
 - **Retry logic**: Max 3 attempts per job, then DEAD. Run marked FAILED.
 - **Job leasing**: `FOR UPDATE SKIP LOCKED` with 5-minute lease for concurrency safety
 - **Signature verification**: HMAC-SHA256 with `X-Hub-Signature-256` header, timing-safe comparison

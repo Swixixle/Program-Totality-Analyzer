@@ -59,11 +59,14 @@ Trigger analysis for a project. Spawns the Python analyzer as a child process.
 
 GitHub webhook receiver. Validates HMAC-SHA256 signature from the `X-Hub-Signature-256` header against the `GITHUB_WEBHOOK_SECRET` env var.
 
+**Replay Protection:** The endpoint deduplicates webhook deliveries using the `X-GitHub-Delivery` header. Repeated deliveries with the same delivery ID will not create duplicate CI runs.
+
 **Accepted events:** `push`, `pull_request`
 
 **Headers required:**
-- `X-Hub-Signature-256`: HMAC-SHA256 signature of the request body
-- `X-GitHub-Event`: Event type (`push` or `pull_request`)
+- `X-Hub-Signature-256`: HMAC-SHA256 signature of the request body (required for authentication)
+- `X-GitHub-Event`: Event type (`push` or `pull_request`) (required)
+- `X-GitHub-Delivery`: Unique delivery ID from GitHub (required for replay protection)
 - `Content-Type`: `application/json`
 
 **Response (success):**
@@ -73,6 +76,15 @@ GitHub webhook receiver. Validates HMAC-SHA256 signature from the `X-Hub-Signatu
   "run_id": "9c0ed034-9242-4b46-ae22-1f3baa72f4c8"
 }
 ```
+
+**Response (replayed delivery — same X-GitHub-Delivery ID):**
+```json
+{
+  "ok": true,
+  "deduped": true
+}
+```
+Status code: `202 Accepted`
 
 **Response (deduplicated — same owner/repo/SHA within 6 hours):**
 ```json
@@ -86,6 +98,11 @@ GitHub webhook receiver. Validates HMAC-SHA256 signature from the `X-Hub-Signatu
 **Response (signature invalid):**
 ```
 401 Unauthorized
+```
+
+**Response (missing required headers):**
+```
+400 Bad Request - missing X-GitHub-Delivery or X-GitHub-Event
 ```
 
 ### `GET /api/ci/runs`
@@ -188,7 +205,7 @@ Process one queued job. Fallback mechanism for environments where the background
 
 ### `GET /api/ci/health`
 
-Health check endpoint showing job queue status.
+Health check endpoint showing job queue status and disk space.
 
 **Response:**
 ```json
@@ -202,13 +219,20 @@ Health check endpoint showing job queue status.
   },
   "last_completed": {
     "id": "9c0ed034-9242-4b46-ae22-1f3baa72f4c8",
-    "repoOwner": "octocat",
-    "repoName": "hello-world",
     "status": "SUCCEEDED",
-    "finishedAt": "2025-01-01T00:01:30.000Z"
-  }
+    "finished_at": "2025-01-01T00:01:30.000Z",
+    "repo": "octocat/hello-world"
+  },
+  "ciTmpDir": "/tmp/ci",
+  "ciTmpDirFreeBytes": 10737418240,
+  "ciTmpDirLowDisk": false
 }
 ```
+
+**Disk Status Fields:**
+- `ciTmpDir`: Path to the CI temporary directory
+- `ciTmpDirFreeBytes`: Free disk space in bytes (-1 if unavailable)
+- `ciTmpDirLowDisk`: `true` if free space is below 1GB or below 5% of total disk space
 
 ---
 
@@ -224,3 +248,9 @@ GitHub webhook configuration:
 | Events | Push, Pull requests |
 
 Signature verification uses HMAC-SHA256 with timing-safe comparison. The server checks the `X-Hub-Signature-256` header against the computed signature of the raw request body.
+
+**Replay Protection:**
+
+The webhook endpoint implements replay protection using GitHub's `X-GitHub-Delivery` header. Each unique delivery ID is stored in the `webhook_deliveries` table. If GitHub redelivers a webhook (e.g., from the GitHub UI), the duplicate is detected and rejected with a `202 Accepted` response containing `{"ok": true, "deduped": true}`. This prevents duplicate CI runs from being created.
+
+Additionally, the system deduplicates runs based on repository and commit SHA: if the same owner/repo/SHA is received within 6 hours, the existing run is returned instead of creating a new one.
