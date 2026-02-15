@@ -30,12 +30,12 @@ PTA performs static, evidence-bound analysis of software artifacts. Every findin
 
 ## Limitations
 
-1. **Static analysis only**: PTA reads source files and configs. It cannot observe runtime behavior, network traffic, database queries, or live application state.
-2. **Heuristic folder conventions**: For domains like Data, ML, and Policy, PTA relies on common folder patterns (`models/`, `ml/`, `prompts/`, `policy/`). If your project uses non-standard layouts, some artifacts may not be detected.
-3. **Best-effort parsing**: PTA extracts structure (functions, classes, resource blocks, SQL table names) but does not validate syntax correctness or semantic meaning.
-4. **No security guarantees**: PTA is not a security scanner, vulnerability detector, or compliance certification tool. It reports structural observations with file:line evidence, not security assessments.
-5. **Framework-agnostic**: PTA does not assume specific frameworks (e.g., TensorFlow vs PyTorch, Airflow vs Prefect). It detects files that match common ML/data patterns but cannot infer framework-specific behavior.
-6. **No runtime verification**: Labels like "VERIFIED" mean "anchored to a hash-verified source snippet," not "proven correct at runtime."
+- **Static analysis only**: PTA reads source files and configs. It cannot observe runtime behavior, network traffic, database queries, or live application state.
+- **Heuristic folder conventions**: For domains like Data, ML, and Policy, PTA relies on common folder patterns (`models/`, `ml/`, `prompts/`, `policy/`). If your project uses non-standard layouts, some artifacts may not be detected.
+- **Best-effort parsing**: PTA extracts structure (functions, classes, resource blocks, SQL table names) but does not validate syntax correctness or semantic meaning.
+- **No security guarantees**: PTA is not a security scanner, vulnerability detector, or compliance certification tool. It reports structural observations with file:line evidence, not security assessments.
+- **Framework-agnostic**: PTA does not assume specific frameworks (e.g., TensorFlow vs PyTorch, Airflow vs Prefect). It detects files that match common ML/data patterns but cannot infer framework-specific behavior.
+- **No runtime verification**: Labels like "VERIFIED" or "EVIDENCED" mean "anchored to a hash-verified source snippet," not "proven correct at runtime."
 
 ## Evidence Model
 
