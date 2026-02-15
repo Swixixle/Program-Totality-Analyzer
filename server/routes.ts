@@ -142,7 +142,12 @@ async function runAnalysis(projectId: number, source: string, mode: string) {
         const dossier = await fs.readFile(dossierPath, "utf-8").catch(() => "");
         const claims = JSON.parse(await fs.readFile(claimsPath, "utf-8").catch(() => "{}"));
         const howto = JSON.parse(await fs.readFile(howtoPath, "utf-8").catch(() => "{}"));
-        const operate = JSON.parse(await fs.readFile(operatePath, "utf-8").catch(() => "{}"));
+        let operate: any = null;
+        try {
+          operate = JSON.parse(await fs.readFile(operatePath, "utf-8"));
+        } catch {
+          operate = null;
+        }
         const coverage = JSON.parse(await fs.readFile(coveragePath, "utf-8").catch(() => "{}"));
 
         await storage.createAnalysis({
