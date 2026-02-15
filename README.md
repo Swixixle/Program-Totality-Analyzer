@@ -338,6 +338,22 @@ bash scripts/smoke_test.sh
 
 ## Git Operations
 
+### GitHub Authentication (Replit)
+
+To configure Git authentication in Replit Shell for push/pull operations:
+
+```bash
+# Quick setup (recommended)
+bash scripts/setup-github-auth.sh
+```
+
+**Prerequisites:**
+1. Create a GitHub Personal Access Token with `repo` scope
+2. Add it to Replit Secrets as `GITHUB_TOKEN`
+
+For detailed setup instructions, troubleshooting, and security best practices, see:
+- [`docs/GITHUB_AUTH_SETUP.md`](docs/GITHUB_AUTH_SETUP.md) — Complete GitHub authentication setup guide
+
 ### Rebase Resolution
 
 If you encounter Git rebase issues, use the automated resolution script:
