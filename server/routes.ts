@@ -108,6 +108,20 @@ export async function registerRoutes(
     res.type("text/markdown").send(readFileSync(p, "utf8"));
   });
 
+  app.get("/api/admin/analyzer-log", async (_req, res) => {
+    if (process.env.NODE_ENV === "production") {
+      res.status(403).json({ message: "Not available in production" });
+      return;
+    }
+    try {
+      const raw = await fs.readFile(LOG_FILE, "utf-8").catch(() => "");
+      const entries = raw.trim().split("\n").filter(Boolean).map((l) => JSON.parse(l));
+      res.json(entries);
+    } catch (err) {
+      res.json([]);
+    }
+  });
+
   app.post("/api/admin/reset-analyzer", async (req, res) => {
     if (process.env.NODE_ENV === "production") {
       res.status(403).json({ message: "Not available in production" });
@@ -117,7 +131,7 @@ export async function registerRoutes(
       await storage.resetAnalyzerLogbook();
       await fs.rm(path.resolve(process.cwd(), "out"), { recursive: true, force: true });
       await fs.mkdir(path.resolve(process.cwd(), "out"), { recursive: true });
-      console.log("[Admin] Analyzer logbook reset");
+      console.log("[Admin] Analyzer logbook + DB + out/ reset");
       res.json({ ok: true });
     } catch (err) {
       console.error("[Admin] Reset failed:", err);
