@@ -5,7 +5,7 @@ import { Layout } from "@/components/layout";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, ArrowRight, Github, Code2, Cpu, Terminal } from "lucide-react";
+import { Search, ArrowRight, Github, Code2, Cpu, Terminal, ExternalLink } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function Home() {
@@ -103,6 +103,15 @@ export default function Home() {
             <Terminal className="mr-2 w-5 h-5" />
             {analyzeReplit.isPending ? "Scanning Workspace..." : "Analyze This Workspace"}
           </Button>
+
+          <a 
+            href="/portal"
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring hover-elevate active-elevate-2 border border-primary/30 bg-primary/10 text-primary px-4 py-2 transition-all"
+            data-testid="button-portal-link"
+          >
+            <ExternalLink className="w-4 h-4" />
+            Open Portal (Direct Link)
+          </a>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 text-left">
             <FeatureCard 

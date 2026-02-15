@@ -92,6 +92,33 @@ python -m server.analyzer.src --help
 python server/analyzer/analyzer_cli.py --help
 ```
 
+## Replit Demo (1-click Portal)
+
+For quick access to the analyzer UI, use the **Replit Portal** link:
+
+### Local Development
+```bash
+npm run dev
+```
+
+Then navigate to: `http://localhost:5000/portal`
+
+### Replit Deployment
+
+Access the analyzer directly using the portal URL:
+
+```
+https://<your-replit-app-domain>/portal
+```
+
+The portal provides a stable entry point that redirects to the analyzer UI. You can:
+- Analyze GitHub repositories by entering a URL
+- Analyze the current Replit workspace with one click
+- View previous analysis results
+- Access the CI Feed for automated webhook-triggered analysis
+
+**Note:** The portal route (`/portal`) automatically redirects to the main analyzer interface at `/`.
+
 ### Dependencies
 
 - Python 3.11+

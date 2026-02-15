@@ -2,6 +2,43 @@
 
 **Program Totality Analyzer** — a full-stack web application that ingests software projects (via GitHub URL, local path, or live Replit workspace) and produces evidence-cited technical dossiers. The dossier covers what a target system is, how it works, how to use it, and what risks/unknowns exist. It combines a React frontend for submitting analysis requests and viewing results with an Express backend that manages projects/analyses in PostgreSQL and spawns a Python-based analyzer CLI for the actual code analysis.
 
+## Replit Demo (1-click Portal)
+
+### Quick Start
+
+**Portal URL (Stable Entry Point):**
+- Local development: `http://localhost:5000/portal`
+- Replit deployment: `https://<your-replit-app-domain>/portal`
+
+The `/portal` route provides a stable, bookmarkable link that redirects to the analyzer UI. Use this for:
+- Direct access to the analyzer interface
+- Sharing with team members or stakeholders
+- Demo presentations
+- Documentation links
+
+### Running Locally
+
+1. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+2. Open your browser to `http://localhost:5000/portal`
+
+3. You can now:
+   - **Analyze GitHub repos**: Enter a GitHub repository URL
+   - **Analyze this workspace**: Click "Analyze This Workspace" button
+   - **View CI Feed**: Navigate to `/ci` for webhook-triggered runs
+   - **Browse previous analyses**: Navigate to `/projects`
+
+### UI Features
+
+The analyzer home page includes:
+- GitHub URL input for analyzing any public repository
+- "Analyze This Workspace" button for instant Replit workspace analysis
+- "Open Portal (Direct Link)" button showing the stable portal URL
+- Real-time polling for analysis status updates
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
@@ -237,3 +274,94 @@ See `docs/API.md` for full documentation with request/response examples.
 - `tsx` — TypeScript execution for development
 - `tailwindcss` + `postcss` + `autoprefixer` — CSS toolchain
 - `@replit/vite-plugin-runtime-error-modal` — Dev error overlay
+
+## Repository Stability Checklist
+
+### Single-Repo Stability Ritual
+
+Run these commands to verify the repository is in a stable, clean state:
+
+```bash
+git status
+git rev-parse --abbrev-ref HEAD
+git fetch origin
+git log --oneline -5
+git rev-list --count origin/main..HEAD
+git rev-list --count HEAD..origin/main
+```
+
+**Pass Conditions:**
+- `git status` shows **no rebase in progress** and **working tree clean**
+- `origin/main..HEAD` count is `0` (nothing unpushed)
+- `HEAD..origin/main` count is `0` (not behind)
+
+**If ahead of origin:**
+```bash
+git push origin main
+```
+
+**If behind origin (merge-based, not rebase):**
+```bash
+git pull --no-rebase origin main
+```
+
+**If stuck in rebase:**
+```bash
+# Continue resolving conflicts
+git rebase --continue
+
+# OR abort the rebase
+git rebase --abort
+
+# OR use the automated fix script
+bash scripts/fix-rebase.sh
+```
+
+### Multi-Repo Stability Checklist
+
+For projects with multiple related repositories, use this checklist for each repo:
+
+1. **Check status**: `git status` (must be clean; not mid-rebase)
+2. **Fetch latest**: `git fetch origin`
+3. **Check sync status**:
+   - Ahead: `git rev-list --count origin/main..HEAD` (should be 0)
+   - Behind: `git rev-list --count HEAD..origin/main` (should be 0)
+4. **Push if ahead**: `git push origin main`
+5. **Verify branch**: Confirm default branch is correct (`main` or `master`)
+6. **Tag releases** (optional): `git tag v0.1.0-stable && git push origin v0.1.0-stable`
+
+### Repository Stability Helper Script
+
+For managing multiple repositories, create a helper script:
+
+**`scripts/repo-stability-check.sh`** (non-destructive):
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+REPOS=(Asset-Analyzer HALO-RECEIPTS Lantern ELI) # adjust names
+
+for r in "${REPOS[@]}"; do
+  if [ -d "$r/.git" ]; then
+    echo "=== $r ==="
+    (cd "$r" && \
+      git status -sb && \
+      git fetch origin && \
+      echo "ahead: $(git rev-list --count origin/main..HEAD 2>/dev/null || echo n/a)" && \
+      echo "behind: $(git rev-list --count HEAD..origin/main 2>/dev/null || echo n/a)" \
+    )
+    echo
+  else
+    echo "SKIP $r (not found)"
+  fi
+done
+```
+
+**Usage:**
+```bash
+chmod +x scripts/repo-stability-check.sh
+./scripts/repo-stability-check.sh
+```
+
+**Note:** If any repo shows `ahead > 0`, run `git push origin main` inside that repo.
