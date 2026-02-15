@@ -32,7 +32,7 @@ This avoids type drift between frontend and backend by sharing Zod schemas and T
 Key pages:
 - `/` — Home page with URL input form and "Analyze Replit" button
 - `/projects` — List of previous analyses
-- `/projects/:id` — Detailed view of a specific analysis with tabs for dossier, claims, how-to, coverage, and unknowns
+- `/projects/:id` — Detailed view of a specific analysis with tabs for dossier, claims, operator dashboard (operate.json), coverage, and unknowns
 
 Path aliases: `@/` maps to `client/src/`, `@shared/` maps to `shared/`, `@assets/` maps to `attached_assets/`.
 
@@ -58,6 +58,11 @@ Key API routes (defined in `server/routes.ts`):
   - Local path (`analyze <path>`)
   - Replit workspace (`analyze --replit`)
 - **Core**: `server/analyzer/src/analyzer.py` — orchestrates file acquisition, indexing, and LLM-powered analysis
+- **Operate Module**: `server/analyzer/src/core/operate.py` — deterministic (no LLM) extraction of operational data into `operate.json`
+  - Extracts boot commands, ports, integration points (endpoints, env vars, auth), deployment config, and runbook steps
+  - Uses three evidence tiers: EVIDENCED (file:line + SHA-256 snippet hash), INFERRED, UNKNOWN (with unknown_reason)
+  - Computes readiness scores (0-100) for boot, integrate, deploy categories
+  - Identifies operational gaps with severity ratings
 - **LLM Integration**: OpenAI API (via Replit AI Integrations env vars: `AI_INTEGRATIONS_OPENAI_API_KEY`, `AI_INTEGRATIONS_OPENAI_BASE_URL`)
 - The Express server spawns the Python analyzer as a child process
 
@@ -67,7 +72,7 @@ Key API routes (defined in `server/routes.ts`):
 - **ORM**: Drizzle ORM with `drizzle-zod` for schema-to-Zod validation
 - **Schema** (`shared/schema.ts`):
   - `projects` — id, url, name, mode (github/local/replit), status (pending/analyzing/completed/failed), createdAt
-  - `analyses` — id, projectId, dossier (markdown text), claims (jsonb), howto (jsonb), coverage (jsonb), unknowns (jsonb), createdAt
+  - `analyses` — id, projectId, dossier (markdown text), claims (jsonb), howto (jsonb), coverage (jsonb), unknowns (jsonb), operate (jsonb), createdAt
 - **Chat models** (`shared/models/chat.ts`):
   - `conversations` — id, title, createdAt
   - `messages` — id, conversationId, role, content, createdAt
