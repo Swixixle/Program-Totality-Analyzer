@@ -121,7 +121,7 @@ export default function CiFeed() {
         <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-display font-bold text-foreground" data-testid="text-ci-feed-title">CI Feed</h1>
-            <p className="text-muted-foreground mt-1">Live static analysis runs triggered by GitHub events.</p>
+            <p className="text-muted-foreground mt-1">Live static analysis runs triggered by GitHub events. Static analysis only (no runtime telemetry).</p>
           </div>
           {health?.ok && (
             <div className="flex items-center gap-3 text-xs font-mono text-muted-foreground" data-testid="text-ci-health">

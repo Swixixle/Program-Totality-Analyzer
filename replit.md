@@ -33,6 +33,7 @@ Key pages:
 - `/` — Home page with URL input form and "Analyze Replit" button
 - `/projects` — List of previous analyses
 - `/projects/:id` — Detailed view of a specific analysis with tabs for dossier, claims, operator dashboard (operate.json), coverage, and unknowns
+- `/ci` — Live Static CI Feed: searchable run list, manual enqueue, webhook setup info
 
 Path aliases: `@/` maps to `client/src/`, `@shared/` maps to `shared/`, `@assets/` maps to `attached_assets/`.
 
@@ -109,14 +110,103 @@ These are utility modules that can be registered on the Express app as needed.
 
 4. **Polling for status** — The frontend polls project status every 2 seconds while analysis is in progress, switching to static once completed/failed.
 
-5. **Live Static CI Feed** — GitHub webhooks trigger automated static analysis runs:
-   - `POST /api/webhooks/github` validates HMAC-SHA256 signatures, creates ci_runs + ci_jobs rows
-   - Background worker (`server/ci-worker.ts`) polls for READY/expired-LEASED jobs every 5s
-   - Worker shallow-clones repos by exact commit SHA, runs analyzer, stores results to `out/ci/<run_id>/`
-   - Job leasing uses `FOR UPDATE SKIP LOCKED` for concurrency safety, max 3 attempts before DEAD
-   - Deduplication: same (owner, repo, sha) within 6 hours returns existing run
-   - CI Feed UI at `/ci` polls runs every 10s (3s when active runs exist)
-   - Env vars: `GITHUB_WEBHOOK_SECRET` (required for webhooks), `GITHUB_TOKEN` (for private repos)
+5. **Live Static CI Feed** — GitHub webhooks trigger automated static analysis runs. Static analysis only (no runtime telemetry). See `docs/ARCHITECTURE.md` for detailed component diagrams and `docs/API.md` for endpoint documentation.
+
+## Live Static CI Feed — Operator Runbook
+
+### What it is
+
+Event-driven static analysis triggered by GitHub push/PR events. Creates `ci_runs` + `ci_jobs`, processes in background worker, stores artifacts under `out/ci/<run_id>/`. Provides a UI feed at `/ci`.
+
+### What it is NOT
+
+- Not runtime monitoring, tracing, or telemetry
+- Not a security scanner or SCA tool
+- Not a CI/CD runner replacement
+
+### Secrets (Environment Variables)
+
+Set these in the Replit Secrets tab (lock icon in sidebar):
+
+| Variable | Required | Purpose |
+|----------|----------|---------|
+| `GITHUB_WEBHOOK_SECRET` | Yes (for webhooks) | HMAC-SHA256 signature verification |
+| `GITHUB_TOKEN` | For private repos | Git clone authentication |
+| `CI_TMP_DIR` | No (default: `/tmp/ci`) | Temp directory for cloned repos |
+| `ANALYZER_TIMEOUT_MS` | No (default: 600000) | Analyzer process timeout in ms |
+
+To generate a strong webhook secret:
+
+```bash
+python -c "import secrets; print(secrets.token_hex(32))"
+```
+
+### GitHub Webhook Setup
+
+In the GitHub repo: **Settings > Webhooks > Add webhook**
+
+| Setting | Value |
+|---------|-------|
+| Payload URL | `https://<your-app-domain>/api/webhooks/github` |
+| Content type | `application/json` |
+| Secret | Must match `GITHUB_WEBHOOK_SECRET` exactly |
+| Events | Select "Let me select individual events", check **Pushes** and **Pull requests** |
+| Active | Checked |
+
+### Worker Operation
+
+The background worker starts automatically on server boot and polls every 5 seconds (`server/ci-worker.ts`). No additional setup is needed.
+
+Fallback: If the background loop is not running, you can manually process jobs:
+
+```bash
+curl -X POST https://<your-app-domain>/api/ci/worker/tick
+```
+
+### Verification Steps
+
+1. Enqueue a test run:
+   ```bash
+   curl -X POST https://<your-app-domain>/api/ci/enqueue \
+     -H "Content-Type: application/json" \
+     -d '{"owner":"<owner>","repo":"<repo>","ref":"main","commit_sha":"<real-sha>","event_type":"manual"}'
+   ```
+2. Check health:
+   ```bash
+   curl https://<your-app-domain>/api/ci/health
+   ```
+3. View the `/ci` page in the browser — you should see the run transition from QUEUED to RUNNING to SUCCEEDED/FAILED
+4. Check output artifacts in `out/ci/<run_id>/`
+
+### Troubleshooting
+
+| Symptom | Cause | Fix |
+|---------|-------|-----|
+| 401 on webhook delivery | `GITHUB_WEBHOOK_SECRET` mismatch or not set | Verify the secret matches in both Replit Secrets and GitHub webhook config |
+| Jobs stuck in DEAD | Clone failure, bad SHA, or analyzer crash | Check the `error` field on the run and `lastError` on the job. Common: private repo without `GITHUB_TOKEN` |
+| Feed shows no runs | Wrong owner/repo query, or no runs triggered | Verify owner/repo are correct (case-sensitive). Check GitHub webhook delivery log for 200 responses |
+| Run stays QUEUED | Worker not running | Check server logs for `[CI Worker] Starting background loop`. Restart the server if needed |
+| Analyzer timeout | Large repo or slow LLM calls | Increase `ANALYZER_TIMEOUT_MS` or use `--no-llm` mode |
+
+### API Endpoints
+
+See `docs/API.md` for full documentation with request/response examples.
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `POST` | `/api/webhooks/github` | GitHub webhook receiver (HMAC-SHA256 verified) |
+| `GET` | `/api/ci/runs?owner=&repo=&limit=` | List CI runs for a repo |
+| `GET` | `/api/ci/runs/:id` | Get single CI run details |
+| `POST` | `/api/ci/enqueue` | Manual trigger for testing |
+| `POST` | `/api/ci/worker/tick` | Process one queued job (fallback) |
+| `GET` | `/api/ci/health` | Job counts by status + last completed run |
+
+### Operational Notes
+
+- **Deduplication**: Same (owner, repo, SHA) within 6 hours returns existing run
+- **Retry logic**: Max 3 attempts per job, then DEAD. Run marked FAILED.
+- **Job leasing**: `FOR UPDATE SKIP LOCKED` with 5-minute lease for concurrency safety
+- **Signature verification**: HMAC-SHA256 with `X-Hub-Signature-256` header, timing-safe comparison
 
 ## External Dependencies
 
