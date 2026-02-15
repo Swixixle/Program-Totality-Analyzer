@@ -15,6 +15,7 @@ from .core.evidence import make_evidence, make_evidence_from_line, make_file_exi
 from .core.unknowns import compute_known_unknowns
 from .core.adapter import build_evidence_pack, save_evidence_pack
 from .core.render import render_report, save_report, assert_pack_written
+from .core.operate import build_operate, validate_operate
 
 load_dotenv()
 
@@ -138,6 +139,22 @@ class Analyzer:
 
         with open(self.output_dir / "DOSSIER.md", "w") as f:
             f.write(dossier)
+
+        self.console.print("[bold]Step 5b: Building operate.json...[/bold]")
+        operate = build_operate(
+            repo_dir=self.repo_dir,
+            file_index=file_index,
+            mode=self.mode,
+            replit_profile=self.replit_profile,
+        )
+        op_errors = validate_operate(operate)
+        if op_errors:
+            self.console.print(f"  [yellow]operate.json validation warnings: {len(op_errors)}[/yellow]")
+            for e in op_errors[:5]:
+                self.console.print(f"    - {e}")
+        self.save_json("operate.json", operate)
+        self.console.print(f"  operate.json saved ({len(operate.get('gaps', []))} gaps, "
+                           f"boot={operate.get('readiness', {}).get('boot', {}).get('score', 0)}%)")
 
         self.console.print("[bold]Step 6: Computing Known Unknowns...[/bold]")
         known_unknowns = compute_known_unknowns(
