@@ -281,7 +281,6 @@
     ],
     "deployment_assumptions": [
       "Binds to 0.0.0.0 (all interfaces)",
-      "No Dockerfile - depends on Replit runtime or manual setup",
       "Requires 3 secret(s): DATABASE_URL, AI_INTEGRATIONS_OPENAI_API_KEY, AI_INTEGRATIONS_OPENAI_BASE_URL"
     ],
     "observability": {
@@ -294,6 +293,13 @@
           "line_end": 38,
           "snippet_hash": "2f74cc3fdab1",
           "display": "script/build.ts:38"
+        },
+        {
+          "path": "server/routes.ts",
+          "line_start": 15,
+          "line_end": 15,
+          "snippet_hash": "f7ba68760271",
+          "display": "server/routes.ts:15"
         },
         {
           "path": "shared/schema.ts",
@@ -318,7 +324,7 @@
     "deductions": [
       "-3 for 1 unknown(s)"
     ],
-    "notes": "-3 for 1 unknown(s); No Dockerfile found; 1 unknown(s) reported"
+    "notes": "-3 for 1 unknown(s); 1 unknown(s) reported"
   }
 }
 ```

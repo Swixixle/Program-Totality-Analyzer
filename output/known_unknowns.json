@@ -28,7 +28,7 @@
     "description": "Production deployment architecture (containers, VMs, serverless, regions)",
     "status": "UNKNOWN",
     "evidence": [],
-    "notes": "No matching infrastructure/config artifacts found in file index",
+    "notes": "Candidate artifact files found (Dockerfile) but artifact detector not yet implemented \u2014 cannot read/hash/verify file content",
     "resolve_with": "Add deployment artifacts: Dockerfile, docker-compose.yml, k8s Deployment manifests, Terraform main.tf, Helm Chart.yaml, or fly.toml"
   },
   {

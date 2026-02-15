@@ -1,9 +1,9 @@
 {
   "evidence_pack_version": "1.0",
   "tool_version": "0.1.0",
-  "generated_at": "2026-02-15T08:28:39.917837+00:00",
+  "generated_at": "2026-02-15T09:28:36.848729+00:00",
   "mode": "replit",
-  "run_id": "43f6636690d6",
+  "run_id": "2e2b0d0dad53",
   "verified": {
     "What the Target System Is": [
       {
@@ -376,7 +376,7 @@
       "description": "Production deployment architecture (containers, VMs, serverless, regions)",
       "status": "UNKNOWN",
       "evidence": [],
-      "notes": "No matching infrastructure/config artifacts found in file index",
+      "notes": "Candidate artifact files found (Dockerfile) but artifact detector not yet implemented \u2014 cannot read/hash/verify file content",
       "resolve_with": "Add deployment artifacts: Dockerfile, docker-compose.yml, k8s Deployment manifests, Terraform main.tf, Helm Chart.yaml, or fly.toml"
     },
     {
@@ -471,15 +471,15 @@
     ]
   },
   "summary": {
-    "total_files": 158,
+    "total_files": 169,
     "total_claims": 17,
     "verified_claims": 15,
     "unknown_categories": 9,
     "verified_categories": 0
   },
   "coverage": {
-    "analyzed_files": 158,
-    "total_files_seen": 184,
+    "analyzed_files": 169,
+    "total_files_seen": 195,
     "skipped_files": 26,
     "skipped_types": [],
     "timeouts": [],

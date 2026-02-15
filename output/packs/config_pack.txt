@@ -147,7 +147,7 @@ L3: hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
 L4: 
 L5: [nix]
 L6: channel = "stable-24_05"
-L7: packages = ["libxcrypt"]
+L7: packages = ["libxcrypt", "python312Packages.pytest_7"]
 L8: 
 L9: [[ports]]
 L10: localPort = 5000

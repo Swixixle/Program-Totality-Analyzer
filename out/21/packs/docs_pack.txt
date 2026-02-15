@@ -1002,72 +1002,78 @@ L280:       }
 L281:     ],
 L282:     "deployment_assumptions": [
 L283:       "Binds to 0.0.0.0 (all interfaces)",
-L284:       "No Dockerfile - depends on Replit runtime or manual setup",
-L285:       "Requires 3 secret(s): DATABASE_URL, AI_INTEGRATIONS_OPENAI_API_KEY, AI_INTEGRATIONS_OPENAI_BASE_URL"
-L286:     ],
-L287:     "observability": {
-L288:       "logging": true,
-L289:       "health_endpoint": true,
-L290:       "evidence": [
-L291:         {
-L292:           "path": "script/build.ts",
-L293:           "line_start": 38,
-L294:           "line_end": 38,
-L295:           "snippet_hash": "2f74cc3fdab1",
-L296:           "display": "script/build.ts:38"
-L297:         },
-L298:         {
-L299:           "path": "shared/schema.ts",
-L300:           "line_start": 10,
-L301:           "line_end": 10,
-L302:           "snippet_hash": "6ccc8e5d45a7",
-L303:           "display": "shared/schema.ts:10"
-L304:         }
-L305:       ]
-L306:     },
-L307:     "limitations": [
-L308:       "Deterministic mode (--no-llm): no semantic analysis performed"
-L309:     ]
-L310:   },
-L311:   "completeness": {
-L312:     "score": 62,
-L313:     "max": 100,
-L314:     "missing": [
-L315:       "verification_steps: no step with both a runnable command and verified evidence",
-L316:       "usage_examples: no examples with meaningful descriptions"
-L317:     ],
-L318:     "deductions": [
-L319:       "-3 for 1 unknown(s)"
-L320:     ],
-L321:     "notes": "-3 for 1 unknown(s); No Dockerfile found; 1 unknown(s) reported"
-L322:   }
-L323: }
-L324: ```
-L325: 
-L326: ## 4. Limitations
-L327: - This dossier was generated in `--no-llm` mode
-L328: - No semantic analysis, claims extraction, or architecture inference was performed
-L329: - For full analysis, re-run without `--no-llm`
+L284:       "Requires 3 secret(s): DATABASE_URL, AI_INTEGRATIONS_OPENAI_API_KEY, AI_INTEGRATIONS_OPENAI_BASE_URL"
+L285:     ],
+L286:     "observability": {
+L287:       "logging": true,
+L288:       "health_endpoint": true,
+L289:       "evidence": [
+L290:         {
+L291:           "path": "script/build.ts",
+L292:           "line_start": 38,
+L293:           "line_end": 38,
+L294:           "snippet_hash": "2f74cc3fdab1",
+L295:           "display": "script/build.ts:38"
+L296:         },
+L297:         {
+L298:           "path": "server/routes.ts",
+L299:           "line_start": 15,
+L300:           "line_end": 15,
+L301:           "snippet_hash": "f7ba68760271",
+L302:           "display": "server/routes.ts:15"
+L303:         },
+L304:         {
+L305:           "path": "shared/schema.ts",
+L306:           "line_start": 10,
+L307:           "line_end": 10,
+L308:           "snippet_hash": "6ccc8e5d45a7",
+L309:           "display": "shared/schema.ts:10"
+L310:         }
+L311:       ]
+L312:     },
+L313:     "limitations": [
+L314:       "Deterministic mode (--no-llm): no semantic analysis performed"
+L315:     ]
+L316:   },
+L317:   "completeness": {
+L318:     "score": 62,
+L319:     "max": 100,
+L320:     "missing": [
+L321:       "verification_steps: no step with both a runnable command and verified evidence",
+L322:       "usage_examples: no examples with meaningful descriptions"
+L323:     ],
+L324:     "deductions": [
+L325:       "-3 for 1 unknown(s)"
+L326:     ],
+L327:     "notes": "-3 for 1 unknown(s); 1 unknown(s) reported"
+L328:   }
+L329: }
+L330: ```
+L331: 
+L332: ## 4. Limitations
+L333: - This dossier was generated in `--no-llm` mode
+L334: - No semantic analysis, claims extraction, or architecture inference was performed
+L335: - For full analysis, re-run without `--no-llm`
 
 --- FILE: output/REPORT_ENGINEER.md ---
 L1: # Program Totality Report — Engineer View
 L2: 
 L3: **EvidencePack Version:** 1.0
 L4: **Tool Version:** 0.1.0
-L5: **Generated:** 2026-02-15T08:28:39.917837+00:00
+L5: **Generated:** 2026-02-15T09:28:36.848729+00:00
 L6: **Mode:** replit
-L7: **Run ID:** 43f6636690d6
+L7: **Run ID:** 2e2b0d0dad53
 L8: 
 L9: ---
 L10: 
-L11: ## PTA Contract Audit — Run 43f6636690d6
+L11: ## PTA Contract Audit — Run 2e2b0d0dad53
 L12: 
 L13: ### 1. System Snapshot
 L14: 
 L15: | Measure | Value |
 L16: |---------|-------|
-L17: | Files Analyzed | 158 |
-L18: | Files Seen (incl. skipped) | 184 |
+L17: | Files Analyzed | 169 |
+L18: | Files Seen (incl. skipped) | 195 |
 L19: | Files Skipped | 26 |
 L20: | Claims Extracted | 17 |
 L21: | Claims with Deterministic Evidence | 15 |
@@ -1212,7 +1218,7 @@ L159: |----------|--------|-------|
 L160: | tls_termination | UNKNOWN | No matching infrastructure/config artifacts found in file index |
 L161: | encryption_at_rest | UNKNOWN | No matching infrastructure/config artifacts found in file index |
 L162: | secret_management | UNKNOWN | No matching infrastructure/config artifacts found in file index |
-L163: | deployment_topology | UNKNOWN | No matching infrastructure/config artifacts found in file index |
+L163: | deployment_topology | UNKNOWN | Candidate artifact files found (Dockerfile) but artifact detector not yet implemented — cannot read/hash/verify file content |
 L164: | runtime_iam | UNKNOWN | No matching infrastructure/config artifacts found in file index |
 L165: | logging_sink | UNKNOWN | No matching infrastructure/config artifacts found in file index |
 L166: | monitoring_alerting | UNKNOWN | No matching infrastructure/config artifacts found in file index |
@@ -1244,505 +1250,505 @@ L191: - `fd240a9dc053`
 
 --- FILE: output/packs/docs_pack.txt ---
 L1: 
-L2: --- FILE: README.md ---
-L3: L1: # Program Totality Analyzer
+L2: --- FILE: replit.md ---
+L3: L1: # Overview
 L4: L2: 
-L5: L3: A static-artifact-anchored analysis tool that generates technical dossiers for software projects. It extracts what a system is, how to run it, what it needs, and what it cannot determine — with every claim citing `file:line` evidence backed by SHA-256 snippet hashes.
+L5: L3: **Program Totality Analyzer** — a full-stack web application that ingests software projects (via GitHub URL, local path, or live Replit workspace) and produces evidence-cited technical dossiers. The dossier covers what a target system is, how it works, how to use it, and what risks/unknowns exist. It combines a React frontend for submitting analysis requests and viewing results with an Express backend that manages projects/analyses in PostgreSQL and spawns a Python-based analyzer CLI for the actual code analysis.
 L6: L4: 
-L7: L5: **Scope limitation:** PTA analyzes static artifacts only (source files, config, lockfiles). It does not observe runtime behavior, prove correctness, or guarantee security. Claims labeled VERIFIED mean "anchored to a hash-verified source snippet," not "proven true at runtime."
+L7: L5: ## User Preferences
 L8: L6: 
-L9: L7: ## What It Does
+L9: L7: Preferred communication style: Simple, everyday language.
 L10: L8: 
-L11: L9: Given a software project (GitHub repo, local folder, or Replit workspace), the analyzer produces:
+L11: L9: ## System Architecture
 L12: L10: 
-L13: L11: | File | Contents |
-L14: L12: |------|----------|
-L15: L13: | `target_howto.json` | Operator manual: prerequisites, install steps, config, dev/prod run commands, Replit execution profile |
-L16: L14: | `claims.json` | Verifiable claims about the system, each with file:line evidence and confidence scores |
-L17: L15: | `coverage.json` | Scan metadata: files scanned, files skipped, Replit detection evidence |
-L18: L16: | `replit_profile.json` | Replit-specific: port binding, secrets, external APIs, observability (only in Replit mode) |
-L19: L17: | `DOSSIER.md` | Human-readable markdown dossier summarizing all findings |
-L20: L18: | `index.json` | Full file index of scanned files |
-L21: L19: | `packs/` | Evidence packs (docs, config, code, ops) used during analysis |
+L13: L11: ### Monorepo Structure
+L14: L12: 
+L15: L13: The project follows a three-zone monorepo pattern:
+L16: L14: 
+L17: L15: - **`client/`** — React SPA (frontend)
+L18: L16: - **`server/`** — Express API (backend)
+L19: L17: - **`shared/`** — Shared types, schemas, and route definitions used by both client and server
+L20: L18: 
+L21: L19: This avoids type drift between frontend and backend by sharing Zod schemas and TypeScript types from a single source of truth.
 L22: L20: 
-L23: L21: ## Install
+L23: L21: ### Frontend (`client/src/`)
 L24: L22: 
-L25: L23: ```bash
-L26: L24: pip install -e .
-L27: L25: ```
-L28: L26: 
-L29: L27: This registers the `pta` command. Alternatively, run as a module or directly:
-L30: L28: 
-L31: L29: ```bash
-L32: L30: python -m server.analyzer.src --help
-L33: L31: python server/analyzer/analyzer_cli.py --help
-L34: L32: ```
-L35: L33: 
-L36: L34: ### Dependencies
-L37: L35: 
-L38: L36: - Python 3.11+
-L39: L37: - Required packages: `typer`, `rich`, `openai`, `gitpython`, `jsonschema`, `python-dotenv`, `pydantic`
+L25: L23: - **Framework**: React 18 with TypeScript
+L26: L24: - **Routing**: Wouter (lightweight client-side router)
+L27: L25: - **State/Data Fetching**: TanStack React Query with polling for analysis status updates
+L28: L26: - **UI Components**: shadcn/ui (new-york style) built on Radix UI primitives
+L29: L27: - **Styling**: Tailwind CSS with CSS variables for theming (dark mode, cyan/neon aesthetic)
+L30: L28: - **Animations**: Framer Motion for page transitions and loading states
+L31: L29: - **Markdown Rendering**: react-markdown for displaying analysis dossiers
+L32: L30: - **Build Tool**: Vite with React plugin
+L33: L31: 
+L34: L32: Key pages:
+L35: L33: - `/` — Home page with URL input form and "Analyze Replit" button
+L36: L34: - `/projects` — List of previous analyses
+L37: L35: - `/projects/:id` — Detailed view of a specific analysis with tabs for dossier, claims, operator dashboard (operate.json), coverage, and unknowns
+L38: L36: 
+L39: L37: Path aliases: `@/` maps to `client/src/`, `@shared/` maps to `shared/`, `@assets/` maps to `attached_assets/`.
 L40: L38: 
-L41: L39: ## Usage
+L41: L39: ### Backend (`server/`)
 L42: L40: 
-L43: L41: ### Three Modes
-L44: L42: 
-L45: L43: **GitHub repository:**
-L46: L44: ```bash
-L47: L45: pta analyze https://github.com/user/repo -o ./output
-L48: L46: ```
-L49: L47: 
-L50: L48: **Local folder:**
-L51: L49: ```bash
-L52: L50: pta analyze ./path/to/project -o ./output
-L53: L51: ```
-L54: L52: 
-L55: L53: **Replit workspace (run from inside the workspace):**
-L56: L54: ```bash
-L57: L55: pta analyze --replit -o ./output
-L58: L56: ```
-L59: L57: 
-L60: L58: ### Deterministic Mode (`--no-llm`)
-L61: L59: 
-L62: L60: Skip all LLM calls and produce only deterministic, structurally-extracted outputs:
-L63: L61: 
-L64: L62: ```bash
-L65: L63: pta analyze --replit --no-llm -o ./output
-L66: L64: ```
-L67: L65: 
-L68: L66: This mode requires no API keys and produces reproducible results. It extracts:
-L69: L67: - Package scripts (dev, build, start)
-L70: L68: - Lockfile-based install commands
-L71: L69: - Environment variable references (names only, never values)
-L72: L70: - Port binding configuration
-L73: L71: - External API usage
-L74: L72: - Replit platform detection
-L75: L73: 
-L76: L74: ### With LLM Analysis
-L77: L75: 
-L78: L76: For semantic analysis (architecture understanding, risk assessment, integration patterns):
-L79: L77: 
-L80: L78: ```bash
-L81: L79: pta analyze --replit -o ./output
-L82: L80: ```
+L43: L41: - **Framework**: Express 5 on Node.js
+L44: L42: - **Language**: TypeScript, run via `tsx` in dev
+L45: L43: - **API Pattern**: REST API under `/api/` prefix, route definitions shared via `shared/routes.ts`
+L46: L44: - **Dev Server**: Vite middleware in development (HMR via `server/vite.ts`), static file serving in production (`server/static.ts`)
+L47: L45: - **Build**: esbuild bundles server to `dist/index.cjs`; Vite builds client to `dist/public/`
+L48: L46: 
+L49: L47: Key API routes (defined in `server/routes.ts`):
+L50: L48: - `GET /api/projects` — List all projects
+L51: L49: - `POST /api/projects` — Create a new project (with mode: github/local/replit)
+L52: L50: - `GET /api/projects/:id` — Get project details
+L53: L51: - `GET /api/projects/:id/analysis` — Get analysis results
+L54: L52: - `POST /api/projects/:id/analyze` — Trigger analysis (spawns Python CLI)
+L55: L53: 
+L56: L54: ### Python Analyzer (`server/analyzer/`)
+L57: L55: 
+L58: L56: - **CLI**: `analyzer_cli.py` using Typer, supports three input modes:
+L59: L57:   - GitHub URL (`analyze <url>`)
+L60: L58:   - Local path (`analyze <path>`)
+L61: L59:   - Replit workspace (`analyze --replit`)
+L62: L60: - **Core**: `server/analyzer/src/analyzer.py` — orchestrates file acquisition, indexing, and LLM-powered analysis
+L63: L61: - **Operate Module**: `server/analyzer/src/core/operate.py` — deterministic (no LLM) extraction of operational data into `operate.json`
+L64: L62:   - Extracts boot commands, ports, integration points (endpoints, env vars, auth), deployment config, and runbook steps
+L65: L63:   - Uses three evidence tiers: EVIDENCED (file:line + SHA-256 snippet hash), INFERRED, UNKNOWN (with unknown_reason)
+L66: L64:   - Computes readiness scores (0-100) for boot, integrate, deploy categories
+L67: L65:   - Identifies operational gaps with severity ratings
+L68: L66: - **LLM Integration**: OpenAI API (via Replit AI Integrations env vars: `AI_INTEGRATIONS_OPENAI_API_KEY`, `AI_INTEGRATIONS_OPENAI_BASE_URL`)
+L69: L67: - The Express server spawns the Python analyzer as a child process
+L70: L68: 
+L71: L69: ### Database
+L72: L70: 
+L73: L71: - **Engine**: PostgreSQL (required, referenced via `DATABASE_URL` env var)
+L74: L72: - **ORM**: Drizzle ORM with `drizzle-zod` for schema-to-Zod validation
+L75: L73: - **Schema** (`shared/schema.ts`):
+L76: L74:   - `projects` — id, url, name, mode (github/local/replit), status (pending/analyzing/completed/failed), createdAt
+L77: L75:   - `analyses` — id, projectId, dossier (markdown text), claims (jsonb), howto (jsonb), coverage (jsonb), unknowns (jsonb), operate (jsonb), createdAt
+L78: L76: - **Chat models** (`shared/models/chat.ts`):
+L79: L77:   - `conversations` — id, title, createdAt
+L80: L78:   - `messages` — id, conversationId, role, content, createdAt
+L81: L79: - **Migrations**: Drizzle Kit with `drizzle-kit push` for schema sync
+L82: L80: - **Storage Layer**: `server/storage.ts` implements `IStorage` interface with `DatabaseStorage` class
 L83: L81: 
-L84: L82: Requires `AI_INTEGRATIONS_OPENAI_API_KEY` and `AI_INTEGRATIONS_OPENAI_BASE_URL` environment variables.
+L84: L82: ### Replit Integrations (`server/replit_integrations/` and `client/replit_integrations/`)
 L85: L83: 
-L86: L84: ### Scoping a Subdirectory
-L87: L85: 
-L88: L86: ```bash
-L89: L87: pta analyze https://github.com/user/monorepo --root packages/api -o ./output
-L90: L88: ```
+L86: L84: Pre-built integration modules for AI features:
+L87: L85: - **Chat** — Text-based conversation routes and storage using OpenAI
+L88: L86: - **Audio** — Voice recording, playback, speech-to-text, text-to-speech with AudioWorklet
+L89: L87: - **Image** — Image generation and editing via `gpt-image-1`
+L90: L88: - **Batch** — Rate-limited batch processing with retries for LLM calls
 L91: L89: 
-L92: L90: ## Evidence Model
+L92: L90: These are utility modules that can be registered on the Express app as needed.
 L93: L91: 
-L94: L92: Every claim in the output cites structured evidence:
+L94: L92: ### Key Design Decisions
 L95: L93: 
-L96: L94: ```json
-L97: L95: {
-L98: L96:   "path": "server/index.ts",
-L99: L97:   "line_start": 92,
-L100: L98:   "line_end": 92,
-L101: L99:   "snippet_hash": "75d345a78f84",
-L102: L100:   "display": "server/index.ts:92"
-L103: L101: }
-L104: L102: ```
+L96: L94: 1. **Shared route definitions** — `shared/routes.ts` defines API contracts (paths, input schemas, response schemas) used by both frontend hooks and backend handlers. This ensures type safety across the stack.
+L97: L95: 
+L98: L96: 2. **Python + Node hybrid** — The analyzer logic lives in Python (better ecosystem for code analysis, rich CLI output) while the web layer is Node/Express. The server spawns Python as a child process rather than using a microservice architecture, keeping deployment simple.
+L99: L97: 
+L100: L98: 3. **Evidence-first analysis** — The analyzer is designed to cite file paths and line ranges for every claim. When evidence is missing, it must label findings as inference/unknown rather than hallucinate.
+L101: L99: 
+L102: L100: 4. **Polling for status** — The frontend polls project status every 2 seconds while analysis is in progress, switching to static once completed/failed.
+L103: L101: 
+L104: L102: ## External Dependencies
 L105: L103: 
-L106: L104: - `path` -- file path relative to project root
-L107: L105: - `line_start` / `line_end` -- 1-indexed line range (never 0)
-L108: L106: - `snippet_hash` -- first 12 hex chars of SHA-256 of the stripped line(s)
-L109: L107: - `display` -- human-readable location string
-L110: L108: 
-L111: L109: For file-existence evidence (e.g., lockfile detection):
-L112: L110: 
-L113: L111: ```json
-L114: L112: {
-L115: L113:   "kind": "file_exists",
-L116: L114:   "path": "package-lock.json",
-L117: L115:   "snippet_hash": "053150b640a7",
-L118: L116:   "display": "package-lock.json (file exists)"
-L119: L117: }
-L120: L118: ```
-L121: L119: 
-L122: L120: ### Verification
-L123: L121: 
-L124: L122: Snippet hashes are re-checked against source files: the analyzer re-reads the cited line range, strips whitespace, hashes the result, and confirms it matches the claimed hash. Claims that fail hash verification are capped at confidence 0.20 and marked `"status": "unverified"`.
-L125: L123: 
-L126: L124: **Important:** Hash verification confirms that a snippet exists at the cited location. It does not prove that the code behaves as described, is secure, or is free of bugs. PTA is not a security scanner, compliance certification tool, or correctness prover.
-L127: L125: 
-L128: L126: ### Whitespace Policy
-L129: L127: 
-L130: L128: Lines are stripped (trimmed) before hashing. This normalizes indentation differences across editors and formatters. Both evidence creation and verification use the same canonicalization.
-L131: L129: 
-L132: L130: ## Security
-L133: L131: 
-L134: L132: - **Symlink protection**: Every path component is checked. If any component in the path tree is a symlink, the file is rejected.
-L135: L133: - **Path containment**: All resolved paths must remain within the project root (`relative_to()` check after `resolve()`).
-L136: L134: - **Binary detection**: Null bytes in the first 4KB trigger rejection before text decoding.
-L137: L135: - **Traversal prevention**: `..` segments and absolute paths are rejected.
-L138: L136: - **Secret safety**: Only environment variable names are extracted, never their values.
-L139: L137: - **Self-skip**: The analyzer excludes its own source files from analysis to prevent false-positive pattern matches.
-L140: L138: 
-L141: L139: ## Output Files
-L142: L140: 
-L143: L141: ### `target_howto.json`
-L144: L142: 
-L145: L143: Operator manual with:
-L146: L144: - `prereqs` -- required runtimes
-L147: L145: - `install_steps` -- with commands and evidence
-L148: L146: - `config` -- environment variables with file:line references
-L149: L147: - `run_dev` / `run_prod` -- start commands with evidence
-L150: L148: - `replit_execution_profile` -- port binding, secrets, external APIs (Replit mode)
-L151: L149: - `unknowns` -- things the analyzer could not determine
-L152: L150: - `completeness` -- scoring with missing items
-L153: L151: 
-L154: L152: ### `claims.json`
-L155: L153: 
-L156: L154: Array of verifiable claims:
-L157: L155: - `statement` -- what is claimed
-L158: L156: - `confidence` -- 0.0 to 1.0
-L159: L157: - `evidence` -- array of evidence objects with `snippet_hash_verified: true/false`
-L160: L158: - `status` -- `"evidenced"` or `"unverified"`
-L161: L159: 
-L162: L160: ### `coverage.json`
-L163: L161: 
-L164: L162: - `mode_requested` / `mode` -- analysis mode
-L165: L163: - `scanned` / `skipped` -- file counts
-L166: L164: - `replit_detected` -- boolean
-L167: L165: - `replit_detection_evidence` -- evidence for Replit detection
-L168: L166: - `self_skip` -- analyzer self-exclusion details
-L169: L167: 
-L170: L168: ## Troubleshooting
-L171: L169: 
-L172: L170: ### "No module named 'core'"
-L173: L171: 
-L174: L172: Run from the repo root, or install with `pip install -e .`
-L175: L173: 
-L176: L174: ### Missing `DATABASE_URL`
-L177: L175: 
-L178: L176: The analyzer itself does not need a database. `DATABASE_URL` appears in outputs because it detects the target project's database configuration. No action needed for the analyzer.
-L179: L177: 
-L180: L178: ### Missing OpenAI environment variables
-L181: L179: 
-L182: L180: Only required when running without `--no-llm`. Set:
-L183: L181: ```bash
-L184: L182: export AI_INTEGRATIONS_OPENAI_API_KEY=your-key
-L185: L183: export AI_INTEGRATIONS_OPENAI_BASE_URL=https://api.openai.com/v1
-L186: L184: ```
-L187: L185: 
-L188: L186: ### "Port already in use"
-L189: L187: 
-L190: L188: The analyzer does not bind any ports. If you see port errors, they come from the target project's web server, not the analyzer.
-L191: L189: 
-L192: L190: ## Architecture
-L193: L191: 
-L194: L192: Two strictly separated layers:
-L195: L193: 
-L196: L194: 1. **Structural layer** (deterministic) — file indexing, pattern matching, evidence extraction. Outputs are reproducible and hash-verified against source artifacts.
-L197: L195: 2. **Semantic layer** (LLM-powered, optional) — architecture interpretation, risk assessment, integration analysis. Outputs are labeled as LLM-generated and carry confidence scores, not deterministic guarantees.
-L198: L196: 
-L199: L197: The `--no-llm` flag gives you only the structural layer. The semantic layer adds interpretation but is namespaced separately and never contaminates structural evidence.
-L200: L198: 
-L201: L199: ## Running Tests
-L202: L200: 
-L203: L201: ```bash
-L204: L202: bash scripts/smoke_test.sh
-L205: L203: ```
-L206: L204: 
-L207: L205: ## License
-L208: L206: 
-L209: L207: MIT
-L210: 
-L211: --- FILE: replit.md ---
-L212: L1: # Overview
-L213: L2: 
-L214: L3: **Program Totality Analyzer** — a full-stack web application that ingests software projects (via GitHub URL, local path, or live Replit workspace) and produces evidence-cited technical dossiers. The dossier covers what a target system is, how it works, how to use it, and what risks/unknowns exist. It combines a React frontend for submitting analysis requests and viewing results with an Express backend that manages projects/analyses in PostgreSQL and spawns a Python-based analyzer CLI for the actual code analysis.
-L215: L4: 
-L216: L5: ## User Preferences
-L217: L6: 
-L218: L7: Preferred communication style: Simple, everyday language.
-L219: L8: 
-L220: L9: ## System Architecture
-L221: L10: 
-L222: L11: ### Monorepo Structure
-L223: L12: 
-L224: L13: The project follows a three-zone monorepo pattern:
-L225: L14: 
-L226: L15: - **`client/`** — React SPA (frontend)
-L227: L16: - **`server/`** — Express API (backend)
-L228: L17: - **`shared/`** — Shared types, schemas, and route definitions used by both client and server
-L229: L18: 
-L230: L19: This avoids type drift between frontend and backend by sharing Zod schemas and TypeScript types from a single source of truth.
-L231: L20: 
-L232: L21: ### Frontend (`client/src/`)
-L233: L22: 
-L234: L23: - **Framework**: React 18 with TypeScript
-L235: L24: - **Routing**: Wouter (lightweight client-side router)
-L236: L25: - **State/Data Fetching**: TanStack React Query with polling for analysis status updates
-L237: L26: - **UI Components**: shadcn/ui (new-york style) built on Radix UI primitives
-L238: L27: - **Styling**: Tailwind CSS with CSS variables for theming (dark mode, cyan/neon aesthetic)
-L239: L28: - **Animations**: Framer Motion for page transitions and loading states
-L240: L29: - **Markdown Rendering**: react-markdown for displaying analysis dossiers
-L241: L30: - **Build Tool**: Vite with React plugin
-L242: L31: 
-L243: L32: Key pages:
-L244: L33: - `/` — Home page with URL input form and "Analyze Replit" button
-L245: L34: - `/projects` — List of previous analyses
-L246: L35: - `/projects/:id` — Detailed view of a specific analysis with tabs for dossier, claims, operator dashboard (operate.json), coverage, and unknowns
-L247: L36: 
-L248: L37: Path aliases: `@/` maps to `client/src/`, `@shared/` maps to `shared/`, `@assets/` maps to `attached_assets/`.
-L249: L38: 
-L250: L39: ### Backend (`server/`)
-L251: L40: 
-L252: L41: - **Framework**: Express 5 on Node.js
-L253: L42: - **Language**: TypeScript, run via `tsx` in dev
-L254: L43: - **API Pattern**: REST API under `/api/` prefix, route definitions shared via `shared/routes.ts`
-L255: L44: - **Dev Server**: Vite middleware in development (HMR via `server/vite.ts`), static file serving in production (`server/static.ts`)
-L256: L45: - **Build**: esbuild bundles server to `dist/index.cjs`; Vite builds client to `dist/public/`
-L257: L46: 
-L258: L47: Key API routes (defined in `server/routes.ts`):
-L259: L48: - `GET /api/projects` — List all projects
-L260: L49: - `POST /api/projects` — Create a new project (with mode: github/local/replit)
-L261: L50: - `GET /api/projects/:id` — Get project details
-L262: L51: - `GET /api/projects/:id/analysis` — Get analysis results
-L263: L52: - `POST /api/projects/:id/analyze` — Trigger analysis (spawns Python CLI)
-L264: L53: 
-L265: L54: ### Python Analyzer (`server/analyzer/`)
-L266: L55: 
-L267: L56: - **CLI**: `analyzer_cli.py` using Typer, supports three input modes:
-L268: L57:   - GitHub URL (`analyze <url>`)
-L269: L58:   - Local path (`analyze <path>`)
-L270: L59:   - Replit workspace (`analyze --replit`)
-L271: L60: - **Core**: `server/analyzer/src/analyzer.py` — orchestrates file acquisition, indexing, and LLM-powered analysis
-L272: L61: - **Operate Module**: `server/analyzer/src/core/operate.py` — deterministic (no LLM) extraction of operational data into `operate.json`
-L273: L62:   - Extracts boot commands, ports, integration points (endpoints, env vars, auth), deployment config, and runbook steps
-L274: L63:   - Uses three evidence tiers: EVIDENCED (file:line + SHA-256 snippet hash), INFERRED, UNKNOWN (with unknown_reason)
-L275: L64:   - Computes readiness scores (0-100) for boot, integrate, deploy categories
-L276: L65:   - Identifies operational gaps with severity ratings
-L277: L66: - **LLM Integration**: OpenAI API (via Replit AI Integrations env vars: `AI_INTEGRATIONS_OPENAI_API_KEY`, `AI_INTEGRATIONS_OPENAI_BASE_URL`)
-L278: L67: - The Express server spawns the Python analyzer as a child process
-L279: L68: 
-L280: L69: ### Database
-L281: L70: 
-L282: L71: - **Engine**: PostgreSQL (required, referenced via `DATABASE_URL` env var)
-L283: L72: - **ORM**: Drizzle ORM with `drizzle-zod` for schema-to-Zod validation
-L284: L73: - **Schema** (`shared/schema.ts`):
-L285: L74:   - `projects` — id, url, name, mode (github/local/replit), status (pending/analyzing/completed/failed), createdAt
-L286: L75:   - `analyses` — id, projectId, dossier (markdown text), claims (jsonb), howto (jsonb), coverage (jsonb), unknowns (jsonb), operate (jsonb), createdAt
-L287: L76: - **Chat models** (`shared/models/chat.ts`):
-L288: L77:   - `conversations` — id, title, createdAt
-L289: L78:   - `messages` — id, conversationId, role, content, createdAt
-L290: L79: - **Migrations**: Drizzle Kit with `drizzle-kit push` for schema sync
-L291: L80: - **Storage Layer**: `server/storage.ts` implements `IStorage` interface with `DatabaseStorage` class
-L292: L81: 
-L293: L82: ### Replit Integrations (`server/replit_integrations/` and `client/replit_integrations/`)
-L294: L83: 
-L295: L84: Pre-built integration modules for AI features:
-L296: L85: - **Chat** — Text-based conversation routes and storage using OpenAI
-L297: L86: - **Audio** — Voice recording, playback, speech-to-text, text-to-speech with AudioWorklet
-L298: L87: - **Image** — Image generation and editing via `gpt-image-1`
-L299: L88: - **Batch** — Rate-limited batch processing with retries for LLM calls
-L300: L89: 
-L301: L90: These are utility modules that can be registered on the Express app as needed.
-L302: L91: 
-L303: L92: ### Key Design Decisions
-L304: L93: 
-L305: L94: 1. **Shared route definitions** — `shared/routes.ts` defines API contracts (paths, input schemas, response schemas) used by both frontend hooks and backend handlers. This ensures type safety across the stack.
-L306: L95: 
-L307: L96: 2. **Python + Node hybrid** — The analyzer logic lives in Python (better ecosystem for code analysis, rich CLI output) while the web layer is Node/Express. The server spawns Python as a child process rather than using a microservice architecture, keeping deployment simple.
-L308: L97: 
-L309: L98: 3. **Evidence-first analysis** — The analyzer is designed to cite file paths and line ranges for every claim. When evidence is missing, it must label findings as inference/unknown rather than hallucinate.
-L310: L99: 
-L311: L100: 4. **Polling for status** — The frontend polls project status every 2 seconds while analysis is in progress, switching to static once completed/failed.
-L312: L101: 
-L313: L102: ## External Dependencies
-L314: L103: 
-L315: L104: ### Required Services
-L316: L105: - **PostgreSQL** — Primary database, must be provisioned with `DATABASE_URL` environment variable
-L317: L106: - **OpenAI API** (via Replit AI Integrations) — Powers the code analysis LLM calls
-L318: L107:   - `AI_INTEGRATIONS_OPENAI_API_KEY` — API key
-L319: L108:   - `AI_INTEGRATIONS_OPENAI_BASE_URL` — Base URL for API
-L320: L109: 
-L321: L110: ### Key NPM Packages
-L322: L111: - `express` v5 — HTTP server
-L323: L112: - `drizzle-orm` + `drizzle-kit` — Database ORM and migrations
-L324: L113: - `@tanstack/react-query` — Client-side data fetching and caching
-L325: L114: - `wouter` — Client-side routing
-L326: L115: - `react-markdown` — Markdown rendering for dossiers
-L327: L116: - `framer-motion` — Animations
-L328: L117: - `zod` + `drizzle-zod` — Runtime validation
-L329: L118: - `vite` — Frontend build and dev server
-L330: L119: - `esbuild` — Server build
-L331: L120: 
-L332: L121: ### Key Python Packages
-L333: L122: - `typer` — CLI framework
-L334: L123: - `openai` — LLM API client
-L335: L124: - `rich` — Console output formatting
-L336: L125: - `python-dotenv` — Environment variable loading
-L337: L126: 
-L338: L127: ### Dev/Build Tools
-L339: L128: - `tsx` — TypeScript execution for development
-L340: L129: - `tailwindcss` + `postcss` + `autoprefixer` — CSS toolchain
-L341: L130: - `@replit/vite-plugin-runtime-error-modal` — Dev error overlay
-L342: 
-L343: --- FILE: client/requirements.md ---
-L344: L1: ## Packages
-L345: L2: react-markdown | For rendering the analysis dossier
-L346: L3: framer-motion | For smooth page transitions and loading effects
-L347: L4: clsx | Utility for constructing className strings conditionally
-L348: L5: tailwind-merge | Utility for merging Tailwind classes efficiently
-L349: L6: 
-L350: L7: ## Notes
-L351: L8: - Theme: Technical, dark mode, "Program Totality Analyzer" aesthetic.
-L352: L9: - Fonts: Space Grotesk (headers), JetBrains Mono (code/data), Inter (UI).
-L353: L10: - Polling: Project status needs polling to show "Analyzing..." vs "Completed".
-L354: 
-L355: --- FILE: examples/README.md ---
-L356: L1: # Example Outputs
-L357: L2: 
-L358: L3: These are sample outputs from the Program Totality Analyzer running in `--no-llm` (deterministic) mode against its own workspace.
-L359: L4: 
-L360: L5: ## Files
-L361: L6: 
-L362: L7: - `out/target_howto.sample.json` — Operator manual: install steps, config, run commands, Replit execution profile. Every item cites file:line evidence with SHA-256 snippet hashes.
-L363: L8: - `out/coverage.sample.json` — Scan metadata: mode requested, files scanned/skipped, Replit detection evidence, self-skip configuration.
-L364: L9: 
-L365: L10: ## Generating Your Own
-L366: L11: 
-L367: L12: ```bash
-L368: L13: pta analyze --replit --no-llm -o ./my_output
-L369: L14: ```
-L370: L15: 
-L371: L16: Or for a GitHub repo:
-L372: L17: 
-L373: L18: ```bash
-L374: L19: pta analyze https://github.com/user/repo -o ./my_output
-L375: L20: ```
-L376: L21: 
-L377: L22: Or for a local folder:
-L378: L23: 
-L379: L24: ```bash
-L380: L25: pta analyze ./path/to/project -o ./my_output
-L381: L26: ```
-L382: 
-L383: --- FILE: docs/dossiers/lantern_program_totality_dossier.md ---
-L384: L1: ---
-L385: L2: title: Lantern Program Totality Dossier
-L386: L3: generated_by: PTA / Lantern
-L387: L4: mode: deterministic+curated
-L388: L5: date: 2026-02-14
-L389: L6: ---
-L390: L7: 
-L391: L8: # HALO-RECEIPTS: Program Totality Analyzer Dossier
-L392: L9: 
-L393: L10: ---
-L394: L11: 
-L395: L12: ## 1. **Identity of Target System**
-L396: L13: 
-L397: L14: **What it IS:**  
-L398: L15: HALO-RECEIPTS (AI Receipts) is a forensic verification system specifically designed for AI conversation transcripts. It provides cryptographic verification (SHA-256, Ed25519), immutable receipt storage, tamper-evident audit trails, forensic export capabilities, and extensive auditing for post-hoc analysis. This system is both the backend API server (Node.js/Express/PostgreSQL/Drizzle ORM) and a modern React UI, bundling forensic guarantees directly into receipt management and export (README.md:3,9,60–61; replit.md:4,11–12,14–24).
-L399: L16: 
-L400: L17: **What it is NOT:**  
-L401: L18: - **Not a real-time monitoring, content moderation, or multi-operator platform:** It is not designed for live chat moderation, direct truth judgment, or multi-user concurrency at the enforcement level (replit.md:55).
-L402: L19: - **Not a database engine:** Instead, it relies on PostgreSQL for durable state.
-L403: L20: - **Not a data lake or generic file archival platform.**
-L404: L21: - **Not a replacement for WORM-compliant log systems, but can integrate via checkpoint anchoring (see below).**
-L405: L22: - **Not a deployment framework:** The system expects to be deployed behind a reverse proxy or PaaS (README.md:24; SECURITY.md:54).
-L406: L23: 
-L407: L24: ---
-L408: L25: 
-L409: L26: ## 2. **Purpose & Jobs-to-be-done**
-L410: L27: 
-L411: L28: - **Forensic Conversation Integrity:** Operators can guarantee, via public proofs, that a transcript or "receipt" has not been tampered with since its recording date (README.md:9; replit.md:4).
-L412: L29: - **Immutable Logging & Audit Trails:** Ensures all receipt actions (append, lock, kill switch, export, audit actions) are tracked in an append-only, hash-linked audit log, detecting insertions, deletions, reordering, and version tampering (SECURITY.md:8–10; STATE.md:165–169).
-L413: L30: - **Cryptographic Verification:** Verifies that every receipt chain and audit log entry is both hash-linked (SHA-256) and checkpoint signed (Ed25519), with optional external anchoring (replit.md:36–46; STATE.md:116–121).
-L414: L31: - **Forensic Export and Proof Packs:** Allows export of forensic packs (JSON) that can be offline verified and admitted as tamper-evident evidence (STATE.md:122–125; scripts/ci-forensic-gate.sh).
-L415: L32: - **Regulatory Alignment:** System features mapped to compliance goals (21 CFR, HIPAA, SOC2, etc.) (replit.md:50, STATE.md:137).
-L416: L33: - **Operator/Evidence Reliability:** Designed to provide demonstrable evidence for courts, regulators, or internal review.
-L417: L34: 
-L418: L35: ---
-L419: L36: 
-L420: L37: ## 3. **Capability Map**
-L421: L38: 
-L422: L39: | Capability             | Mechanism / Implementation | Evidence                                    |
-L423: L40: |------------------------|---------------------------|---------------------------------------------|
-L424: L41: | SHA-256 Hash Verification   | Canonicalized (c14n-v1) JSON hash | README.md:73–74; STATE.md:17,20             |
-L425: L42: | Ed25519 Signatures     | Checkpoint signing, chain   | STATE.md:18,116–121; replit.md:36           |
-L426: L43: | Immutable Storage      | Receipt lock, no mutation  | README.md:75; STATE.md:21,158–159           |
-L427: L44: | Kill Switch            | Irreversible flag, disables outputs | README.md:76; STATE.md:22,157                |
-L428: L45: | Audit Logs             | Append-only, hash-chained table | STATE.md:25–29,162                           |
-L429: L46: | Forensic Export/Import | export_forensic_pack, verify_forensic_pack scripts | STATE.md:123–126                              |
-L430: L47: | Forensic Sensors       | Interpreter, summarizer, claim extractor | README.md:78; STATE.md:80,85                  |
-L431: L48: | Policy Enforcement     | Zod schemas, request shape limits | SECURITY.md:20–23                            |
-L432: L49: | API Rate Limiting      | Per-IP, in-memory          | SECURITY.md:26–29; STATE.md:94; package.json:61 |
-L433: L50: | Key Rotation & Anchoring | Multi-key support, anchor backends | replit.md:43–47                            |
-L434: L51: | Secure API Structure   | API_KEY in x-api-key header; private/public endpoints | SECURITY.md:15–16,72                           |
-L435: L52: | Client Auth Isolation  | LLMs see only transcript content | SECURITY.md:39–40; STATE.md:160,20           |
-L436: L53: | UI Export & Compare    | Side-by-side comparison, JSONL/CSV export | README.md:143; replit.md:25,23                |
-L437: L54: | Structured Logging     | JSON logs, in-memory counters | STATE.md:106–107,184                          |
-L438: L55: | Health Checks          | /api/health, /api/ready    | STATE.md:37,43,100–101; docs/API_CONTRACTS.md:11,24 |
-L439: L56: 
-L440: L57: ---
-L441: L58: 
-L442: L59: ## 4. **Architecture Snapshot**
-L443: L60: 
-L444: L61: - **Frontend:** React (wouter router), Tailwind, shadcn/ui (README.md:59, client/src/App.tsx)
-L445: L62: - **Backend:** Node.js 20, Express, Drizzle ORM (README.md:60–61; package.json)
-L446: L63: - **Database:** PostgreSQL 14+ (README.md:24, .env.example:5)
-L447: L64: - **Cryptography:** Node.js crypto (SHA-256), Ed25519 (STATE.md:18,116)
-L448: L65: - **Session:** express-session, connect-pg-simple (package.json:51,57)
-L449: L66: - **Audit Trail:** Hash-linking via prev_hash and payload_v, audit_head singleton row (STATE.md:9,25–29,48,52; drizzle.config.ts:9)
-L450: L67: - **Forensic Export:** TypeScript scripts in `/scripts`, results in JSON proof packs (STATE.md:123–126)
-L451: L68: - **CI/CD:** GitHub Actions, drift guard scripts, reproducible verifier zips (replit.md:39–42,57)
-L452: L69: 
-L453: L70: ---
-L454: L71: 
-L455: L72: ## 5. **How to Use the Target System**
-L456: L73: 
-L457: L74: ### **Operator Manual**
-L458: L75: 
-L459: L76: #### **A. Prerequisites**
-L460: L77: 
-L461: L78: 1. **Install:**
-L462: L79:    - Node.js 20+, npm (`npm -v`/`node -v`)
-L463: L80:    - PostgreSQL 14+ running and accessible (README.md:23–24)
-L464: L81:    - jq, unzip, python3 for export/ops scripts (see replit.nix, scripts/ci-forensic-gate.sh)
-L465: L82:    - TypeScript, tsx, drizzle-kit, installed via npm as devDependencies (package.json)
-L466: L83: 
-L467: L84: #### **B. Installation**
-L468: L85: 
-L469: L86: 1. **Clone Repository**
-L470: L87: 2. `npm install`  
-L471: L88:    Installs all dependencies (README.md:29)
-L472: L89: 3. `cp .env.example .env`  
-L473: L90:    Copy template env config (README.md:33)
-L474: L91: 4. **Edit `.env`**:  
-L475: L92:    Set `DATABASE_URL`, `API_KEY`, `SESSION_SECRET` and all other required variables suitably (README.md:34; .env.example:5,10,23)
-L476: L93: 5. **(Optional: Replit):**
-L477: L94:    - Use the "Run on Replit" badge or Replit sidebar GUI (README.md:17)
-L478: L95: 
-L479: L96: #### **C. Configuration**
-L480: L97: 
-L481: L98: Set the following in `.env` (names only, do not provide values):
-L482: L99: - **DATABASE_URL:** PostgreSQL connection string (.env.example:5)
-L483: L100: - **API_KEY:** Required for private endpoints (.env.example:10; SECURITY.md:15)
-L484: L101: - **SESSION_SECRET:** Strong, random string (.env.example:23; SECURITY.md:71)
-L485: L102: - **NODE_ENV:** development/production (.env.example:13)
-L486: L103: - **PORT:** Default 5000 (.env.example:14)
-L487: L104: - Other optional: TRANSCRIPT_MODE, CHECKPOINT_INTERVAL, CHECKPOINT_ANCHOR_TYPE, etc. (.env.example, STATE.md:118, replit.md:45)
-L488: L105: 
-L489: L106: #### **D. Database Init**
-L490: L107: 
-L491: L108: - Run: `npm run db:push`  
-L492: L109:   This applies the schema to PostgreSQL (README.md:39)
-L493: L110: 
-L494: L111: #### **E. Development Server**
-L495: L112: 
-L496: L113: - Run: `npm run dev`  
-L497: L114:   Runs server in development mode (README.md:44)
-L498: L115: - Visit: [http://localhost:5000](http://localhost:5000) (README.md:47)
-L499: L116: 
-L500: L117: #### **F. Production Build**
+L106: L104: ### Required Services
+L107: L105: - **PostgreSQL** — Primary database, must be provisioned with `DATABASE_URL` environment variable
+L108: L106: - **OpenAI API** (via Replit AI Integrations) — Powers the code analysis LLM calls
+L109: L107:   - `AI_INTEGRATIONS_OPENAI_API_KEY` — API key
+L110: L108:   - `AI_INTEGRATIONS_OPENAI_BASE_URL` — Base URL for API
+L111: L109: 
+L112: L110: ### Key NPM Packages
+L113: L111: - `express` v5 — HTTP server
+L114: L112: - `drizzle-orm` + `drizzle-kit` — Database ORM and migrations
+L115: L113: - `@tanstack/react-query` — Client-side data fetching and caching
+L116: L114: - `wouter` — Client-side routing
+L117: L115: - `react-markdown` — Markdown rendering for dossiers
+L118: L116: - `framer-motion` — Animations
+L119: L117: - `zod` + `drizzle-zod` — Runtime validation
+L120: L118: - `vite` — Frontend build and dev server
+L121: L119: - `esbuild` — Server build
+L122: L120: 
+L123: L121: ### Key Python Packages
+L124: L122: - `typer` — CLI framework
+L125: L123: - `openai` — LLM API client
+L126: L124: - `rich` — Console output formatting
+L127: L125: - `python-dotenv` — Environment variable loading
+L128: L126: 
+L129: L127: ### Dev/Build Tools
+L130: L128: - `tsx` — TypeScript execution for development
+L131: L129: - `tailwindcss` + `postcss` + `autoprefixer` — CSS toolchain
+L132: L130: - `@replit/vite-plugin-runtime-error-modal` — Dev error overlay
+L133: 
+L134: --- FILE: README.md ---
+L135: L1: # Program Totality Analyzer
+L136: L2: 
+L137: L3: A static-artifact-anchored analysis tool that generates technical dossiers for software projects. It extracts what a system is, how to run it, what it needs, and what it cannot determine — with every claim citing `file:line` evidence backed by SHA-256 snippet hashes.
+L138: L4: 
+L139: L5: **Scope limitation:** PTA analyzes static artifacts only (source files, config, lockfiles). It does not observe runtime behavior, prove correctness, or guarantee security. Claims labeled VERIFIED mean "anchored to a hash-verified source snippet," not "proven true at runtime."
+L140: L6: 
+L141: L7: ## What It Does
+L142: L8: 
+L143: L9: Given a software project (GitHub repo, local folder, or Replit workspace), the analyzer produces:
+L144: L10: 
+L145: L11: | File | Contents |
+L146: L12: |------|----------|
+L147: L13: | `operate.json` | Operator dashboard: boot commands, integration points, deployment config, readiness scores, gaps with severity. Deterministic, evidence-bound. Every item is EVIDENCED, INFERRED, or UNKNOWN. |
+L148: L14: | `target_howto.json` | Legacy: evidence-scoped run steps. Prefer `operate.json` for operator workflows. |
+L149: L15: | `claims.json` | Verifiable claims about the system, each with file:line evidence and confidence scores |
+L150: L16: | `coverage.json` | Scan metadata: files scanned, files skipped, Replit detection evidence |
+L151: L17: | `replit_profile.json` | Replit-specific: port binding, secrets, external APIs, observability (only in Replit mode) |
+L152: L18: | `DOSSIER.md` | Human-readable markdown dossier summarizing all findings |
+L153: L19: | `index.json` | Full file index of scanned files |
+L154: L20: | `packs/` | Evidence packs (docs, config, code, ops) used during analysis |
+L155: L21: 
+L156: L22: ## Install
+L157: L23: 
+L158: L24: ```bash
+L159: L25: pip install -e .
+L160: L26: ```
+L161: L27: 
+L162: L28: This registers the `pta` command. Alternatively, run as a module or directly:
+L163: L29: 
+L164: L30: ```bash
+L165: L31: python -m server.analyzer.src --help
+L166: L32: python server/analyzer/analyzer_cli.py --help
+L167: L33: ```
+L168: L34: 
+L169: L35: ### Dependencies
+L170: L36: 
+L171: L37: - Python 3.11+
+L172: L38: - Required packages: `typer`, `rich`, `openai`, `gitpython`, `jsonschema`, `python-dotenv`, `pydantic`
+L173: L39: 
+L174: L40: ## Usage
+L175: L41: 
+L176: L42: ### Three Modes
+L177: L43: 
+L178: L44: **GitHub repository:**
+L179: L45: ```bash
+L180: L46: pta analyze https://github.com/user/repo -o ./output
+L181: L47: ```
+L182: L48: 
+L183: L49: **Local folder:**
+L184: L50: ```bash
+L185: L51: pta analyze ./path/to/project -o ./output
+L186: L52: ```
+L187: L53: 
+L188: L54: **Replit workspace (run from inside the workspace):**
+L189: L55: ```bash
+L190: L56: pta analyze --replit -o ./output
+L191: L57: ```
+L192: L58: 
+L193: L59: ### Deterministic Mode (`--no-llm`)
+L194: L60: 
+L195: L61: Skip all LLM calls and produce only deterministic, structurally-extracted outputs:
+L196: L62: 
+L197: L63: ```bash
+L198: L64: pta analyze --replit --no-llm -o ./output
+L199: L65: ```
+L200: L66: 
+L201: L67: This mode requires no API keys and produces reproducible results. It generates `operate.json` and readiness scoring without any LLM involvement. It extracts:
+L202: L68: - Package scripts (dev, build, start)
+L203: L69: - Lockfile-based install commands
+L204: L70: - Environment variable references (names only, never values)
+L205: L71: - Port binding configuration
+L206: L72: - External API usage
+L207: L73: - Replit platform detection
+L208: L74: - Operational gaps with severity ratings
+L209: L75: - Readiness scores (boot, integrate, deploy)
+L210: L76: 
+L211: L77: ### With LLM Analysis
+L212: L78: 
+L213: L79: For semantic analysis (architecture understanding, risk assessment, integration patterns):
+L214: L80: 
+L215: L81: ```bash
+L216: L82: pta analyze --replit -o ./output
+L217: L83: ```
+L218: L84: 
+L219: L85: Requires `AI_INTEGRATIONS_OPENAI_API_KEY` and `AI_INTEGRATIONS_OPENAI_BASE_URL` environment variables.
+L220: L86: 
+L221: L87: ### Scoping a Subdirectory
+L222: L88: 
+L223: L89: ```bash
+L224: L90: pta analyze https://github.com/user/monorepo --root packages/api -o ./output
+L225: L91: ```
+L226: L92: 
+L227: L93: ## Evidence Model
+L228: L94: 
+L229: L95: Every claim in the output cites structured evidence:
+L230: L96: 
+L231: L97: ```json
+L232: L98: {
+L233: L99:   "path": "server/index.ts",
+L234: L100:   "line_start": 92,
+L235: L101:   "line_end": 92,
+L236: L102:   "snippet_hash": "75d345a78f84",
+L237: L103:   "display": "server/index.ts:92"
+L238: L104: }
+L239: L105: ```
+L240: L106: 
+L241: L107: - `path` -- file path relative to project root
+L242: L108: - `line_start` / `line_end` -- 1-indexed line range (never 0)
+L243: L109: - `snippet_hash` -- first 12 hex chars of SHA-256 of the stripped line(s)
+L244: L110: - `display` -- human-readable location string
+L245: L111: 
+L246: L112: For file-existence evidence (e.g., lockfile detection):
+L247: L113: 
+L248: L114: ```json
+L249: L115: {
+L250: L116:   "kind": "file_exists",
+L251: L117:   "path": "package-lock.json",
+L252: L118:   "snippet_hash": "053150b640a7",
+L253: L119:   "display": "package-lock.json (file exists)"
+L254: L120: }
+L255: L121: ```
+L256: L122: 
+L257: L123: ### Gap Severity
+L258: L124: 
+L259: L125: Operational gaps in `operate.json` include a severity rating:
+L260: L126: - **high** — blocks boot or core execution
+L261: L127: - **medium** — impacts deployment maturity
+L262: L128: - **low** — best-practice or observability improvements
+L263: L129: 
+L264: L130: ### Verification
+L265: L131: 
+L266: L132: Snippet hashes are re-checked against source files: the analyzer re-reads the cited line range, strips whitespace, hashes the result, and confirms it matches the claimed hash. Claims that fail hash verification are capped at confidence 0.20 and marked `"status": "unverified"`.
+L267: L133: 
+L268: L134: **Important:** Hash verification confirms that a snippet exists at the cited location. It does not prove that the code behaves as described, is secure, or is free of bugs. PTA is not a security scanner, compliance certification tool, or correctness prover.
+L269: L135: 
+L270: L136: ### Whitespace Policy
+L271: L137: 
+L272: L138: Lines are stripped (trimmed) before hashing. This normalizes indentation differences across editors and formatters. Both evidence creation and verification use the same canonicalization.
+L273: L139: 
+L274: L140: ## Security
+L275: L141: 
+L276: L142: - **Symlink protection**: Every path component is checked. If any component in the path tree is a symlink, the file is rejected.
+L277: L143: - **Path containment**: All resolved paths must remain within the project root (`relative_to()` check after `resolve()`).
+L278: L144: - **Binary detection**: Null bytes in the first 4KB trigger rejection before text decoding.
+L279: L145: - **Traversal prevention**: `..` segments and absolute paths are rejected.
+L280: L146: - **Secret safety**: Only environment variable names are extracted, never their values.
+L281: L147: - **Self-skip**: The analyzer excludes its own source files from analysis to prevent false-positive pattern matches.
+L282: L148: 
+L283: L149: ## Output Files
+L284: L150: 
+L285: L151: ### `operate.json`
+L286: L152: 
+L287: L153: Operator dashboard model with:
+L288: L154: - `boot` -- install, dev, prod commands and port bindings, each with evidence tier
+L289: L155: - `integrate` -- endpoints, env vars, auth mechanisms with evidence
+L290: L156: - `deploy` -- Docker, platform hints, CI/CD, build commands with evidence
+L291: L157: - `readiness` -- scores (0-100) for boot, integrate, deploy categories with reasons
+L292: L158: - `gaps` -- operational gaps with severity (high/medium/low), rank, and action
+L293: L159: - `runbooks` -- numbered step sequences for local_dev, production, and integration
+L294: L160: - `snapshot` -- observability, migrations, and architectural metadata
+L295: L161: 
+L296: L162: All items carry a status of EVIDENCED, INFERRED, or UNKNOWN. EVIDENCED items include file:line references and SHA-256 snippet hashes. UNKNOWN items include an `unknown_reason`.
+L297: L163: 
+L298: L164: ### `target_howto.json` (legacy)
+L299: L165: 
+L300: L166: Legacy operator manual. Prefer `operate.json` for operator workflows. Contains:
+L301: L167: - `prereqs` -- required runtimes
+L302: L168: - `install_steps` -- with commands and evidence
+L303: L169: - `config` -- environment variables with file:line references
+L304: L170: - `run_dev` / `run_prod` -- start commands with evidence
+L305: L171: - `replit_execution_profile` -- port binding, secrets, external APIs (Replit mode)
+L306: L172: - `unknowns` -- things the analyzer could not determine
+L307: L173: - `completeness` -- scoring with missing items
+L308: L174: 
+L309: L175: ### `claims.json`
+L310: L176: 
+L311: L177: Array of verifiable claims:
+L312: L178: - `statement` -- what is claimed
+L313: L179: - `confidence` -- 0.0 to 1.0
+L314: L180: - `evidence` -- array of evidence objects with `snippet_hash_verified: true/false`
+L315: L181: - `status` -- `"evidenced"` or `"unverified"`
+L316: L182: 
+L317: L183: ### `coverage.json`
+L318: L184: 
+L319: L185: - `mode_requested` / `mode` -- analysis mode
+L320: L186: - `scanned` / `skipped` -- file counts
+L321: L187: - `replit_detected` -- boolean
+L322: L188: - `replit_detection_evidence` -- evidence for Replit detection
+L323: L189: - `self_skip` -- analyzer self-exclusion details
+L324: L190: 
+L325: L191: ## Troubleshooting
+L326: L192: 
+L327: L193: ### "No module named 'core'"
+L328: L194: 
+L329: L195: Run from the repo root, or install with `pip install -e .`
+L330: L196: 
+L331: L197: ### Missing `DATABASE_URL`
+L332: L198: 
+L333: L199: The analyzer itself does not need a database. `DATABASE_URL` appears in outputs because it detects the target project's database configuration. No action needed for the analyzer.
+L334: L200: 
+L335: L201: ### Missing OpenAI environment variables
+L336: L202: 
+L337: L203: Only required when running without `--no-llm`. Set:
+L338: L204: ```bash
+L339: L205: export AI_INTEGRATIONS_OPENAI_API_KEY=your-key
+L340: L206: export AI_INTEGRATIONS_OPENAI_BASE_URL=https://api.openai.com/v1
+L341: L207: ```
+L342: L208: 
+L343: L209: ### "Port already in use"
+L344: L210: 
+L345: L211: The analyzer does not bind any ports. If you see port errors, they come from the target project's web server, not the analyzer.
+L346: L212: 
+L347: L213: ## Architecture
+L348: L214: 
+L349: L215: Two strictly separated layers:
+L350: L216: 
+L351: L217: 1. **Structural layer** (deterministic) — file indexing, pattern matching, evidence extraction. Outputs are reproducible and hash-verified against source artifacts.
+L352: L218: 2. **Semantic layer** (LLM-powered, optional) — architecture interpretation, risk assessment, integration analysis. Outputs are labeled as LLM-generated and carry confidence scores, not deterministic guarantees.
+L353: L219: 
+L354: L220: The `--no-llm` flag gives you only the structural layer. The semantic layer adds interpretation but is namespaced separately and never contaminates structural evidence.
+L355: L221: 
+L356: L222: ## Running Tests
+L357: L223: 
+L358: L224: ```bash
+L359: L225: bash scripts/smoke_test.sh
+L360: L226: ```
+L361: L227: 
+L362: L228: ## License
+L363: L229: 
+L364: L230: MIT
+L365: 
+L366: --- FILE: Dockerfile ---
+L367: L1: FROM node:20-slim AS base
+L368: L2: WORKDIR /app
+L369: L3: 
+L370: L4: FROM base AS deps
+L371: L5: COPY package.json package-lock.json ./
+L372: L6: RUN npm ci --ignore-scripts
+L373: L7: 
+L374: L8: FROM base AS build
+L375: L9: COPY --from=deps /app/node_modules ./node_modules
+L376: L10: COPY . .
+L377: L11: RUN npm run build
+L378: L12: 
+L379: L13: FROM base AS runtime
+L380: L14: COPY --from=deps /app/node_modules ./node_modules
+L381: L15: COPY --from=build /app/dist ./dist
+L382: L16: COPY package.json ./
+L383: L17: ENV NODE_ENV=production
+L384: L18: EXPOSE 5000
+L385: L19: HEALTHCHECK --interval=30s --timeout=5s --start-period=10s \
+L386: L20:   CMD curl -f http://localhost:5000/health || exit 1
+L387: L21: CMD ["npm", "start"]
+L388: 
+L389: --- FILE: client/requirements.md ---
+L390: L1: ## Packages
+L391: L2: react-markdown | For rendering the analysis dossier
+L392: L3: framer-motion | For smooth page transitions and loading effects
+L393: L4: clsx | Utility for constructing className strings conditionally
+L394: L5: tailwind-merge | Utility for merging Tailwind classes efficiently
+L395: L6: 
+L396: L7: ## Notes
+L397: L8: - Theme: Technical, dark mode, "Program Totality Analyzer" aesthetic.
+L398: L9: - Fonts: Space Grotesk (headers), JetBrains Mono (code/data), Inter (UI).
+L399: L10: - Polling: Project status needs polling to show "Analyzing..." vs "Completed".
+L400: 
+L401: --- FILE: examples/README.md ---
+L402: L1: # Example Outputs
+L403: L2: 
+L404: L3: These are sample outputs from the Program Totality Analyzer running in `--no-llm` (deterministic) mode against its own workspace.
+L405: L4: 
+L406: L5: ## Files
+L407: L6: 
+L408: L7: - `out/operate.sample.json` — Operator dashboard: boot commands, integration points, deployment config, readiness scores, gaps with severity. Deterministic, evidence-bound.
+L409: L8: - `out/target_howto.sample.json` — Legacy operator manual. Prefer `operate.json` for operator workflows.
+L410: L9: - `out/coverage.sample.json` — Scan metadata: mode requested, files scanned/skipped, Replit detection evidence, self-skip configuration.
+L411: L10: 
+L412: L11: ## Generating Your Own
+L413: L12: 
+L414: L13: ```bash
+L415: L14: pta analyze --replit --no-llm -o ./my_output
+L416: L15: ```
+L417: L16: 
+L418: L17: Or for a GitHub repo:
+L419: L18: 
+L420: L19: ```bash
+L421: L20: pta analyze https://github.com/user/repo -o ./my_output
+L422: L21: ```
+L423: L22: 
+L424: L23: Or for a local folder:
+L425: L24: 
+L426: L25: ```bash
+L427: L26: pta analyze ./path/to/project -o ./my_output
+L428: L27: ```
+L429: 
+L430: --- FILE: docs/dossiers/lantern_program_totality_dossier.md ---
+L431: L1: ---
+L432: L2: title: Lantern Program Totality Dossier
+L433: L3: generated_by: PTA / Lantern
+L434: L4: mode: deterministic+curated
+L435: L5: date: 2026-02-14
+L436: L6: ---
+L437: L7: 
+L438: L8: # HALO-RECEIPTS: Program Totality Analyzer Dossier
+L439: L9: 
+L440: L10: ---
+L441: L11: 
+L442: L12: ## 1. **Identity of Target System**
+L443: L13: 
+L444: L14: **What it IS:**  
+L445: L15: HALO-RECEIPTS (AI Receipts) is a forensic verification system specifically designed for AI conversation transcripts. It provides cryptographic verification (SHA-256, Ed25519), immutable receipt storage, tamper-evident audit trails, forensic export capabilities, and extensive auditing for post-hoc analysis. This system is both the backend API server (Node.js/Express/PostgreSQL/Drizzle ORM) and a modern React UI, bundling forensic guarantees directly into receipt management and export (README.md:3,9,60–61; replit.md:4,11–12,14–24).
+L446: L16: 
+L447: L17: **What it is NOT:**  
+L448: L18: - **Not a real-time monitoring, content moderation, or multi-operator platform:** It is not designed for live chat moderation, direct truth judgment, or multi-user concurrency at the enforcement level (replit.md:55).
+L449: L19: - **Not a database engine:** Instead, it relies on PostgreSQL for durable state.
+L450: L20: - **Not a data lake or generic file archival platform.**
+L451: L21: - **Not a replacement for WORM-compliant log systems, but can integrate via checkpoint anchoring (see below).**
+L452: L22: - **Not a deployment framework:** The system expects to be deployed behind a reverse proxy or PaaS (README.md:24; SECURITY.md:54).
+L453: L23: 
+L454: L24: ---
+L455: L25: 
+L456: L26: ## 2. **Purpose & Jobs-to-be-done**
+L457: L27: 
+L458: L28: - **Forensic Conversation Integrity:** Operators can guarantee, via public proofs, that a transcript or "receipt" has not been tampered with since its recording date (README.md:9; replit.md:4).
+L459: L29: - **Immutable Logging & Audit Trails:** Ensures all receipt actions (append, lock, kill switch, export, audit actions) are tracked in an append-only, hash-linked audit log, detecting insertions, deletions, reordering, and version tampering (SECURITY.md:8–10; STATE.md:165–169).
+L460: L30: - **Cryptographic Verification:** Verifies that every receipt chain and audit log entry is both hash-linked (SHA-256) and checkpoint signed (Ed25519), with optional external anchoring (replit.md:36–46; STATE.md:116–121).
+L461: L31: - **Forensic Export and Proof Packs:** Allows export of forensic packs (JSON) that can be offline verified and admitted as tamper-evident evidence (STATE.md:122–125; scripts/ci-forensic-gate.sh).
+L462: L32: - **Regulatory Alignment:** System features mapped to compliance goals (21 CFR, HIPAA, SOC2, etc.) (replit.md:50, STATE.md:137).
+L463: L33: - **Operator/Evidence Reliability:** Designed to provide demonstrable evidence for courts, regulators, or internal review.
+L464: L34: 
+L465: L35: ---
+L466: L36: 
+L467: L37: ## 3. **Capability Map**
+L468: L38: 
+L469: L39: | Capability             | Mechanism / Implementation | Evidence                                    |
+L470: L40: |------------------------|---------------------------|---------------------------------------------|
+L471: L41: | SHA-256 Hash Verification   | Canonicalized (c14n-v1) JSON hash | README.md:73–74; STATE.md:17,20             |
+L472: L42: | Ed25519 Signatures     | Checkpoint signing, chain   | STATE.md:18,116–121; replit.md:36           |
+L473: L43: | Immutable Storage      | Receipt lock, no mutation  | README.md:75; STATE.md:21,158–159           |
+L474: L44: | Kill Switch            | Irreversible flag, disables outputs | README.md:76; STATE.md:22,157                |
+L475: L45: | Audit Logs             | Append-only, hash-chained table | STATE.md:25–29,162                           |
+L476: L46: | Forensic Export/Import | export_forensic_pack, verify_forensic_pack scripts | STATE.md:123–126                              |
+L477: L47: | Forensic Sensors       | Interpreter, summarizer, claim extractor | README.md:78; STATE.md:80,85                  |
+L478: L48: | Policy Enforcement     | Zod schemas, request shape limits | SECURITY.md:20–23                            |
+L479: L49: | API Rate Limiting      | Per-IP, in-memory          | SECURITY.md:26–29; STATE.md:94; package.json:61 |
+L480: L50: | Key Rotation & Anchoring | Multi-key support, anchor backends | replit.md:43–47                            |
+L481: L51: | Secure API Structure   | API_KEY in x-api-key header; private/public endpoints | SECURITY.md:15–16,72                           |
+L482: L52: | Client Auth Isolation  | LLMs see only transcript content | SECURITY.md:39–40; STATE.md:160,20           |
+L483: L53: | UI Export & Compare    | Side-by-side comparison, JSONL/CSV export | README.md:143; replit.md:25,23                |
+L484: L54: | Structured Logging     | JSON logs, in-memory counters | STATE.md:106–107,184                          |
+L485: L55: | Health Checks          | /api/health, /api/ready    | STATE.md:37,43,100–101; docs/API_CONTRACTS.md:11,24 |
+L486: L56: 
+L487: L57: ---
+L488: L58: 
+L489: L59: ## 4. **Architecture Snapshot**
+L490: L60: 
+L491: L61: - **Frontend:** React (wouter router), Tailwind, shadcn/ui (README.md:59, client/src/App.tsx)
+L492: L62: - **Backend:** Node.js 20, Express, Drizzle ORM (README.md:60–61; package.json)
+L493: L63: - **Database:** PostgreSQL 14+ (README.md:24, .env.example:5)
+L494: L64: - **Cryptography:** Node.js crypto (SHA-256), Ed25519 (STATE.md:18,116)
+L495: L65: - **Session:** express-session, connect-pg-simple (package.json:51,57)
+L496: L66: - **Audit Trail:** Hash-linking via prev_hash and payload_v, audit_head singleton row (STATE.md:9,25–29,48,52; drizzle.config.ts:9)
+L497: L67: - **Forensic Export:** TypeScript scripts in `/scripts`, results in JSON proof packs (STATE.md:123–126)
+L498: L68: - **CI/CD:** GitHub Actions, drift guard scripts, reproducible verifier zips (replit.md:39–42,57)
+L499: L69: 
+L500: L70: ---
 
 --- FILE: .pytest_cache/README.md ---
 L1: # pytest cache directory #

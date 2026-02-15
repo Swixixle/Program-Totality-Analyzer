@@ -2,20 +2,20 @@
 
 **EvidencePack Version:** 1.0
 **Tool Version:** 0.1.0
-**Generated:** 2026-02-15T08:28:39.917837+00:00
+**Generated:** 2026-02-15T09:28:36.848729+00:00
 **Mode:** replit
-**Run ID:** 43f6636690d6
+**Run ID:** 2e2b0d0dad53
 
 ---
 
-## PTA Contract Audit — Run 43f6636690d6
+## PTA Contract Audit — Run 2e2b0d0dad53
 
 ### 1. System Snapshot
 
 | Measure | Value |
 |---------|-------|
-| Files Analyzed | 158 |
-| Files Seen (incl. skipped) | 184 |
+| Files Analyzed | 169 |
+| Files Seen (incl. skipped) | 195 |
 | Files Skipped | 26 |
 | Claims Extracted | 17 |
 | Claims with Deterministic Evidence | 15 |
@@ -160,7 +160,7 @@ Confidence: 50%
 | tls_termination | UNKNOWN | No matching infrastructure/config artifacts found in file index |
 | encryption_at_rest | UNKNOWN | No matching infrastructure/config artifacts found in file index |
 | secret_management | UNKNOWN | No matching infrastructure/config artifacts found in file index |
-| deployment_topology | UNKNOWN | No matching infrastructure/config artifacts found in file index |
+| deployment_topology | UNKNOWN | Candidate artifact files found (Dockerfile) but artifact detector not yet implemented — cannot read/hash/verify file content |
 | runtime_iam | UNKNOWN | No matching infrastructure/config artifacts found in file index |
 | logging_sink | UNKNOWN | No matching infrastructure/config artifacts found in file index |
 | monitoring_alerting | UNKNOWN | No matching infrastructure/config artifacts found in file index |

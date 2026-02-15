@@ -867,156 +867,172 @@ L11: export async function registerRoutes(
 L12:   httpServer: Server,
 L13:   app: Express
 L14: ): Promise<Server> {
-L15:   app.get(api.projects.list.path, async (_req, res) => {
-L16:     const projects = await storage.getProjects();
-L17:     res.json(projects);
+L15:   app.get("/health", async (_req, res) => {
+L16:     const dbOk = await storage.getProjects().then(() => true).catch(() => false);
+L17:     res.json({ ok: true, db: dbOk, uptime: process.uptime() });
 L18:   });
 L19: 
-L20:   app.post(api.projects.create.path, async (req, res) => {
-L21:     try {
-L22:       const input = api.projects.create.input.parse(req.body);
-L23:       const { mode, ...projectData } = input;
-L24:       const project = await storage.createProject(projectData, mode || "github");
-L25:       res.status(201).json(project);
-L26:     } catch (err) {
-L27:       if (err instanceof z.ZodError) {
-L28:         res.status(400).json({
-L29:           message: err.errors[0].message,
-L30:           field: err.errors[0].path.join('.'),
-L31:         });
-L32:         return;
-L33:       }
-L34:       res.status(500).json({ message: "Internal server error" });
-L35:     }
-L36:   });
-L37: 
-L38:   app.get(api.projects.get.path, async (req, res) => {
-L39:     const project = await storage.getProject(Number(req.params.id));
-L40:     if (!project) {
-L41:       return res.status(404).json({ message: 'Project not found' });
-L42:     }
-L43:     res.json(project);
-L44:   });
-L45: 
-L46:   app.get(api.projects.getAnalysis.path, async (req, res) => {
-L47:     const analysis = await storage.getAnalysisByProjectId(Number(req.params.id));
-L48:     if (!analysis) {
-L49:       return res.status(404).json({ message: 'Analysis not found' });
-L50:     }
-L51:     res.json(analysis);
-L52:   });
-L53: 
-L54:   app.post(api.projects.analyze.path, async (req, res) => {
-L55:     const projectId = Number(req.params.id);
-L56:     const project = await storage.getProject(projectId);
-L57: 
-L58:     if (!project) {
-L59:       return res.status(404).json({ message: "Project not found" });
-L60:     }
-L61: 
-L62:     runAnalysis(project.id, project.url, project.mode || "github");
-L63: 
-L64:     res.status(202).json({ message: "Analysis started" });
-L65:   });
+L20:   app.get(api.projects.list.path, async (_req, res) => {
+L21:     const projects = await storage.getProjects();
+L22:     res.json(projects);
+L23:   });
+L24: 
+L25:   app.post(api.projects.create.path, async (req, res) => {
+L26:     try {
+L27:       const input = api.projects.create.input.parse(req.body);
+L28:       const { mode, ...projectData } = input;
+L29:       const project = await storage.createProject(projectData, mode || "github");
+L30:       res.status(201).json(project);
+L31:     } catch (err) {
+L32:       if (err instanceof z.ZodError) {
+L33:         res.status(400).json({
+L34:           message: err.errors[0].message,
+L35:           field: err.errors[0].path.join('.'),
+L36:         });
+L37:         return;
+L38:       }
+L39:       res.status(500).json({ message: "Internal server error" });
+L40:     }
+L41:   });
+L42: 
+L43:   app.get(api.projects.get.path, async (req, res) => {
+L44:     const project = await storage.getProject(Number(req.params.id));
+L45:     if (!project) {
+L46:       return res.status(404).json({ message: 'Project not found' });
+L47:     }
+L48:     res.json(project);
+L49:   });
+L50: 
+L51:   app.get(api.projects.getAnalysis.path, async (req, res) => {
+L52:     const analysis = await storage.getAnalysisByProjectId(Number(req.params.id));
+L53:     if (!analysis) {
+L54:       return res.status(404).json({ message: 'Analysis not found' });
+L55:     }
+L56:     res.json(analysis);
+L57:   });
+L58: 
+L59:   app.post(api.projects.analyze.path, async (req, res) => {
+L60:     const projectId = Number(req.params.id);
+L61:     const project = await storage.getProject(projectId);
+L62: 
+L63:     if (!project) {
+L64:       return res.status(404).json({ message: "Project not found" });
+L65:     }
 L66: 
-L67:   app.post(api.projects.analyzeReplit.path, async (req, res) => {
-L68:     try {
-L69:       const workspaceRoot = process.cwd();
-L70:       const folderName = path.basename(workspaceRoot);
+L67:     runAnalysis(project.id, project.url, project.mode || "github");
+L68: 
+L69:     res.status(202).json({ message: "Analysis started" });
+L70:   });
 L71: 
-L72:       const project = await storage.createProject(
-L73:         { url: workspaceRoot, name: `Replit: ${folderName}` },
-L74:         "replit"
-L75:       );
+L72:   app.post(api.projects.analyzeReplit.path, async (req, res) => {
+L73:     try {
+L74:       const workspaceRoot = process.cwd();
+L75:       const folderName = path.basename(workspaceRoot);
 L76: 
-L77:       runAnalysis(project.id, workspaceRoot, "replit");
-L78: 
-L79:       res.status(201).json(project);
-L80:     } catch (err) {
-L81:       console.error("Error starting Replit analysis:", err);
-L82:       res.status(500).json({ message: "Failed to start Replit analysis" });
-L83:     }
-L84:   });
-L85: 
-L86:   app.get("/api/dossiers/lantern", (_req, res) => {
-L87:     const p = path.join(process.cwd(), "docs/dossiers/lantern_program_totality_dossier.md");
-L88:     if (!existsSync(p)) return res.status(404).json({ error: "Not found" });
-L89:     res.type("text/markdown").send(readFileSync(p, "utf8"));
-L90:   });
-L91: 
-L92:   return httpServer;
-L93: }
-L94: 
-L95: async function runAnalysis(projectId: number, source: string, mode: string) {
-L96:   console.log(`Starting analysis for project ${projectId} mode: ${mode} source: ${source}`);
-L97:   await storage.updateProjectStatus(projectId, "analyzing");
-L98: 
-L99:   const outputDir = path.resolve(process.cwd(), "out", String(projectId));
-L100:   await fs.mkdir(outputDir, { recursive: true });
-L101: 
-L102:   const analyzerPath = path.resolve(process.cwd(), "server/analyzer/analyzer_cli.py");
+L77:       const project = await storage.createProject(
+L78:         { url: workspaceRoot, name: `Replit: ${folderName}` },
+L79:         "replit"
+L80:       );
+L81: 
+L82:       runAnalysis(project.id, workspaceRoot, "replit");
+L83: 
+L84:       res.status(201).json(project);
+L85:     } catch (err) {
+L86:       console.error("Error starting Replit analysis:", err);
+L87:       res.status(500).json({ message: "Failed to start Replit analysis" });
+L88:     }
+L89:   });
+L90: 
+L91:   app.get("/api/dossiers/lantern", (_req, res) => {
+L92:     const p = path.join(process.cwd(), "docs/dossiers/lantern_program_totality_dossier.md");
+L93:     if (!existsSync(p)) return res.status(404).json({ error: "Not found" });
+L94:     res.type("text/markdown").send(readFileSync(p, "utf8"));
+L95:   });
+L96: 
+L97:   return httpServer;
+L98: }
+L99: 
+L100: async function runAnalysis(projectId: number, source: string, mode: string) {
+L101:   console.log(`Starting analysis for project ${projectId} mode: ${mode} source: ${source}`);
+L102:   await storage.updateProjectStatus(projectId, "analyzing");
 L103: 
-L104:   const args = [analyzerPath, "analyze"];
-L105: 
-L106:   if (mode === "replit") {
-L107:     args.push("--replit");
-L108:   } else {
-L109:     args.push(source);
-L110:   }
-L111: 
-L112:   args.push("--output-dir", outputDir);
-L113: 
-L114:   const pythonProcess = spawn("python3", args, {
-L115:     env: { ...process.env },
-L116:   });
-L117: 
-L118:   let stdout = "";
-L119:   let stderr = "";
+L104:   const outputDir = path.resolve(process.cwd(), "out", String(projectId));
+L105:   await fs.mkdir(outputDir, { recursive: true });
+L106: 
+L107:   const args = ["-m", "server.analyzer.analyzer_cli", "analyze"];
+L108: 
+L109:   if (mode === "replit") {
+L110:     args.push("--replit");
+L111:   } else {
+L112:     args.push(source);
+L113:   }
+L114: 
+L115:   args.push("--output-dir", outputDir);
+L116: 
+L117:   const pythonBin = existsSync(path.join(process.cwd(), ".pythonlibs/bin/python3"))
+L118:     ? path.join(process.cwd(), ".pythonlibs/bin/python3")
+L119:     : "python3";
 L120: 
-L121:   pythonProcess.stdout.on("data", (data) => {
-L122:     stdout += data.toString();
-L123:     console.log(`[Analyzer ${projectId}]: ${data}`);
+L121:   const pythonProcess = spawn(pythonBin, args, {
+L122:     cwd: process.cwd(),
+L123:     env: { ...process.env },
 L124:   });
 L125: 
-L126:   pythonProcess.stderr.on("data", (data) => {
-L127:     stderr += data.toString();
-L128:     console.error(`[Analyzer ${projectId} ERR]: ${data}`);
-L129:   });
-L130: 
-L131:   pythonProcess.on("close", async (code) => {
-L132:     console.log(`Analyzer process exited with code ${code}`);
+L126:   let stdout = "";
+L127:   let stderr = "";
+L128: 
+L129:   pythonProcess.stdout.on("data", (data) => {
+L130:     stdout += data.toString();
+L131:     console.log(`[Analyzer ${projectId}]: ${data}`);
+L132:   });
 L133: 
-L134:     if (code === 0) {
-L135:       try {
-L136:         const dossierPath = path.join(outputDir, "DOSSIER.md");
-L137:         const claimsPath = path.join(outputDir, "claims.json");
-L138:         const howtoPath = path.join(outputDir, "target_howto.json");
-L139:         const coveragePath = path.join(outputDir, "coverage.json");
-L140: 
-L141:         const dossier = await fs.readFile(dossierPath, "utf-8").catch(() => "");
-L142:         const claims = JSON.parse(await fs.readFile(claimsPath, "utf-8").catch(() => "{}"));
-L143:         const howto = JSON.parse(await fs.readFile(howtoPath, "utf-8").catch(() => "{}"));
-L144:         const coverage = JSON.parse(await fs.readFile(coveragePath, "utf-8").catch(() => "{}"));
-L145: 
-L146:         await storage.createAnalysis({
-L147:           projectId,
-L148:           dossier,
-L149:           claims,
-L150:           howto,
-L151:           coverage,
-L152:           unknowns: howto.unknowns || [],
-L153:         });
-L154: 
-L155:         await storage.updateProjectStatus(projectId, "completed");
-L156:       } catch (err) {
-L157:         console.error("Error saving analysis results:", err);
-L158:         await storage.updateProjectStatus(projectId, "failed");
-L159:       }
-L160:     } else {
-L161:       await storage.updateProjectStatus(projectId, "failed");
-L162:     }
-L163:   });
-L164: }
+L134:   pythonProcess.stderr.on("data", (data) => {
+L135:     stderr += data.toString();
+L136:     console.error(`[Analyzer ${projectId} ERR]: ${data}`);
+L137:   });
+L138: 
+L139:   pythonProcess.on("close", async (code) => {
+L140:     console.log(`Analyzer process exited with code ${code}`);
+L141: 
+L142:     if (code === 0) {
+L143:       try {
+L144:         const dossierPath = path.join(outputDir, "DOSSIER.md");
+L145:         const claimsPath = path.join(outputDir, "claims.json");
+L146:         const howtoPath = path.join(outputDir, "target_howto.json");
+L147:         const operatePath = path.join(outputDir, "operate.json");
+L148:         const coveragePath = path.join(outputDir, "coverage.json");
+L149: 
+L150:         const dossier = await fs.readFile(dossierPath, "utf-8").catch(() => "");
+L151:         const claims = JSON.parse(await fs.readFile(claimsPath, "utf-8").catch(() => "{}"));
+L152:         const howto = JSON.parse(await fs.readFile(howtoPath, "utf-8").catch(() => "{}"));
+L153:         let operate: any = null;
+L154:         try {
+L155:           operate = JSON.parse(await fs.readFile(operatePath, "utf-8"));
+L156:         } catch {
+L157:           operate = null;
+L158:         }
+L159:         const coverage = JSON.parse(await fs.readFile(coveragePath, "utf-8").catch(() => "{}"));
+L160: 
+L161:         await storage.createAnalysis({
+L162:           projectId,
+L163:           dossier,
+L164:           claims,
+L165:           howto,
+L166:           operate,
+L167:           coverage,
+L168:           unknowns: howto.unknowns || [],
+L169:         });
+L170: 
+L171:         await storage.updateProjectStatus(projectId, "completed");
+L172:       } catch (err) {
+L173:         console.error("Error saving analysis results:", err);
+L174:         await storage.updateProjectStatus(projectId, "failed");
+L175:       }
+L176:     } else {
+L177:       await storage.updateProjectStatus(projectId, "failed");
+L178:     }
+L179:   });
+L180: }
 
 --- FILE: server/replit_integrations/audio/index.ts ---
 L1: export { registerAudioRoutes } from "./routes";

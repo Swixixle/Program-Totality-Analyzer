@@ -104,9 +104,7 @@ async function runAnalysis(projectId: number, source: string, mode: string) {
   const outputDir = path.resolve(process.cwd(), "out", String(projectId));
   await fs.mkdir(outputDir, { recursive: true });
 
-  const analyzerPath = path.resolve(process.cwd(), "server/analyzer/analyzer_cli.py");
-
-  const args = [analyzerPath, "analyze"];
+  const args = ["-m", "server.analyzer.analyzer_cli", "analyze"];
 
   if (mode === "replit") {
     args.push("--replit");
@@ -116,7 +114,12 @@ async function runAnalysis(projectId: number, source: string, mode: string) {
 
   args.push("--output-dir", outputDir);
 
-  const pythonProcess = spawn("python3", args, {
+  const pythonBin = existsSync(path.join(process.cwd(), ".pythonlibs/bin/python3"))
+    ? path.join(process.cwd(), ".pythonlibs/bin/python3")
+    : "python3";
+
+  const pythonProcess = spawn(pythonBin, args, {
+    cwd: process.cwd(),
     env: { ...process.env },
   });
 

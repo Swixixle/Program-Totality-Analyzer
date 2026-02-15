@@ -1,9 +1,9 @@
 {
   "mode_requested": "replit",
   "mode": "replit",
-  "run_id": "8d5768823f96",
-  "scanned": 141,
-  "skipped": 22,
+  "run_id": "9c854166a5b8",
+  "scanned": 170,
+  "skipped": 26,
   "replit_detected": true,
   "replit_detection_evidence": [
     {
@@ -27,7 +27,7 @@
     "excluded_paths": [
       "server/analyzer"
     ],
-    "excluded_file_count": 22,
+    "excluded_file_count": 26,
     "reason": "Analyzer source files excluded to prevent false-positive pattern matches"
   }
 }
