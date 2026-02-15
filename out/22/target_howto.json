@@ -1,0 +1,492 @@
+{
+  "prereqs": [
+    "Node.js 20+ (for server/client, builds, and dev server) (replit.md:79, .replit:1)",
+    "npm (JS package manager, for install/build commands) (replit.md:79, .replit:1)",
+    "PostgreSQL 14+ (for backend database; must be running and accessible) (replit.md:80, .replit:1)",
+    "jq (for ops/forensic scripts if used) (.replit:7, replit.md:81)",
+    "unzip (for ops/forensic scripts if used) (.replit:7, replit.md:81)",
+    "Python 3.11+ (for analyzer CLI tools/scripts) (.replit:1, .replit:7, replit.md:81)",
+    "pip (for python package installation) (replit.md:81)",
+    "TypeScript (+tsc/tsx for development) (replit.md:82, package.json:7, replit.md:82)",
+    "drizzle-kit (for DB schema sync/migrations) (replit.md:82, package.json:11)"
+  ],
+  "install_steps": [
+    {
+      "step": "Clone repository",
+      "command": "git clone <repo>",
+      "evidence": {
+        "path": "docs/dossiers/lantern_program_totality_dossier.md",
+        "line_start": 86,
+        "line_end": 86,
+        "snippet_hash": "af4db2203afc",
+        "display": "docs/dossiers/lantern_program_totality_dossier.md:86"
+      }
+    },
+    {
+      "step": "Install Node.js dependencies",
+      "command": "npm install",
+      "evidence": {
+        "path": "docs/dossiers/lantern_program_totality_dossier.md",
+        "line_start": 88,
+        "line_end": 88,
+        "snippet_hash": "4be7c6195f60",
+        "display": "docs/dossiers/lantern_program_totality_dossier.md:88"
+      }
+    },
+    {
+      "step": "Copy .env example to working config",
+      "command": "cp .env.example .env",
+      "evidence": {
+        "path": "docs/dossiers/lantern_program_totality_dossier.md",
+        "line_start": 89,
+        "line_end": 89,
+        "snippet_hash": "232f2a0c483a",
+        "display": "docs/dossiers/lantern_program_totality_dossier.md:89"
+      }
+    },
+    {
+      "step": "Install Python package (analyzer CLI)",
+      "command": "pip install -e .",
+      "evidence": {
+        "path": "README.md",
+        "line_start": 25,
+        "line_end": 25,
+        "snippet_hash": "92755120ac2c",
+        "display": "README.md:25"
+      }
+    }
+  ],
+  "config": [
+    {
+      "name": "DATABASE_URL",
+      "purpose": "PostgreSQL connection string, required for DB ORM (Drizzle)",
+      "evidence": {
+        "path": "drizzle.config.ts",
+        "line_start": 3,
+        "line_end": 3,
+        "snippet_hash": "a19790628fbe",
+        "display": "drizzle.config.ts:3"
+      }
+    },
+    {
+      "name": "AI_INTEGRATIONS_OPENAI_API_KEY",
+      "purpose": "OpenAI API key required for LLM-powered analysis and integrations",
+      "evidence": {
+        "path": "server/replit_integrations/audio/client.ts",
+        "line_start": 10,
+        "line_end": 10,
+        "snippet_hash": "05da5f1b1281",
+        "display": "server/replit_integrations/audio/client.ts:10"
+      }
+    },
+    {
+      "name": "AI_INTEGRATIONS_OPENAI_BASE_URL",
+      "purpose": "OpenAI API base URL for LLM calls",
+      "evidence": {
+        "path": "server/replit_integrations/audio/client.ts",
+        "line_start": 11,
+        "line_end": 11,
+        "snippet_hash": "1f70e6a77d42",
+        "display": "server/replit_integrations/audio/client.ts:11"
+      }
+    },
+    {
+      "name": "API_KEY",
+      "purpose": "Authentication key required for private endpoints",
+      "evidence": {
+        "path": "docs/dossiers/lantern_program_totality_dossier.md",
+        "line_start": 100,
+        "line_end": 100,
+        "snippet_hash": "24b9d5caf118",
+        "display": "docs/dossiers/lantern_program_totality_dossier.md:100"
+      }
+    },
+    {
+      "name": "SESSION_SECRET",
+      "purpose": "Secret for express-session store",
+      "evidence": {
+        "path": "docs/dossiers/lantern_program_totality_dossier.md",
+        "line_start": 101,
+        "line_end": 101,
+        "snippet_hash": "62fec4db8fd5",
+        "display": "docs/dossiers/lantern_program_totality_dossier.md:101"
+      }
+    },
+    {
+      "name": "NODE_ENV",
+      "purpose": "Development/production mode toggle",
+      "evidence": {
+        "path": "docs/dossiers/lantern_program_totality_dossier.md",
+        "line_start": 102,
+        "line_end": 102,
+        "snippet_hash": "27cb50caf049",
+        "display": "docs/dossiers/lantern_program_totality_dossier.md:102"
+      }
+    },
+    {
+      "name": "PORT",
+      "purpose": "Bind address (defaults to 5000 on Replit; can be set for custom deployment)",
+      "evidence": {
+        "path": ".replit",
+        "line_start": 14,
+        "line_end": 14,
+        "snippet_hash": "2cb616fc39c1",
+        "display": ".replit:14"
+      }
+    }
+  ],
+  "run_dev": [
+    {
+      "step": "Run server in development mode",
+      "command": "npm run dev",
+      "evidence": {
+        "path": "package.json",
+        "line_start": 7,
+        "line_end": 7,
+        "snippet_hash": "fd240a9dc053",
+        "display": "package.json:7"
+      }
+    }
+  ],
+  "run_prod": [
+    {
+      "step": "Run build script (compile frontend and backend)",
+      "command": "npm run build",
+      "evidence": {
+        "path": "package.json",
+        "line_start": 8,
+        "line_end": 8,
+        "snippet_hash": "79d8bdf275d6",
+        "display": "package.json:8"
+      }
+    },
+    {
+      "step": "Start application in production mode",
+      "command": "npm run start",
+      "evidence": {
+        "path": "package.json",
+        "line_start": 9,
+        "line_end": 9,
+        "snippet_hash": "020435ddf436",
+        "display": "package.json:9"
+      }
+    }
+  ],
+  "usage_examples": [
+    {
+      "description": "Check server health endpoint",
+      "command": "curl http://localhost:5000/api/health"
+    },
+    {
+      "description": "Sync DB schema to Postgres",
+      "command": "npm run db:push"
+    },
+    {
+      "description": "Trigger analysis on a Replit workspace (CLI analyzer)",
+      "command": "pta analyze --replit -o ./output"
+    },
+    {
+      "description": "Trigger analysis (deterministic, no LLM)",
+      "command": "pta analyze --replit --no-llm -o ./output"
+    }
+  ],
+  "verification_steps": [
+    {
+      "step": "Check schema migration applied properly",
+      "command": "npm run db:push",
+      "evidence": {
+        "path": "docs/dossiers/lantern_program_totality_dossier.md",
+        "line_start": 109,
+        "line_end": 109,
+        "snippet_hash": "1708a1dd7c72",
+        "display": "docs/dossiers/lantern_program_totality_dossier.md:109"
+      }
+    },
+    {
+      "step": "Check /api/health endpoint responds",
+      "command": "curl http://localhost:5000/api/health",
+      "evidence": {
+        "path": "docs/dossiers/lantern_program_totality_dossier.md",
+        "line_start": 128,
+        "line_end": 128,
+        "snippet_hash": "4994405dd75c",
+        "display": "docs/dossiers/lantern_program_totality_dossier.md:128"
+      }
+    },
+    {
+      "step": "Check audit chain verification",
+      "command": "curl -H \"x-api-key: <API_KEY>\" http://localhost:5000/api/audit/verify",
+      "evidence": {
+        "path": "docs/dossiers/lantern_program_totality_dossier.md",
+        "line_start": 140,
+        "line_end": 140,
+        "snippet_hash": "66a8604b5116",
+        "display": "docs/dossiers/lantern_program_totality_dossier.md:140"
+      }
+    },
+    {
+      "step": "Export forensic pack and verify signature",
+      "command": "npx tsx scripts/export_forensic_pack.ts --output <pack.json>",
+      "evidence": {
+        "path": "docs/dossiers/lantern_program_totality_dossier.md",
+        "line_start": 142,
+        "line_end": 142,
+        "snippet_hash": "1694391fc721",
+        "display": "docs/dossiers/lantern_program_totality_dossier.md:142"
+      }
+    },
+    {
+      "step": "Offline verify forensic pack",
+      "command": "npx tsx scripts/verify_forensic_pack.ts <pack.json>",
+      "evidence": {
+        "path": "docs/dossiers/lantern_program_totality_dossier.md",
+        "line_start": 144,
+        "line_end": 144,
+        "snippet_hash": "1d2e07b09d7a",
+        "display": "docs/dossiers/lantern_program_totality_dossier.md:144"
+      }
+    }
+  ],
+  "common_failures": [
+    {
+      "symptom": "401 Unauthorized",
+      "cause": "Wrong/missing API_KEY",
+      "fix": "Set correct x-api-key header, check .env",
+      "evidence": {
+        "path": "docs/dossiers/lantern_program_totality_dossier.md",
+        "line_start": 151,
+        "line_end": 151,
+        "snippet_hash": "ab249b766ec2",
+        "display": "docs/dossiers/lantern_program_totality_dossier.md:151"
+      }
+    },
+    {
+      "symptom": "DB connection errors/crash",
+      "cause": "Bad DATABASE_URL, DB offline/wrong",
+      "fix": "Check credentials, service, version",
+      "evidence": {
+        "path": "drizzle.config.ts",
+        "line_start": 3,
+        "line_end": 3,
+        "snippet_hash": "a19790628fbe",
+        "display": "drizzle.config.ts:3"
+      }
+    },
+    {
+      "symptom": "Server not running on port",
+      "cause": "App not started, port conflict",
+      "fix": "Check logs, ensure PORT=5000, check if in use",
+      "evidence": {
+        "path": ".replit",
+        "line_start": 10,
+        "line_end": 10,
+        "snippet_hash": "47abfb4488e8",
+        "display": ".replit:10"
+      }
+    }
+  ],
+  "unknowns": [
+    {
+      "what_is_missing": "Production deployment instructions outside Replit (Docker/systemd/PM2 specifics)",
+      "why_it_matters": "Operators may need non-Replit/manual deployment or orchestration steps.",
+      "what_evidence_needed": "Explicit Dockerfile instructions, systemd service example, or reverse proxy reference."
+    },
+    {
+      "what_is_missing": "Database initialization scripts beyond drizzle-kit migration",
+      "why_it_matters": "May require custom roles/users/state for secure real-world deployment",
+      "what_evidence_needed": "Database schema files, user/role guides, or DB bootstrap scripts."
+    },
+    {
+      "what_is_missing": "Log file paths or log viewing instructions",
+      "why_it_matters": "Operators need to know how to access logs for debugging/validation.",
+      "what_evidence_needed": "Sample log output or explicit console/file log location in docs/source."
+    },
+    {
+      "what_is_missing": "Instructions for standalone (split) front-end hosting commands",
+      "why_it_matters": "Someone may want to host the React SPA separately from backend.",
+      "what_evidence_needed": "Step-by-step guide or script for building/serving client in production."
+    },
+    {
+      "what_is_missing": "Webhooks or outbound events config/docs",
+      "why_it_matters": "Integration with external alerting/SIEM platforms may be required.",
+      "what_evidence_needed": "API references or config for outgoing webhooks in code/docs."
+    }
+  ],
+  "missing_evidence_requests": [
+    "Full production deployment (Docker/systemd/PM2) process details could not be verified.",
+    "No SQL/user initialization scripts for the database could be found.",
+    "No guidance or evidence for log viewing/rotation available.",
+    "No explicit instructions for building/serving frontend standalone.",
+    "No documentation or evidence for outbound webhooks."
+  ],
+  "replit_execution_profile": {
+    "run_command": "npm run dev (.replit:2)",
+    "language": "nodejs",
+    "port_binding": {
+      "port": null,
+      "binds_all_interfaces": true,
+      "uses_env_port": true,
+      "evidence": [
+        {
+          "path": "server/index.ts",
+          "line_start": 92,
+          "line_end": 92,
+          "snippet_hash": "75d345a78f84",
+          "display": "server/index.ts:92"
+        },
+        {
+          "path": "server/index.ts",
+          "line_start": 96,
+          "line_end": 96,
+          "snippet_hash": "9b7206f3d09a",
+          "display": "server/index.ts:96"
+        }
+      ]
+    },
+    "required_secrets": [
+      {
+        "name": "DATABASE_URL",
+        "referenced_in": [
+          {
+            "path": "drizzle.config.ts",
+            "line_start": 3,
+            "line_end": 3,
+            "snippet_hash": "a19790628fbe",
+            "display": "drizzle.config.ts:3"
+          },
+          {
+            "path": "drizzle.config.ts",
+            "line_start": 12,
+            "line_end": 12,
+            "snippet_hash": "1005be19f14a",
+            "display": "drizzle.config.ts:12"
+          },
+          {
+            "path": "server/db.ts",
+            "line_start": 7,
+            "line_end": 7,
+            "snippet_hash": "a19790628fbe",
+            "display": "server/db.ts:7"
+          },
+          {
+            "path": "server/db.ts",
+            "line_start": 13,
+            "line_end": 13,
+            "snippet_hash": "111f33de9945",
+            "display": "server/db.ts:13"
+          }
+        ]
+      },
+      {
+        "name": "AI_INTEGRATIONS_OPENAI_API_KEY",
+        "referenced_in": [
+          {
+            "path": "server/replit_integrations/audio/client.ts",
+            "line_start": 10,
+            "line_end": 10,
+            "snippet_hash": "05da5f1b1281",
+            "display": "server/replit_integrations/audio/client.ts:10"
+          },
+          {
+            "path": "server/replit_integrations/chat/routes.ts",
+            "line_start": 6,
+            "line_end": 6,
+            "snippet_hash": "05da5f1b1281",
+            "display": "server/replit_integrations/chat/routes.ts:6"
+          },
+          {
+            "path": "server/replit_integrations/image/client.ts",
+            "line_start": 6,
+            "line_end": 6,
+            "snippet_hash": "05da5f1b1281",
+            "display": "server/replit_integrations/image/client.ts:6"
+          }
+        ]
+      },
+      {
+        "name": "AI_INTEGRATIONS_OPENAI_BASE_URL",
+        "referenced_in": [
+          {
+            "path": "server/replit_integrations/audio/client.ts",
+            "line_start": 11,
+            "line_end": 11,
+            "snippet_hash": "1f70e6a77d42",
+            "display": "server/replit_integrations/audio/client.ts:11"
+          },
+          {
+            "path": "server/replit_integrations/chat/routes.ts",
+            "line_start": 7,
+            "line_end": 7,
+            "snippet_hash": "1f70e6a77d42",
+            "display": "server/replit_integrations/chat/routes.ts:7"
+          },
+          {
+            "path": "server/replit_integrations/image/client.ts",
+            "line_start": 7,
+            "line_end": 7,
+            "snippet_hash": "1f70e6a77d42",
+            "display": "server/replit_integrations/image/client.ts:7"
+          }
+        ]
+      }
+    ],
+    "external_apis": [
+      {
+        "api": "OpenAI",
+        "evidence_files": [
+          "server/replit_integrations/audio/client.ts:1",
+          "server/replit_integrations/audio/routes.ts:3",
+          "server/replit_integrations/chat/routes.ts:2",
+          "server/replit_integrations/image/routes.ts:2",
+          "server/replit_integrations/image/client.ts:2"
+        ]
+      }
+    ],
+    "deployment_assumptions": [
+      "Binds to 0.0.0.0 (all interfaces)",
+      "Requires 3 secret(s): DATABASE_URL, AI_INTEGRATIONS_OPENAI_API_KEY, AI_INTEGRATIONS_OPENAI_BASE_URL"
+    ],
+    "observability": {
+      "logging": true,
+      "health_endpoint": true,
+      "evidence": [
+        {
+          "path": "script/build.ts",
+          "line_start": 38,
+          "line_end": 38,
+          "snippet_hash": "2f74cc3fdab1",
+          "display": "script/build.ts:38"
+        },
+        {
+          "path": "server/routes.ts",
+          "line_start": 15,
+          "line_end": 15,
+          "snippet_hash": "f7ba68760271",
+          "display": "server/routes.ts:15"
+        },
+        {
+          "path": "shared/schema.ts",
+          "line_start": 10,
+          "line_end": 10,
+          "snippet_hash": "6ccc8e5d45a7",
+          "display": "shared/schema.ts:10"
+        }
+      ]
+    },
+    "limitations": [
+      "Production deployment automation outside Replit could not be determined from current evidence.",
+      "No log view/tail/rotate evidence found.",
+      "No explicit frontend SPA hosting instructions found.",
+      "No outbound integration/webhook config found."
+    ]
+  },
+  "completeness": {
+    "score": 85,
+    "max": 100,
+    "missing": [],
+    "deductions": [
+      "-15 for 5 unknown(s)"
+    ],
+    "notes": "-15 for 5 unknown(s); 5 unknown(s) reported"
+  }
+}

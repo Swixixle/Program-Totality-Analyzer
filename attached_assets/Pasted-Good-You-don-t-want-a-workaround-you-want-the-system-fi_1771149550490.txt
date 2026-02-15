@@ -1,0 +1,220 @@
+Good. You don’t want a workaround — you want the **system fixed so this never happens again**.
+
+Here are exact instructions you can give Replit Agents (or Copilot) to permanently fix the analyzer execution + stale artifact issue.
+
+---
+
+# 🎯 Objective
+
+Make `runAnalysis()`:
+
+1. Deterministic
+2. Immune to stale artifacts
+3. Immune to Python path drift
+4. Immune to partial-write masquerade
+5. Fully error-transparent
+
+---
+
+# 🛠 FIX 1 — Hard Reset Output Directory (CRITICAL)
+
+### Problem
+
+Old `out/<id>` folders can partially exist, causing:
+
+* `operate.json` missing
+* UI showing "failed"
+* artifacts masquerading as new runs
+
+### Fix
+
+In `server/routes.ts`, inside `runAnalysis()`:
+
+### 🔴 Replace this:
+
+```ts
+const outputDir = path.resolve(process.cwd(), "out", String(projectId));
+await fs.mkdir(outputDir, { recursive: true });
+```
+
+### ✅ With this:
+
+```ts
+const outputDir = path.resolve(process.cwd(), "out", String(projectId));
+
+// HARD RESET: prevent stale artifacts
+await fs.rm(outputDir, { recursive: true, force: true });
+await fs.mkdir(outputDir, { recursive: true });
+```
+
+---
+
+# 🛠 FIX 2 — Force Correct Python Binary
+
+### Problem
+
+System Python (3.12) conflicts with `.pythonlibs` (3.11).
+
+### Fix
+
+Lock execution to `.pythonlibs/bin/python3`.
+
+### 🔴 Replace:
+
+```ts
+const pythonBin = existsSync(path.join(process.cwd(), ".pythonlibs/bin/python3"))
+  ? path.join(process.cwd(), ".pythonlibs/bin/python3")
+  : "python3";
+```
+
+### ✅ With:
+
+```ts
+const pythonBin = path.join(process.cwd(), ".pythonlibs/bin/python3");
+
+if (!existsSync(pythonBin)) {
+  console.error("FATAL: Expected Python 3.11 in .pythonlibs but not found");
+  await storage.updateProjectStatus(projectId, "failed");
+  return;
+}
+```
+
+Do NOT allow fallback to system python.
+
+---
+
+# 🛠 FIX 3 — Add Spawn Error Handler (You Currently Don’t Have One)
+
+Right after:
+
+```ts
+const pythonProcess = spawn(pythonBin, args, {
+```
+
+### ADD:
+
+```ts
+pythonProcess.on("error", async (err) => {
+  console.error("Spawn error:", err);
+  await storage.updateProjectStatus(projectId, "failed");
+});
+```
+
+Without this, silent spawn failures look like UI bugs.
+
+---
+
+# 🛠 FIX 4 — Validate Required Artifacts Before Saving
+
+Right now you trust files exist.
+
+That’s dangerous.
+
+Inside:
+
+```ts
+if (code === 0) {
+  try {
+```
+
+Before reading files, add:
+
+```ts
+if (!existsSync(path.join(outputDir, "operate.json"))) {
+  console.error("Missing operate.json — marking failed");
+  await storage.updateProjectStatus(projectId, "failed");
+  return;
+}
+```
+
+You can also validate:
+
+* claims.json
+* DOSSIER.md
+* coverage.json
+
+---
+
+# 🛠 FIX 5 — Log Full Analyzer Command
+
+Before spawn, add:
+
+```ts
+console.log("Executing analyzer:", pythonBin, args.join(" "));
+```
+
+This makes debugging reproducible.
+
+---
+
+# 🛠 FIX 6 — Add Timeout Guard (Optional but Professional)
+
+Prevent infinite analyze hangs:
+
+```ts
+const timeout = setTimeout(async () => {
+  console.error("Analyzer timeout");
+  pythonProcess.kill("SIGKILL");
+  await storage.updateProjectStatus(projectId, "failed");
+}, 10 * 60 * 1000); // 10 minutes
+```
+
+Then inside `close`:
+
+```ts
+clearTimeout(timeout);
+```
+
+---
+
+# 🧠 What This Achieves
+
+After these changes:
+
+* No stale out/<id> corruption
+* No Python version drift
+* No silent spawn failure
+* No partial artifact masquerade
+* No hanging analyze jobs
+* Deterministic failure semantics
+
+Your system becomes operationally correct.
+
+---
+
+# 📌 Optional Hardening (Advanced)
+
+If you want to go one level deeper:
+
+Instead of writing directly to `out/<id>`, write to:
+
+```
+out/<id>_tmp/
+```
+
+Then after successful completion:
+
+```
+fs.rename(tmpDir, outputDir)
+```
+
+This guarantees atomic publish semantics.
+
+---
+
+# 💬 Give This To Agents As
+
+> Implement deterministic analyzer execution guardrails:
+>
+> * Hard reset output directory
+> * Lock Python to .pythonlibs/bin/python3
+> * Add spawn error handler
+> * Validate operate.json existence before DB save
+> * Log full analyzer command
+> * Add 10-minute timeout kill guard
+
+---
+
+If you apply these, your analyzer will stop “mysteriously failing” and start behaving like a production service.
+
+If you'd like, I can also give you the exact fully patched `runAnalysis()` block ready to paste.

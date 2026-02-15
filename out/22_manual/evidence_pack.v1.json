@@ -1,0 +1,864 @@
+{
+  "evidence_pack_version": "1.0",
+  "tool_version": "0.1.0",
+  "generated_at": "2026-02-15T09:51:13.461602+00:00",
+  "mode": "replit",
+  "run_id": "0fcc018c3f7e",
+  "verified": {
+    "Architecture Snapshot": [
+      {
+        "id": "claim_001",
+        "statement": "The frontend is a React 18 Single Page Application (SPA) using Wouter, React Query, shadcn/ui, and Tailwind, built with Vite.",
+        "section": "Architecture Snapshot",
+        "evidence": [
+          {
+            "path": "replit.md",
+            "line_start": 21,
+            "line_end": 31,
+            "display": "replit.md:21\u201331",
+            "snippet_hash": "781499375745",
+            "snippet_hash_verified": true
+          },
+          {
+            "path": "vite.config.ts",
+            "line_start": 1,
+            "line_end": 40,
+            "display": "vite.config.ts:1\u201340",
+            "snippet_hash": "96baf42b9597",
+            "snippet_hash_verified": true
+          },
+          {
+            "path": "tailwind.config.ts",
+            "line_start": 1,
+            "line_end": 108,
+            "display": "tailwind.config.ts:1\u2013108",
+            "snippet_hash": "31d5ee63d324",
+            "snippet_hash_verified": true
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "id": "claim_002",
+        "statement": "The backend is implemented in Express version 5 on Node.js 20, exposing a REST API and also running a Python analyzer as a child process.",
+        "section": "Architecture Snapshot",
+        "evidence": [
+          {
+            "path": "replit.md",
+            "line_start": 39,
+            "line_end": 53,
+            "display": "replit.md:39\u201353",
+            "snippet_hash": "3e4f72540881",
+            "snippet_hash_verified": true
+          },
+          {
+            "path": "server/index.ts",
+            "line_start": 1,
+            "line_end": 1,
+            "display": "server/index.ts:1",
+            "snippet_hash": "e0f9e463cd36",
+            "snippet_hash_verified": true
+          },
+          {
+            "path": "package.json",
+            "line_start": 52,
+            "line_end": 52,
+            "display": "package.json:52",
+            "snippet_hash": "e049b398be36",
+            "snippet_hash_verified": true
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "id": "claim_003",
+        "statement": "The system uses PostgreSQL 14 or higher as its database, accessed using Drizzle ORM and Zod schemas, with configuration via the environment variable DATABASE_URL.",
+        "section": "Architecture Snapshot",
+        "evidence": [
+          {
+            "path": "drizzle.config.ts",
+            "line_start": 3,
+            "line_end": 14,
+            "display": "drizzle.config.ts:3\u201314",
+            "snippet_hash": "a19790628fbe",
+            "snippet_hash_verified": true
+          },
+          {
+            "path": "replit.md",
+            "line_start": 63,
+            "line_end": 72,
+            "display": "replit.md:63\u201372",
+            "snippet_hash": "e0a878245f72",
+            "snippet_hash_verified": true
+          },
+          {
+            "path": "server/db.ts",
+            "line_start": 7,
+            "line_end": 7,
+            "display": "server/db.ts:7",
+            "snippet_hash": "a19790628fbe",
+            "snippet_hash_verified": true
+          }
+        ],
+        "confidence": 1.0
+      },
+      {
+        "id": "claim_004",
+        "statement": "The system includes a Python 3.11+ analyzer as a CLI tool, implemented with Typer, openai, and rich; LLM integration is optional.",
+        "section": "Architecture Snapshot",
+        "evidence": [
+          {
+            "path": "pyproject.toml",
+            "line_start": 5,
+            "line_end": 13,
+            "display": "pyproject.toml:5\u201313",
+            "snippet_hash": "aa7c5d87614c",
+            "snippet_hash_verified": true
+          },
+          {
+            "path": "README.md",
+            "line_start": 37,
+            "line_end": 37,
+            "display": "README.md:37",
+            "snippet_hash": "b0533af62fac",
+            "snippet_hash_verified": true
+          },
+          {
+            "path": "replit.md",
+            "line_start": 54,
+            "line_end": 61,
+            "display": "replit.md:54\u201361",
+            "snippet_hash": "ffe1d23f37ee",
+            "snippet_hash_verified": true
+          }
+        ],
+        "confidence": 1.0
+      }
+    ],
+    "How to Use the Target System (Operator Manual)": [
+      {
+        "id": "claim_005",
+        "statement": "Node.js (version 20 or higher) and npm must be installed to operate the system.",
+        "section": "How to Use the Target System (Operator Manual)",
+        "evidence": [
+          {
+            "path": ".replit",
+            "line_start": 1,
+            "line_end": 1,
+            "display": ".replit:1",
+            "snippet_hash": "a5be1ce88381",
+            "snippet_hash_verified": true
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "id": "claim_006",
+        "statement": "Python 3.11 or higher must be installed for the analyzer component.",
+        "section": "How to Use the Target System (Operator Manual)",
+        "evidence": [
+          {
+            "path": ".replit",
+            "line_start": 1,
+            "line_end": 1,
+            "display": ".replit:1",
+            "snippet_hash": "a5be1ce88381",
+            "snippet_hash_verified": true
+          },
+          {
+            "path": "pyproject.toml",
+            "line_start": 5,
+            "line_end": 5,
+            "display": "pyproject.toml:5",
+            "snippet_hash": "aa7c5d87614c",
+            "snippet_hash_verified": true
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "id": "claim_007",
+        "statement": "PostgreSQL 14 or higher is required and must be running and accessible, configured via DATABASE_URL.",
+        "section": "How to Use the Target System (Operator Manual)",
+        "evidence": [
+          {
+            "path": ".replit",
+            "line_start": 1,
+            "line_end": 1,
+            "display": ".replit:1",
+            "snippet_hash": "a5be1ce88381",
+            "snippet_hash_verified": true
+          },
+          {
+            "path": "drizzle.config.ts",
+            "line_start": 3,
+            "line_end": 3,
+            "display": "drizzle.config.ts:3",
+            "snippet_hash": "a19790628fbe",
+            "snippet_hash_verified": true
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "id": "claim_008",
+        "statement": "The system's database schema is synchronized using `npm run db:push`, which runs drizzle-kit push.",
+        "section": "How to Use the Target System (Operator Manual)",
+        "evidence": [
+          {
+            "path": "package.json",
+            "line_start": 11,
+            "line_end": 11,
+            "display": "package.json:11",
+            "snippet_hash": "3a8be55004c2",
+            "snippet_hash_verified": true
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "id": "claim_009",
+        "statement": "In development, the application is started by running `npm run dev`, exposing the app on http://localhost:5000.",
+        "section": "How to Use the Target System (Operator Manual)",
+        "evidence": [
+          {
+            "path": ".replit",
+            "line_start": 2,
+            "line_end": 2,
+            "display": ".replit:2",
+            "snippet_hash": "96fa2e5505e4",
+            "snippet_hash_verified": true
+          },
+          {
+            "path": "server/index.ts",
+            "line_start": 92,
+            "line_end": 96,
+            "display": "server/index.ts:92\u201396",
+            "snippet_hash": "75d345a78f84",
+            "snippet_hash_verified": true
+          }
+        ],
+        "confidence": 0.92
+      },
+      {
+        "id": "claim_010",
+        "statement": "In production, the app is built with `npm run build` and started with `npm run start`.",
+        "section": "How to Use the Target System (Operator Manual)",
+        "evidence": [
+          {
+            "path": "package.json",
+            "line_start": 8,
+            "line_end": 9,
+            "display": "package.json:8\u20139",
+            "snippet_hash": "79d8bdf275d6",
+            "snippet_hash_verified": true
+          }
+        ],
+        "confidence": 0.9
+      }
+    ],
+    "Integration Surface": [
+      {
+        "id": "claim_011",
+        "statement": "All API endpoints use JSON, including forensic pack export.",
+        "section": "Integration Surface",
+        "evidence": [
+          {
+            "path": "README.md",
+            "line_start": 19,
+            "line_end": 19,
+            "display": "README.md:19",
+            "snippet_hash": "cd74ab1e2399",
+            "snippet_hash_verified": true
+          },
+          {
+            "path": "README.md",
+            "line_start": 28,
+            "line_end": 28,
+            "display": "README.md:28",
+            "snippet_hash": "9a52d9b535eb",
+            "snippet_hash_verified": true
+          }
+        ],
+        "confidence": 0.85
+      },
+      {
+        "id": "claim_012",
+        "statement": "REST API endpoints are exposed under /api/, including /api/projects, /api/health, /api/ready, and /api/audit/verify (which is protected by API_KEY).",
+        "section": "Integration Surface",
+        "evidence": [
+          {
+            "path": "server/routes.ts",
+            "line_start": 15,
+            "line_end": 59,
+            "display": "server/routes.ts:15\u201359",
+            "snippet_hash": "f7ba68760271",
+            "snippet_hash_verified": true
+          },
+          {
+            "path": "server/routes.ts",
+            "line_start": 132,
+            "line_end": 132,
+            "display": "server/routes.ts:132",
+            "snippet_hash": "29576b54e255",
+            "snippet_hash_verified": true
+          }
+        ],
+        "confidence": 0.92
+      }
+    ],
+    "Data & Security Posture": [
+      {
+        "id": "claim_013",
+        "statement": "Critical configuration such as DATABASE_URL, API_KEY, and SESSION_SECRET is injected exclusively via environment variables.",
+        "section": "Data & Security Posture",
+        "evidence": [
+          {
+            "path": "drizzle.config.ts",
+            "line_start": 3,
+            "line_end": 14,
+            "display": "drizzle.config.ts:3\u201314",
+            "snippet_hash": "a19790628fbe",
+            "snippet_hash_verified": true
+          }
+        ],
+        "confidence": 0.92
+      },
+      {
+        "id": "claim_014",
+        "statement": "Session management utilizes express-session with session data stored in PostgreSQL via connect-pg-simple.",
+        "section": "Data & Security Posture",
+        "evidence": [
+          {
+            "path": "package.json",
+            "line_start": 53,
+            "line_end": 53,
+            "display": "package.json:53",
+            "snippet_hash": "abb52cbb888c",
+            "snippet_hash_verified": true
+          },
+          {
+            "path": "package.json",
+            "line_start": 47,
+            "line_end": 47,
+            "display": "package.json:47",
+            "snippet_hash": "6441207d984d",
+            "snippet_hash_verified": true
+          }
+        ],
+        "confidence": 0.95
+      },
+      {
+        "id": "claim_015",
+        "statement": "No application-layer encryption for stored data is present outside the database or managed SaaS.",
+        "section": "Data & Security Posture",
+        "evidence": [
+          {
+            "path": "README.md",
+            "line_start": 146,
+            "line_end": 146,
+            "display": "README.md:146",
+            "snippet_hash": "68ac2dc8bd72",
+            "snippet_hash_verified": true
+          },
+          {
+            "path": "drizzle.config.ts",
+            "line_start": 3,
+            "line_end": 14,
+            "display": "drizzle.config.ts:3\u201314",
+            "snippet_hash": "a19790628fbe",
+            "snippet_hash_verified": true
+          }
+        ],
+        "confidence": 0.8
+      },
+      {
+        "id": "claim_016",
+        "statement": "API_KEY is required for access to protected endpoints such as POST /api/audit/verify.",
+        "section": "Data & Security Posture",
+        "evidence": [
+          {
+            "path": "server/routes.ts",
+            "line_start": 132,
+            "line_end": 132,
+            "display": "server/routes.ts:132",
+            "snippet_hash": "29576b54e255",
+            "snippet_hash_verified": true
+          }
+        ],
+        "confidence": 0.88
+      },
+      {
+        "id": "claim_017",
+        "statement": "Static assets are served from the dist/public directory, with index.html as a fallback.",
+        "section": "Data & Security Posture",
+        "evidence": [
+          {
+            "path": "server/static.ts",
+            "line_start": 6,
+            "line_end": 17,
+            "display": "server/static.ts:6\u201317",
+            "snippet_hash": "c41538d1ccce",
+            "snippet_hash_verified": true
+          },
+          {
+            "path": "server/static.ts",
+            "line_start": 13,
+            "line_end": 13,
+            "display": "server/static.ts:13",
+            "snippet_hash": "8db433315870",
+            "snippet_hash_verified": true
+          }
+        ],
+        "confidence": 0.9
+      }
+    ],
+    "Operational Reality": [
+      {
+        "id": "claim_018",
+        "statement": "The backend binds to 0.0.0.0 on the port specified by the PORT environment variable, defaulting to 5000.",
+        "section": "Operational Reality",
+        "evidence": [
+          {
+            "path": "server/index.ts",
+            "line_start": 92,
+            "line_end": 96,
+            "display": "server/index.ts:92\u201396",
+            "snippet_hash": "75d345a78f84",
+            "snippet_hash_verified": true
+          },
+          {
+            "path": ".replit",
+            "line_start": 14,
+            "line_end": 14,
+            "display": ".replit:14",
+            "snippet_hash": "2cb616fc39c1",
+            "snippet_hash_verified": true
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "id": "claim_019",
+        "statement": "Health and readiness are exposed via /api/health and /api/ready endpoints.",
+        "section": "Operational Reality",
+        "evidence": [
+          {
+            "path": "server/routes.ts",
+            "line_start": 15,
+            "line_end": 15,
+            "display": "server/routes.ts:15",
+            "snippet_hash": "f7ba68760271",
+            "snippet_hash_verified": true
+          }
+        ],
+        "confidence": 0.88
+      },
+      {
+        "id": "claim_020",
+        "statement": "In production, static assets are served from dist/public.",
+        "section": "Operational Reality",
+        "evidence": [
+          {
+            "path": "server/static.ts",
+            "line_start": 13,
+            "line_end": 13,
+            "display": "server/static.ts:13",
+            "snippet_hash": "8db433315870",
+            "snippet_hash_verified": true
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "id": "claim_021",
+        "statement": "Logging is performed using console.log by default; no persistent log files or rotation procedures are implemented.",
+        "section": "Operational Reality",
+        "evidence": [
+          {
+            "path": "server/index.ts",
+            "line_start": 25,
+            "line_end": 34,
+            "display": "server/index.ts:25\u201334",
+            "snippet_hash": "b67bee9a2cd5",
+            "snippet_hash_verified": true
+          }
+        ],
+        "confidence": 0.8
+      }
+    ],
+    "Unknowns / Missing Evidence": [
+      {
+        "id": "claim_022",
+        "statement": "There is no evidence of custom PostgreSQL role or initialization scripts.",
+        "section": "Unknowns / Missing Evidence",
+        "evidence": [
+          {
+            "path": "README.md",
+            "line_start": 146,
+            "line_end": 146,
+            "display": "README.md:146",
+            "snippet_hash": "68ac2dc8bd72",
+            "snippet_hash_verified": true
+          },
+          {
+            "path": "drizzle.config.ts",
+            "line_start": 3,
+            "line_end": 14,
+            "display": "drizzle.config.ts:3\u201314",
+            "snippet_hash": "a19790628fbe",
+            "snippet_hash_verified": true
+          }
+        ],
+        "confidence": 0.85
+      }
+    ],
+    "Capability Map": [
+      {
+        "id": "claim_023",
+        "statement": "All critical secrets are detected as names only, never as secret values.",
+        "section": "Capability Map",
+        "evidence": [
+          {
+            "path": "README.md",
+            "line_start": 146,
+            "line_end": 146,
+            "display": "README.md:146",
+            "snippet_hash": "68ac2dc8bd72",
+            "snippet_hash_verified": true
+          }
+        ],
+        "confidence": 0.85
+      },
+      {
+        "id": "claim_024",
+        "statement": "The system deterministically parses and extracts run, development, build, and configuration commands using both Python and Node code.",
+        "section": "Capability Map",
+        "evidence": [
+          {
+            "path": "README.md",
+            "line_start": 65,
+            "line_end": 71,
+            "display": "README.md:65\u201371",
+            "snippet_hash": "f1b901847390",
+            "snippet_hash_verified": true
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "id": "claim_025",
+        "statement": "Evidence-cited runbooks are produced in both JSON and Markdown formats.",
+        "section": "Capability Map",
+        "evidence": [
+          {
+            "path": "README.md",
+            "line_start": 14,
+            "line_end": 14,
+            "display": "README.md:14",
+            "snippet_hash": "aabdc653bc93",
+            "snippet_hash_verified": true
+          },
+          {
+            "path": "README.md",
+            "line_start": 162,
+            "line_end": 162,
+            "display": "README.md:162",
+            "snippet_hash": "9ef693b15f92",
+            "snippet_hash_verified": true
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "id": "claim_026",
+        "statement": "All outputs record unknowns explicitly in UNKOWN slots or sections.",
+        "section": "Capability Map",
+        "evidence": [
+          {
+            "path": "README.md",
+            "line_start": 172,
+            "line_end": 172,
+            "display": "README.md:172",
+            "snippet_hash": "4ceefe518c1d",
+            "snippet_hash_verified": true
+          }
+        ],
+        "confidence": 0.9
+      },
+      {
+        "id": "claim_027",
+        "statement": "LLM-powered context and analysis is available optionally via OpenAI GPT integration.",
+        "section": "Capability Map",
+        "evidence": [
+          {
+            "path": "README.md",
+            "line_start": 85,
+            "line_end": 85,
+            "display": "README.md:85",
+            "snippet_hash": "7fb69856946c",
+            "snippet_hash_verified": true
+          }
+        ],
+        "confidence": 0.9
+      }
+    ],
+    "Replit Execution Profile": [
+      {
+        "id": "claim_028",
+        "statement": "On Replit, the app requires Node.js 20, Python 3.11+, and PostgreSQL (via .replit modules).",
+        "section": "Replit Execution Profile",
+        "evidence": [
+          {
+            "path": ".replit",
+            "line_start": 1,
+            "line_end": 1,
+            "display": ".replit:1",
+            "snippet_hash": "a5be1ce88381",
+            "snippet_hash_verified": true
+          }
+        ],
+        "confidence": 0.85
+      },
+      {
+        "id": "claim_029",
+        "statement": "External OpenAI API is referenced for LLM, audio, chat, and image integrations.",
+        "section": "Replit Execution Profile",
+        "evidence": [
+          {
+            "path": "server/replit_integrations/audio/client.ts",
+            "line_start": 1,
+            "line_end": 1,
+            "display": "server/replit_integrations/audio/client.ts:1",
+            "snippet_hash": "1d3dd608c3bb",
+            "snippet_hash_verified": true
+          },
+          {
+            "path": "server/replit_integrations/audio/routes.ts",
+            "line_start": 3,
+            "line_end": 3,
+            "display": "server/replit_integrations/audio/routes.ts:3",
+            "snippet_hash": "2f87d29d3b03",
+            "snippet_hash_verified": true
+          }
+        ],
+        "confidence": 0.81
+      }
+    ],
+    "Dependencies & Maintainability": [
+      {
+        "id": "claim_030",
+        "statement": "The system depends on regular npm and Python dependency maintenance, as reflected in package.json and pyproject.toml.",
+        "section": "Dependencies & Maintainability",
+        "evidence": [
+          {
+            "path": "package.json",
+            "line_start": 1,
+            "line_end": 115,
+            "display": "package.json:1\u2013115",
+            "snippet_hash": "021fb596db81",
+            "snippet_hash_verified": true
+          },
+          {
+            "path": "pyproject.toml",
+            "line_start": 5,
+            "line_end": 13,
+            "display": "pyproject.toml:5\u201313",
+            "snippet_hash": "aa7c5d87614c",
+            "snippet_hash_verified": true
+          }
+        ],
+        "confidence": 0.85
+      }
+    ]
+  },
+  "verified_structural": {
+    "routes": [],
+    "dependencies": [],
+    "schemas": [],
+    "enforcement": [],
+    "_notes": {
+      "routes": "not_implemented: requires AST/regex route extractor over source files",
+      "dependencies": "not_implemented: requires lockfile parser (package-lock.json, requirements.txt, etc.)",
+      "schemas": "not_implemented: requires migration/model file parser",
+      "enforcement": "not_implemented: requires auth/middleware pattern detector over source files"
+    }
+  },
+  "unknowns": [
+    {
+      "category": "tls_termination",
+      "description": "Whether TLS/SSL is terminated and how (reverse proxy, load balancer, application-level)",
+      "status": "UNKNOWN",
+      "evidence": [],
+      "notes": "No matching infrastructure/config artifacts found in file index",
+      "resolve_with": "Add TLS config: k8s Ingress with tls section, nginx.conf with ssl_certificate, Caddyfile with tls directive, or Terraform aws_acm_certificate resource"
+    },
+    {
+      "category": "encryption_at_rest",
+      "description": "Whether data at rest is encrypted (database, file storage, backups)",
+      "status": "UNKNOWN",
+      "evidence": [],
+      "notes": "No matching infrastructure/config artifacts found in file index",
+      "resolve_with": "Add encryption config: Terraform aws_db_instance with storage_encrypted=true, k8s StorageClass with encrypted parameters, or pgcrypto extension usage"
+    },
+    {
+      "category": "secret_management",
+      "description": "How secrets/credentials are stored, rotated, and accessed at runtime",
+      "status": "UNKNOWN",
+      "evidence": [],
+      "notes": "No matching infrastructure/config artifacts found in file index",
+      "resolve_with": "Add secret management: k8s ExternalSecret/SealedSecret manifests, Vault agent config, or Terraform vault_generic_secret resources"
+    },
+    {
+      "category": "deployment_topology",
+      "description": "Production deployment architecture (containers, VMs, serverless, regions)",
+      "status": "UNKNOWN",
+      "evidence": [],
+      "notes": "Candidate artifact files found (Dockerfile) but artifact detector not yet implemented \u2014 cannot read/hash/verify file content",
+      "resolve_with": "Add deployment artifacts: Dockerfile, docker-compose.yml, k8s Deployment manifests, Terraform main.tf, Helm Chart.yaml, or fly.toml"
+    },
+    {
+      "category": "runtime_iam",
+      "description": "Identity and access management at runtime (service accounts, role-based access)",
+      "status": "UNKNOWN",
+      "evidence": [],
+      "notes": "No matching infrastructure/config artifacts found in file index",
+      "resolve_with": "Add IAM config: k8s ServiceAccount/RBAC manifests, Terraform aws_iam_role resources, or OPA policy files"
+    },
+    {
+      "category": "logging_sink",
+      "description": "Where application and infrastructure logs are collected and retained",
+      "status": "UNKNOWN",
+      "evidence": [],
+      "notes": "No matching infrastructure/config artifacts found in file index",
+      "resolve_with": "Add logging config: Fluentd/Logstash config files, k8s logging sidecar manifests, or Terraform CloudWatch log group resources"
+    },
+    {
+      "category": "monitoring_alerting",
+      "description": "Whether monitoring/alerting is configured (health checks, uptime, error rates)",
+      "status": "UNKNOWN",
+      "evidence": [],
+      "notes": "No matching infrastructure/config artifacts found in file index",
+      "resolve_with": "Add monitoring config: Prometheus rules YAML, Grafana dashboard JSON, k8s ServiceMonitor manifests, Terraform CloudWatch alarm resources, or Sentry config"
+    },
+    {
+      "category": "backup_retention",
+      "description": "Backup strategy, frequency, and retention policy for data stores",
+      "status": "UNKNOWN",
+      "evidence": [],
+      "notes": "No matching infrastructure/config artifacts found in file index",
+      "resolve_with": "Add backup config: Terraform aws_backup_plan resources, k8s CronJob backup manifests, or pg_dump/mongodump cron scripts with retention"
+    },
+    {
+      "category": "data_residency",
+      "description": "Where data is physically stored and whether data residency requirements are met",
+      "status": "UNKNOWN",
+      "evidence": [],
+      "notes": "No matching infrastructure/config artifacts found in file index",
+      "resolve_with": "Add residency config: Terraform provider region constraints, k8s node affinity with topology labels, or documented data residency policy"
+    }
+  ],
+  "metrics": {
+    "rci_reporting_completeness": {
+      "score": 0.6167,
+      "label": "RCI \u2014 Reporting Completeness",
+      "formula": "average(claims_coverage, unknowns_coverage, howto_completeness)",
+      "components": {
+        "claims_coverage": 1.0,
+        "unknowns_coverage": 0.0,
+        "howto_completeness": 0.85
+      },
+      "interpretation": "Composite completeness of PTA reporting. NOT a security or structural visibility score."
+    },
+    "dci_v1_claim_visibility": {
+      "score": 1.0,
+      "label": "DCI_v1_claim_visibility",
+      "formula": "verified_claims / total_claims",
+      "interpretation": "Percent of claims with deterministic hash-verified evidence. This is claim-evidence visibility, NOT system surface visibility."
+    },
+    "dci_v2_structural_visibility": {
+      "score": null,
+      "label": "DCI_v2_structural_visibility (not implemented)",
+      "formula": "verified_structural_items / total_structural_surface",
+      "interpretation": "Structural surface visibility (routes/deps/schemas/enforcement). Not yet implemented \u2014 requires dedicated structural extractors.",
+      "status": "not_implemented"
+    }
+  },
+  "hashes": {
+    "snippets": [
+      "021fb596db81",
+      "05da5f1b1281",
+      "1d2e07b09d7a",
+      "1d3dd608c3bb",
+      "1f70e6a77d42",
+      "232f2a0c483a",
+      "24b9d5caf118",
+      "29576b54e255",
+      "2cb616fc39c1",
+      "2f87d29d3b03",
+      "31d5ee63d324",
+      "3a8be55004c2",
+      "3e4f72540881",
+      "4124e323d038",
+      "47abfb4488e8",
+      "4994405dd75c",
+      "4be7c6195f60",
+      "4ceefe518c1d",
+      "519534c1f466",
+      "62fec4db8fd5",
+      "6441207d984d",
+      "68ac2dc8bd72",
+      "75d345a78f84",
+      "781499375745",
+      "79d8bdf275d6",
+      "7fb69856946c",
+      "8db433315870",
+      "92755120ac2c",
+      "96baf42b9597",
+      "96fa2e5505e4",
+      "9a52d9b535eb",
+      "9ef693b15f92",
+      "a19790628fbe",
+      "a5be1ce88381",
+      "aa7c5d87614c",
+      "aabdc653bc93",
+      "ab249b766ec2",
+      "abb52cbb888c",
+      "af4db2203afc",
+      "b0533af62fac",
+      "b67bee9a2cd5",
+      "bce1008b2a9d",
+      "c41538d1ccce",
+      "cd51389bd778",
+      "cd74ab1e2399",
+      "e049b398be36",
+      "e0a878245f72",
+      "e0f9e463cd36",
+      "ecd94c8e718d",
+      "f1b901847390",
+      "f7ba68760271",
+      "ffe1d23f37ee"
+    ]
+  },
+  "summary": {
+    "total_files": 170,
+    "total_claims": 30,
+    "verified_claims": 30,
+    "unknown_categories": 9,
+    "verified_categories": 0
+  },
+  "coverage": {
+    "analyzed_files": 170,
+    "total_files_seen": 196,
+    "skipped_files": 26,
+    "skipped_types": [],
+    "timeouts": [],
+    "partial": true
+  },
+  "replit_profile": {
+    "is_replit": true,
+    "run_command": "npm run dev",
+    "language": "nodejs",
+    "port": null
+  }
+}

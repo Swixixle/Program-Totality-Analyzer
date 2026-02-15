@@ -98,11 +98,19 @@ export async function registerRoutes(
 }
 
 async function runAnalysis(projectId: number, source: string, mode: string) {
-  console.log(`Starting analysis for project ${projectId} mode: ${mode} source: ${source}`);
+  console.log(`[Analyzer ${projectId}] Starting: mode=${mode} source=${source}`);
   await storage.updateProjectStatus(projectId, "analyzing");
 
   const outputDir = path.resolve(process.cwd(), "out", String(projectId));
+  await fs.rm(outputDir, { recursive: true, force: true });
   await fs.mkdir(outputDir, { recursive: true });
+
+  const pythonBin = path.join(process.cwd(), ".pythonlibs/bin/python3");
+  if (!existsSync(pythonBin)) {
+    console.error(`[Analyzer ${projectId}] FATAL: Python not found at ${pythonBin}`);
+    await storage.updateProjectStatus(projectId, "failed");
+    return;
+  }
 
   const args = ["-m", "server.analyzer.analyzer_cli", "analyze"];
 
@@ -114,14 +122,18 @@ async function runAnalysis(projectId: number, source: string, mode: string) {
 
   args.push("--output-dir", outputDir);
 
-  const pythonBin = existsSync(path.join(process.cwd(), ".pythonlibs/bin/python3"))
-    ? path.join(process.cwd(), ".pythonlibs/bin/python3")
-    : "python3";
+  console.log(`[Analyzer ${projectId}] Executing: ${pythonBin} ${args.join(" ")}`);
 
   const pythonProcess = spawn(pythonBin, args, {
     cwd: process.cwd(),
     env: { ...process.env },
   });
+
+  const timeout = setTimeout(async () => {
+    console.error(`[Analyzer ${projectId}] Timeout after 10 minutes — killing`);
+    pythonProcess.kill("SIGKILL");
+    await storage.updateProjectStatus(projectId, "failed");
+  }, 10 * 60 * 1000);
 
   let stdout = "";
   let stderr = "";
@@ -136,11 +148,27 @@ async function runAnalysis(projectId: number, source: string, mode: string) {
     console.error(`[Analyzer ${projectId} ERR]: ${data}`);
   });
 
+  pythonProcess.on("error", async (err) => {
+    clearTimeout(timeout);
+    console.error(`[Analyzer ${projectId}] Spawn error:`, err);
+    await storage.updateProjectStatus(projectId, "failed");
+  });
+
   pythonProcess.on("close", async (code) => {
-    console.log(`Analyzer process exited with code ${code}`);
+    clearTimeout(timeout);
+    console.log(`[Analyzer ${projectId}] Exited code=${code}`);
 
     if (code === 0) {
       try {
+        const requiredArtifacts = ["operate.json", "DOSSIER.md", "claims.json"];
+        for (const artifact of requiredArtifacts) {
+          if (!existsSync(path.join(outputDir, artifact))) {
+            console.error(`[Analyzer ${projectId}] Missing required artifact: ${artifact}`);
+            await storage.updateProjectStatus(projectId, "failed");
+            return;
+          }
+        }
+
         const dossierPath = path.join(outputDir, "DOSSIER.md");
         const claimsPath = path.join(outputDir, "claims.json");
         const howtoPath = path.join(outputDir, "target_howto.json");
@@ -169,11 +197,13 @@ async function runAnalysis(projectId: number, source: string, mode: string) {
         });
 
         await storage.updateProjectStatus(projectId, "completed");
+        console.log(`[Analyzer ${projectId}] Completed successfully`);
       } catch (err) {
-        console.error("Error saving analysis results:", err);
+        console.error(`[Analyzer ${projectId}] Error saving results:`, err);
         await storage.updateProjectStatus(projectId, "failed");
       }
     } else {
+      console.error(`[Analyzer ${projectId}] Failed with stderr:\n${stderr}`);
       await storage.updateProjectStatus(projectId, "failed");
     }
   });
