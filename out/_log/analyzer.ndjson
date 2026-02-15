@@ -1,0 +1,2 @@
+{"ts":"2026-02-15T10:16:18.284Z","projectId":29,"event":"start","mode":"replit","source":"/home/runner/workspace"}
+{"ts":"2026-02-15T10:16:18.294Z","projectId":29,"event":"spawn","cmd":"/home/runner/workspace/.pythonlibs/bin/python3 -m server.analyzer.analyzer_cli analyze --replit --output-dir /home/runner/workspace/out/29"}

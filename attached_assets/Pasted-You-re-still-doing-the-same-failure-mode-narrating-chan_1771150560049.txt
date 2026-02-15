@@ -1,0 +1,299 @@
+You’re still doing the same failure mode: **narrating changes as if they’re already in the repo**.
+
+Here are **Replit Agent instructions** (copy/paste into your Replit “Agent” / Copilot task) to **actually implement** the persistent NDJSON logbook + `finishOnce()` + tighter reset + log viewer + configurable timeout, *without touching anything else*.
+
+---
+
+## Replit Agent Task: Persistent analyzer logbook + finishOnce + reset + log viewer + timeout env
+
+### Goal
+
+1. Write NDJSON events to `out/_log/analyzer.ndjson` for every analysis run.
+2. Replace scattered status updates with a single guarded `finishOnce(status, reason, extra?)`.
+3. Make timeout configurable via `ANALYZER_TIMEOUT_MS` (default 10 minutes).
+4. Ensure reset wipes DB + `out/` (which includes `_log`).
+5. Add dev-only viewer endpoint: `GET /api/admin/analyzer-log` returning parsed NDJSON lines as JSON.
+
+---
+
+## 1) Edit `server/routes.ts`
+
+### A) Add helpers near the top (below imports)
+
+Add these helpers **once**:
+
+```ts
+const LOG_DIR = path.resolve(process.cwd(), "out", "_log");
+const LOG_FILE = path.join(LOG_DIR, "analyzer.ndjson");
+
+function safeJsonStringify(obj: any) {
+  try { return JSON.stringify(obj); } catch { return JSON.stringify({ _unserializable: true }); }
+}
+
+async function appendLog(event: Record<string, any>) {
+  await fs.mkdir(LOG_DIR, { recursive: true });
+  const line = safeJsonStringify({ ts: new Date().toISOString(), ...event }) + "\n";
+  // fs.appendFile is atomic enough for our single-process node server.
+  await fs.appendFile(LOG_FILE, line, "utf8");
+}
+
+function timeoutMsFromEnv(defaultMs: number) {
+  const v = process.env.ANALYZER_TIMEOUT_MS;
+  if (!v) return defaultMs;
+  const n = Number(v);
+  return Number.isFinite(n) && n > 0 ? n : defaultMs;
+}
+```
+
+### B) Add dev-only endpoints in `registerRoutes()` (near the reset endpoint you already have)
+
+If you already have `POST /api/admin/reset-analyzer`, keep it. Add this viewer endpoint **in addition**:
+
+```ts
+app.get("/api/admin/analyzer-log", async (_req, res) => {
+  if (process.env.NODE_ENV === "production") return res.status(403).json({ error: "forbidden" });
+
+  try {
+    if (!existsSync(LOG_FILE)) return res.json([]);
+    const raw = await fs.readFile(LOG_FILE, "utf8");
+    const lines = raw.split("\n").filter(Boolean);
+    const parsed = lines.map((l) => {
+      try { return JSON.parse(l); } catch { return { parse_error: true, line: l }; }
+    });
+    res.json(parsed);
+  } catch (err) {
+    res.status(500).json({ error: "failed_to_read_log" });
+  }
+});
+```
+
+If you *don’t* have the reset endpoint yet, add it exactly like this:
+
+```ts
+app.post("/api/admin/reset-analyzer", async (_req, res) => {
+  if (process.env.NODE_ENV === "production") return res.status(403).json({ error: "forbidden" });
+
+  try {
+    await storage.resetAnalyzer(); // implement in storage (see below)
+    await fs.rm(path.resolve(process.cwd(), "out"), { recursive: true, force: true });
+    await fs.mkdir(path.resolve(process.cwd(), "out"), { recursive: true });
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: "reset_failed" });
+  }
+});
+```
+
+### C) Refactor `runAnalysis()` to use `finishOnce()` and emit log events
+
+Inside `runAnalysis()`:
+
+1. Add a local state at the top:
+
+```ts
+const startedAt = Date.now();
+let finished = false;
+
+async function finishOnce(status: "completed" | "failed", reason: string, extra: any = {}) {
+  if (finished) return;
+  finished = true;
+
+  await appendLog({ type: "finalize", projectId, status, reason, durationMs: Date.now() - startedAt, ...extra });
+
+  await storage.updateProjectStatus(projectId, status);
+}
+```
+
+2. At the very beginning, write a `start` event:
+
+```ts
+await appendLog({ type: "start", projectId, mode, source });
+```
+
+3. Right after you compute `outputDir`, keep your rm/mkdir hard reset, but log it:
+
+```ts
+await appendLog({ type: "output_dir", projectId, outputDir });
+```
+
+4. When Python binary missing:
+
+```ts
+if (!existsSync(pythonBin)) {
+  await appendLog({ type: "fatal", projectId, reason: "python_missing", pythonBin });
+  await finishOnce("failed", "python_missing", { pythonBin });
+  return;
+}
+```
+
+5. Before spawn, log the command:
+
+```ts
+await appendLog({ type: "spawn", projectId, pythonBin, args });
+```
+
+6. Timeout: use env-based timeout and log the kill:
+
+```ts
+const ms = timeoutMsFromEnv(10 * 60 * 1000);
+const timeout = setTimeout(async () => {
+  await appendLog({ type: "timeout", projectId, timeoutMs: ms });
+  try { pythonProcess.kill("SIGKILL"); } catch {}
+  await finishOnce("failed", "timeout", { timeoutMs: ms });
+}, ms);
+```
+
+7. In `pythonProcess.on("error")`, do:
+
+```ts
+pythonProcess.on("error", async (err) => {
+  clearTimeout(timeout);
+  await appendLog({ type: "spawn_error", projectId, error: String(err) });
+  await finishOnce("failed", "spawn_error", { error: String(err) });
+});
+```
+
+8. In `close` handler:
+
+* Always log exit code.
+* If nonzero, log stderr (truncate).
+* If zero, validate required artifacts; on missing, fail with reason.
+
+Example:
+
+```ts
+pythonProcess.on("close", async (code) => {
+  clearTimeout(timeout);
+  await appendLog({ type: "exit", projectId, code });
+
+  if (finished) return; // IMPORTANT: blocks “close after timeout/kill”
+
+  if (code !== 0) {
+    await appendLog({ type: "nonzero_exit", projectId, code, stderr: (stderr || "").slice(0, 4000) });
+    await finishOnce("failed", "nonzero_exit", { code });
+    return;
+  }
+
+  const requiredArtifacts = ["operate.json", "DOSSIER.md", "claims.json"];
+  for (const artifact of requiredArtifacts) {
+    if (!existsSync(path.join(outputDir, artifact))) {
+      await appendLog({ type: "missing_artifact", projectId, artifact });
+      await finishOnce("failed", "missing_artifact", { artifact });
+      return;
+    }
+  }
+
+  try {
+    // existing read + storage.createAnalysis block unchanged
+    await finishOnce("completed", "ok");
+  } catch (err) {
+    await appendLog({ type: "save_error", projectId, error: String(err) });
+    await finishOnce("failed", "save_error", { error: String(err) });
+  }
+});
+```
+
+**Important:** remove all other direct `storage.updateProjectStatus()` calls in handlers. Everything goes through `finishOnce()`.
+
+---
+
+## 2) Edit `server/storage.ts` (add reset method)
+
+### A) Add to the storage interface
+
+Add:
+
+```ts
+resetAnalyzer(): Promise<void>;
+```
+
+### B) Implement it in the concrete storage
+
+Implementation depends on your DB layer, but the intent is:
+
+* delete analyses
+* delete projects
+* (optional) reset sequences/ids if you want “fresh run IDs”
+
+Pseudo for SQL-ish:
+
+```ts
+async resetAnalyzer(): Promise<void> {
+  await db.transaction(async (tx) => {
+    await tx.delete(analyses);
+    await tx.delete(projects);
+  });
+}
+```
+
+If you’re using Drizzle, you’ll know the exact table objects. Do it in a transaction.
+
+---
+
+## 3) Add verification commands (must pass)
+
+After implementing, run these:
+
+### A) Reset clears everything
+
+```bash
+curl -s -X POST http://localhost:5000/api/admin/reset-analyzer
+curl -s http://localhost:5000/api/projects
+ls -la out | head
+```
+
+Expect:
+
+* reset returns `{"ok":true}`
+* projects returns `[]`
+* `out/` exists and is mostly empty (or only `_log` if created later)
+
+### B) Logbook is writable and readable
+
+```bash
+ID=$(curl -s -X POST http://localhost:5000/api/projects/analyze-replit | python -c "import sys,json; print(json.load(sys.stdin)['id'])")
+sleep 1
+curl -s http://localhost:5000/api/admin/analyzer-log | head -c 500; echo
+```
+
+Expect to see events with `"type":"start"` and `"type":"spawn"` for that `projectId`.
+
+### C) Race proof (timeout)
+
+Run with an intentionally tiny timeout:
+
+```bash
+ANALYZER_TIMEOUT_MS=50 npm run dev
+```
+
+Trigger analysis, then:
+
+```bash
+curl -s http://localhost:5000/api/admin/analyzer-log | python3 - <<'PY'
+import sys, json
+events=json.load(sys.stdin)
+final=[e for e in events if e.get("type")=="finalize"]
+print("finalize_count", len(final))
+print(final[-1] if final else None)
+PY
+```
+
+Expect `finalize_count` to increment by exactly 1 per run.
+
+---
+
+## 4) (Optional but recommended) Fix your curl→python parsing footgun
+
+Stop doing `curl | pycurl | python`. Use one:
+
+```bash
+curl -s http://localhost:5000/api/projects | python3 - <<'PY'
+import sys, json
+d=json.load(sys.stdin)
+print(d[0] if d else None)
+PY
+```
+
+---
+
+If you want, paste **your actual current** `POST /api/admin/reset-analyzer` handler and `storage.resetAnalyzer()` implementation and I’ll do a quick “FK/transaction correctness” check and make sure you’re not leaving orphaned rows or failing silently.
