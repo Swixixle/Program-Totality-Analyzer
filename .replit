@@ -46,3 +46,4 @@ integrations = ["javascript_openai_ai_integrations:2.0.0"]
 
 [userenv.development]
 ADMIN_KEY = "totality-dev-2026"
+GITHUB_WEBHOOK_SECRET = "test-webhook-secret-123"

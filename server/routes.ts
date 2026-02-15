@@ -208,7 +208,9 @@ export async function registerRoutes(
 
     const rawBody = JSON.stringify(req.body);
     const expected = "sha256=" + crypto.createHmac("sha256", secret).update(rawBody).digest("hex");
-    if (!crypto.timingSafeEqual(Buffer.from(sigHeader), Buffer.from(expected))) {
+    const sigBuf = Buffer.from(sigHeader);
+    const expBuf = Buffer.from(expected);
+    if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) {
       return res.status(401).json({ error: "invalid_signature" });
     }
 

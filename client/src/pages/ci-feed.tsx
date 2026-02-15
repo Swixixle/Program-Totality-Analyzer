@@ -17,18 +17,18 @@ import { motion } from "framer-motion";
 
 interface CiRun {
   id: string;
-  repo_owner: string;
-  repo_name: string;
+  repoOwner: string;
+  repoName: string;
   ref: string;
-  commit_sha: string;
-  event_type: string;
+  commitSha: string;
+  eventType: string;
   status: string;
-  created_at: string;
-  started_at: string | null;
-  finished_at: string | null;
+  createdAt: string;
+  startedAt: string | null;
+  finishedAt: string | null;
   error: string | null;
-  out_dir: string | null;
-  summary_json: any;
+  outDir: string | null;
+  summaryJson: any;
 }
 
 function CiStatusBadge({ status }: { status: string }) {
@@ -233,27 +233,27 @@ export default function CiFeed() {
                     <CiStatusBadge status={run.status} />
                     <span className="font-mono text-sm flex items-center gap-1 text-muted-foreground" data-testid={`text-ci-sha-${run.id}`}>
                       <GitCommit className="w-3.5 h-3.5" />
-                      {run.commit_sha.slice(0, 7)}
+                      {run.commitSha.slice(0, 7)}
                     </span>
                     <span className="font-mono text-sm flex items-center gap-1 text-muted-foreground">
                       <GitBranch className="w-3.5 h-3.5" />
                       {run.ref}
                     </span>
                     <Badge variant="outline" className="no-default-hover-elevate no-default-active-elevate text-xs font-mono">
-                      {run.event_type}
+                      {run.eventType}
                     </Badge>
                   </div>
                   <div className="flex items-center gap-3 text-xs text-muted-foreground font-mono">
                     <span className="flex items-center gap-1">
                       <Clock className="w-3 h-3" />
-                      {formatDistanceToNow(new Date(run.created_at), { addSuffix: true })}
+                      {formatDistanceToNow(new Date(run.createdAt), { addSuffix: true })}
                     </span>
-                    {run.started_at && run.finished_at && (
+                    {run.startedAt && run.finishedAt && (
                       <span>
-                        {Math.round((new Date(run.finished_at).getTime() - new Date(run.started_at).getTime()) / 1000)}s
+                        {Math.round((new Date(run.finishedAt).getTime() - new Date(run.startedAt).getTime()) / 1000)}s
                       </span>
                     )}
-                    {run.status === "SUCCEEDED" && run.out_dir && (
+                    {run.status === "SUCCEEDED" && run.outDir && (
                       <Link href={`/ci/runs/${run.id}`}>
                         <Button size="sm" variant="ghost" data-testid={`button-view-dossier-${run.id}`}>
                           <ExternalLink className="w-3.5 h-3.5 mr-1" />
@@ -268,16 +268,16 @@ export default function CiFeed() {
                     {run.error}
                   </div>
                 )}
-                {run.summary_json && (
+                {run.summaryJson && (
                   <div className="mt-2 flex flex-wrap gap-2">
-                    {run.summary_json.boot_commands != null && (
-                      <span className="text-xs font-mono text-muted-foreground">boot: {run.summary_json.boot_commands}</span>
+                    {run.summaryJson.boot_commands != null && (
+                      <span className="text-xs font-mono text-muted-foreground">boot: {run.summaryJson.boot_commands}</span>
                     )}
-                    {run.summary_json.endpoints != null && (
-                      <span className="text-xs font-mono text-muted-foreground">endpoints: {run.summary_json.endpoints}</span>
+                    {run.summaryJson.endpoints != null && (
+                      <span className="text-xs font-mono text-muted-foreground">endpoints: {run.summaryJson.endpoints}</span>
                     )}
-                    {run.summary_json.gaps != null && (
-                      <span className="text-xs font-mono text-muted-foreground">gaps: {run.summary_json.gaps}</span>
+                    {run.summaryJson.gaps != null && (
+                      <span className="text-xs font-mono text-muted-foreground">gaps: {run.summaryJson.gaps}</span>
                     )}
                   </div>
                 )}

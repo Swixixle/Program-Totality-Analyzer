@@ -51,6 +51,14 @@ Key API routes (defined in `server/routes.ts`):
 - `GET /api/projects/:id/analysis` — Get analysis results
 - `POST /api/projects/:id/analyze` — Trigger analysis (spawns Python CLI)
 
+CI Feed API routes:
+- `POST /api/webhooks/github` — GitHub webhook receiver (HMAC-SHA256 verified)
+- `GET /api/ci/runs?owner=X&repo=Y&limit=N` — List CI runs for a repo
+- `GET /api/ci/runs/:id` — Get single CI run details
+- `POST /api/ci/enqueue` — Manual trigger {owner, repo, ref, commit_sha, event_type}
+- `POST /api/ci/worker/tick` — Process one queued job (fallback worker)
+- `GET /api/ci/health` — Job counts by status + last completed run
+
 ### Python Analyzer (`server/analyzer/`)
 
 - **CLI**: `analyzer_cli.py` using Typer, supports three input modes:
@@ -73,6 +81,8 @@ Key API routes (defined in `server/routes.ts`):
 - **Schema** (`shared/schema.ts`):
   - `projects` — id, url, name, mode (github/local/replit), status (pending/analyzing/completed/failed), createdAt
   - `analyses` — id, projectId, dossier (markdown text), claims (jsonb), howto (jsonb), coverage (jsonb), unknowns (jsonb), operate (jsonb), createdAt
+  - `ci_runs` — id (uuid), repoOwner, repoName, ref, commitSha, eventType, status (QUEUED/RUNNING/SUCCEEDED/FAILED), timestamps, error, outDir, summaryJson
+  - `ci_jobs` — id (uuid), runId (fk→ci_runs), status (READY/LEASED/DONE/DEAD), attempts, leasedUntil, lastError
 - **Chat models** (`shared/models/chat.ts`):
   - `conversations` — id, title, createdAt
   - `messages` — id, conversationId, role, content, createdAt
@@ -98,6 +108,15 @@ These are utility modules that can be registered on the Express app as needed.
 3. **Evidence-first analysis** — The analyzer is designed to cite file paths and line ranges for every claim. When evidence is missing, it must label findings as inference/unknown rather than hallucinate.
 
 4. **Polling for status** — The frontend polls project status every 2 seconds while analysis is in progress, switching to static once completed/failed.
+
+5. **Live Static CI Feed** — GitHub webhooks trigger automated static analysis runs:
+   - `POST /api/webhooks/github` validates HMAC-SHA256 signatures, creates ci_runs + ci_jobs rows
+   - Background worker (`server/ci-worker.ts`) polls for READY/expired-LEASED jobs every 5s
+   - Worker shallow-clones repos by exact commit SHA, runs analyzer, stores results to `out/ci/<run_id>/`
+   - Job leasing uses `FOR UPDATE SKIP LOCKED` for concurrency safety, max 3 attempts before DEAD
+   - Deduplication: same (owner, repo, sha) within 6 hours returns existing run
+   - CI Feed UI at `/ci` polls runs every 10s (3s when active runs exist)
+   - Env vars: `GITHUB_WEBHOOK_SECRET` (required for webhooks), `GITHUB_TOKEN` (for private repos)
 
 ## External Dependencies
 
