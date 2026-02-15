@@ -1,0 +1,180 @@
+You’ve got it. The grep output proves the feature is **actually present in code**:
+
+* `shared/schema.ts` defines `ci_runs` + `ci_jobs`
+* `server/routes.ts` has `/api/webhooks/github`, `/api/ci/*`
+* `server/ci-worker.ts` exists
+* `client/src/pages/ci-feed.tsx` exists and calls the endpoints
+* `replit.md` documents the whole thing
+
+So the only remaining question is **operationalizing it** (making it “live” against real GitHub events, and making sure jobs don’t stall).
+
+Below are the **exact steps** you should do now.
+
+---
+
+# 0) Push your 2 commits (so GitHub webhooks match deployed code)
+
+You are ahead of origin by 2 commits. Push:
+
+```bash
+git push origin main
+```
+
+If you don’t push, GitHub will trigger events against whatever is deployed/connected on GitHub, and you’ll get confusing mismatches.
+
+---
+
+# 1) Set the required Replit Secrets (env vars)
+
+In Replit → **Secrets**:
+
+### Required
+
+* `GITHUB_WEBHOOK_SECRET` = a long random string
+
+Generate one in shell:
+
+```bash
+python - <<'PY'
+import secrets
+print(secrets.token_hex(32))
+PY
+```
+
+Copy that value into Replit Secrets.
+
+### If the repo is private (or you hit rate limits)
+
+* `GITHUB_TOKEN` = GitHub token that can read the repo contents (repo scope / fine-grained read access)
+
+---
+
+# 2) Ensure the DB schema is actually applied
+
+Your schema file exists, but confirm the DB has the tables.
+
+If you have a migration command, run it. If not, do a direct check via your existing DB tooling (whatever your project uses).
+
+At minimum, hit your health endpoint (it should query the tables):
+
+```bash
+curl -sS http://localhost:5000/api/ci/health | jq .
+```
+
+If this errors with “relation ci_runs does not exist” → schema didn’t migrate.
+
+---
+
+# 3) Get your webhook URL (this must be the **public** URL)
+
+From the CI Feed page you already show:
+
+* Webhook URL:
+  `https://<YOUR-APP-DOMAIN>/api/webhooks/github`
+
+Important: `localhost` won’t work for GitHub webhooks. You need the deployed/public Replit URL.
+
+---
+
+# 4) Configure the GitHub webhook
+
+In GitHub repo → **Settings → Webhooks → Add webhook**:
+
+* **Payload URL:** `https://<YOUR-APP-DOMAIN>/api/webhooks/github`
+* **Content type:** `application/json`
+* **Secret:** *(paste the exact same `GITHUB_WEBHOOK_SECRET`)*
+* **Events:** select **Just the events I select**
+
+  * ✅ Pushes
+  * ✅ Pull requests
+* **Active:** ✅
+
+Then click **Add webhook**.
+
+---
+
+# 5) Confirm webhook delivery succeeds
+
+GitHub → Webhooks → click the webhook → **Recent Deliveries**:
+
+* You want **200** responses for push / pull_request.
+* If you see **401**:
+
+  * secret mismatch, or signature verification issue
+  * confirm `GITHUB_WEBHOOK_SECRET` is set in Replit and matches GitHub
+
+---
+
+# 6) Make sure jobs actually get processed
+
+You have two modes:
+
+## Mode A (recommended): persistent worker loop
+
+If your `server/ci-worker.ts` exports a loop runner, run it as a separate process (or start it from `server/index.ts` on boot).
+
+## Mode B (already implemented fallback): tick worker
+
+You already have:
+
+* `POST /api/ci/worker/tick`
+
+So you can “drive” the queue with a simple repeat call.
+
+Manual test:
+
+```bash
+curl -sS -X POST https://<YOUR-APP-DOMAIN>/api/ci/worker/tick | jq .
+```
+
+Do that a few times; you should see runs transition in `/ci` UI.
+
+**If you want it automated without a separate worker process:**
+Add a server-side interval (in `server/index.ts`) that calls the same tick function every ~5–10 seconds. That makes it “always live” even on basic hosting.
+
+---
+
+# 7) Validate end-to-end with a real push
+
+Do a trivial commit to a tracked repo:
+
+```bash
+echo "# tick" >> CI_TICK.md
+git add CI_TICK.md
+git commit -m "ci: tick"
+git push
+```
+
+Then watch your `/ci` page. You should see:
+
+* new run created quickly (QUEUED)
+* then RUNNING
+* then SUCCEEDED/FAILED
+
+If it FAILS because clone/analyzer fails, the run should show the error (and the job should retry up to max attempts, then go DEAD).
+
+---
+
+# 8) One important operational improvement (do this next)
+
+Right now your UI supports searching `owner/repo`, but you probably **don’t want to process webhooks from any random repo** if the endpoint becomes known.
+
+Add a simple allowlist:
+
+* Table: `tracked_repos` (owner, repo, enabled)
+* Webhook handler: if repo not enabled → return 202 ignored
+
+This turns the webhook into a controlled intake valve.
+
+---
+
+## Bottom line
+
+You *already built* the live static CI feed. Now you just need to:
+
+1. push your commits
+2. set `GITHUB_WEBHOOK_SECRET` (and `GITHUB_TOKEN` if private)
+3. configure GitHub webhook
+4. ensure the worker actually runs (loop or tick interval)
+
+If you want, paste the **public Replit app domain** you’re using (the `<YOUR-APP-DOMAIN>` value) and I’ll give you a zero-mistake webhook setup checklist with the exact URL filled in and a quick “first delivery” validation flow.
