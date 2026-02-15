@@ -309,6 +309,24 @@ Verify you are searching with the correct owner/repo (case-sensitive). If using 
 bash scripts/smoke_test.sh
 ```
 
+## Git Operations
+
+### Rebase Resolution
+
+If you encounter Git rebase issues, use the automated resolution script:
+
+```bash
+# Automatically resolve rebase (completes or safely aborts)
+bash scripts/fix-rebase.sh
+
+# Prefer to abort the rebase
+bash scripts/fix-rebase.sh --abort
+```
+
+For detailed manual procedures, see:
+- [`docs/REBASE_RESOLUTION_GUIDE.md`](docs/REBASE_RESOLUTION_GUIDE.md) — Complete manual and automated resolution procedures
+- [`REBASE_VERIFICATION_REPORT.md`](REBASE_VERIFICATION_REPORT.md) — Repository state verification documentation
+
 ## License
 
 MIT
