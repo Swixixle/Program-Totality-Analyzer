@@ -1,0 +1,87 @@
+Good — if it’s already in and behaving, then you’re past “implementation” and into **operational hygiene + proof packaging**.
+
+Two things I want to flag based on what you’ve shown in the terminal output (because it will bite you again):
+
+## 1) Your `JSONDecodeError` is not an API problem — it’s your *pipeline*
+
+This line is the smoking gun:
+
+```
+curl -s http://localhost:5000/api/projects | pycurl -s http://localhost:5000/api/projects | python - <<'PY'
+```
+
+That’s **two commands jammed together**, and `pycurl` is either:
+
+* not a command (so it prints an error to stdout), or
+* printing something non-JSON
+
+Either way, Python receives **non-JSON bytes** and `json.load()` dies at column 1.
+
+Use one of these “can’t fail” patterns:
+
+### Option A (jq)
+
+```bash
+curl -s http://localhost:5000/api/projects | jq '.[] | select(.id==22)'
+```
+
+### Option B (Python, robust: read all, print the first 200 chars on failure)
+
+```bash
+curl -s http://localhost:5000/api/projects | python3 - <<'PY'
+import sys, json
+raw = sys.stdin.read()
+try:
+    d = json.loads(raw)
+    print(next(p for p in d if p["id"]==22))
+except Exception as e:
+    print("JSON parse failed:", e)
+    print("RAW[0:200]=", raw[:200])
+PY
+```
+
+If you stick to those, this class of confusion disappears.
+
+---
+
+## 2) “Reset analyzer log book” — define what you mean, then enforce it
+
+Right now your dev reset endpoint clears **DB + `out/`** (good). But your *logbook* might also mean:
+
+* **server stdout logs** (console)
+* a **file log** (if you ever add one)
+* the “historical record” in DB (projects/analyses) ✅ already handled
+
+### If you literally mean “wipe server console history”
+
+That’s not a thing you can do programmatically in a meaningful way (it’s the terminal scrollback). The correct operational equivalent is:
+
+* restart the server process, and/or
+* write logs to a file and truncate it on reset.
+
+If you want an actual **persistent analyzer logbook**, do this (minimal, reliable):
+
+1. In `runAnalysis()`, append a line-delimited JSON event to `out/_log/analyzer.ndjson`
+
+   * start, spawn cmd, progress lines, exit code, finalize status, duration
+
+2. In `/api/admin/reset-analyzer`, also delete `out/_log/`
+
+That gives you a real “logbook” you can reset and ship as evidence.
+
+---
+
+## If you want the proof to be airtight
+
+Add one more behavioral test that proves the double-finalization guard is real:
+
+### Race test: force timeout + close close together
+
+Temporarily set timeout to something tiny (like 50ms) and run an analysis that exits quickly; then you’ll see whether “close” tries to finalize after timeout. With the guard, only one wins.
+
+---
+
+If you paste the actual `POST /api/admin/reset-analyzer` handler and the storage reset method from your repo (not the narrated claims — the code), I’ll sanity-check for the two common footguns:
+
+1. reset deletes in wrong order / FK constraint risk
+2. reset endpoint succeeds even if `out/` rm fails (should be transactional-ish or at least loudly error)

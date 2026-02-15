@@ -6,7 +6,21 @@ import { z } from "zod";
 import { spawn } from "child_process";
 import path from "path";
 import fs from "fs/promises";
-import { existsSync, readFileSync } from "fs";
+import { existsSync, readFileSync, appendFileSync, mkdirSync } from "fs";
+
+const LOG_DIR = path.resolve(process.cwd(), "out", "_log");
+const LOG_FILE = path.join(LOG_DIR, "analyzer.ndjson");
+
+function logEvent(projectId: number, event: string, detail?: Record<string, unknown>) {
+  mkdirSync(LOG_DIR, { recursive: true });
+  const entry = {
+    ts: new Date().toISOString(),
+    projectId,
+    event,
+    ...detail,
+  };
+  appendFileSync(LOG_FILE, JSON.stringify(entry) + "\n");
+}
 
 export async function registerRoutes(
   httpServer: Server,
@@ -115,17 +129,31 @@ export async function registerRoutes(
 }
 
 async function runAnalysis(projectId: number, source: string, mode: string) {
+  const startTime = Date.now();
   console.log(`[Analyzer ${projectId}] Starting: mode=${mode} source=${source}`);
+  logEvent(projectId, "start", { mode, source });
   await storage.updateProjectStatus(projectId, "analyzing");
 
   const outputDir = path.resolve(process.cwd(), "out", String(projectId));
   await fs.rm(outputDir, { recursive: true, force: true });
   await fs.mkdir(outputDir, { recursive: true });
 
+  let finished = false;
+  const finishOnce = async (status: "completed" | "failed", reason?: string) => {
+    if (finished) return;
+    finished = true;
+    const durationMs = Date.now() - startTime;
+    const msg = `[Analyzer ${projectId}] Finalized: status=${status} duration=${durationMs}ms${reason ? ` reason=${reason}` : ""}`;
+    if (status === "failed") console.error(msg);
+    else console.log(msg);
+    logEvent(projectId, "finalize", { status, reason, durationMs });
+    await storage.updateProjectStatus(projectId, status);
+  };
+
   const pythonBin = path.join(process.cwd(), ".pythonlibs/bin/python3");
   if (!existsSync(pythonBin)) {
-    console.error(`[Analyzer ${projectId}] FATAL: Python not found at ${pythonBin}`);
-    await storage.updateProjectStatus(projectId, "failed");
+    logEvent(projectId, "fatal", { reason: "python_not_found", path: pythonBin });
+    await finishOnce("failed", "python_not_found");
     return;
   }
 
@@ -139,21 +167,20 @@ async function runAnalysis(projectId: number, source: string, mode: string) {
 
   args.push("--output-dir", outputDir);
 
-  console.log(`[Analyzer ${projectId}] Executing: ${pythonBin} ${args.join(" ")}`);
+  const cmd = `${pythonBin} ${args.join(" ")}`;
+  console.log(`[Analyzer ${projectId}] Executing: ${cmd}`);
+  logEvent(projectId, "spawn", { cmd });
 
   const pythonProcess = spawn(pythonBin, args, {
     cwd: process.cwd(),
     env: { ...process.env },
   });
 
-  let finished = false;
-
-  const timeout = setTimeout(async () => {
+  const timeout = setTimeout(() => {
     if (finished) return;
-    finished = true;
     console.error(`[Analyzer ${projectId}] Timeout after 10 minutes — killing`);
     pythonProcess.kill("SIGKILL");
-    await storage.updateProjectStatus(projectId, "failed");
+    void finishOnce("failed", "timeout_10m");
   }, 10 * 60 * 1000);
 
   let stdout = "";
@@ -169,18 +196,17 @@ async function runAnalysis(projectId: number, source: string, mode: string) {
     console.error(`[Analyzer ${projectId} ERR]: ${data}`);
   });
 
-  pythonProcess.on("error", async (err) => {
-    if (finished) return;
-    finished = true;
+  pythonProcess.on("error", (err) => {
     clearTimeout(timeout);
     console.error(`[Analyzer ${projectId}] Spawn error:`, err);
-    await storage.updateProjectStatus(projectId, "failed");
+    logEvent(projectId, "spawn_error", { error: String(err) });
+    void finishOnce("failed", "spawn_error");
   });
 
   pythonProcess.on("close", async (code) => {
-    if (finished) return;
-    finished = true;
     clearTimeout(timeout);
+    if (finished) return;
+    logEvent(projectId, "exit", { code });
     console.log(`[Analyzer ${projectId}] Exited code=${code}`);
 
     if (code === 0) {
@@ -188,8 +214,8 @@ async function runAnalysis(projectId: number, source: string, mode: string) {
         const requiredArtifacts = ["operate.json", "DOSSIER.md", "claims.json"];
         for (const artifact of requiredArtifacts) {
           if (!existsSync(path.join(outputDir, artifact))) {
-            console.error(`[Analyzer ${projectId}] Missing required artifact: ${artifact}`);
-            await storage.updateProjectStatus(projectId, "failed");
+            logEvent(projectId, "missing_artifact", { artifact });
+            await finishOnce("failed", `missing_artifact:${artifact}`);
             return;
           }
         }
@@ -221,15 +247,15 @@ async function runAnalysis(projectId: number, source: string, mode: string) {
           unknowns: howto.unknowns || [],
         });
 
-        await storage.updateProjectStatus(projectId, "completed");
-        console.log(`[Analyzer ${projectId}] Completed successfully`);
+        await finishOnce("completed");
       } catch (err) {
         console.error(`[Analyzer ${projectId}] Error saving results:`, err);
-        await storage.updateProjectStatus(projectId, "failed");
+        logEvent(projectId, "save_error", { error: String(err) });
+        await finishOnce("failed", "save_error");
       }
     } else {
-      console.error(`[Analyzer ${projectId}] Failed with stderr:\n${stderr}`);
-      await storage.updateProjectStatus(projectId, "failed");
+      logEvent(projectId, "nonzero_exit", { code, stderr: stderr.slice(-500) });
+      await finishOnce("failed", `exit_code_${code}`);
     }
   });
 }
