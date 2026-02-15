@@ -14,9 +14,10 @@ export const projects = pgTable("projects", {
 export const analyses = pgTable("analyses", {
   id: serial("id").primaryKey(),
   projectId: integer("project_id").notNull(),
-  dossier: text("dossier"), // Markdown content
+  dossier: text("dossier"),
   claims: jsonb("claims"),
   howto: jsonb("howto"),
+  operate: jsonb("operate"),
   coverage: jsonb("coverage"),
   unknowns: jsonb("unknowns"),
   createdAt: timestamp("created_at").defaultNow(),

@@ -136,11 +136,13 @@ async function runAnalysis(projectId: number, source: string, mode: string) {
         const dossierPath = path.join(outputDir, "DOSSIER.md");
         const claimsPath = path.join(outputDir, "claims.json");
         const howtoPath = path.join(outputDir, "target_howto.json");
+        const operatePath = path.join(outputDir, "operate.json");
         const coveragePath = path.join(outputDir, "coverage.json");
 
         const dossier = await fs.readFile(dossierPath, "utf-8").catch(() => "");
         const claims = JSON.parse(await fs.readFile(claimsPath, "utf-8").catch(() => "{}"));
         const howto = JSON.parse(await fs.readFile(howtoPath, "utf-8").catch(() => "{}"));
+        const operate = JSON.parse(await fs.readFile(operatePath, "utf-8").catch(() => "{}"));
         const coverage = JSON.parse(await fs.readFile(coveragePath, "utf-8").catch(() => "{}"));
 
         await storage.createAnalysis({
@@ -148,6 +150,7 @@ async function runAnalysis(projectId: number, source: string, mode: string) {
           dossier,
           claims,
           howto,
+          operate,
           coverage,
           unknowns: howto.unknowns || [],
         });
