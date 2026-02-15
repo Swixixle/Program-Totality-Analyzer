@@ -353,7 +353,3 @@ bash scripts/fix-rebase.sh --abort
 For detailed manual procedures, see:
 - [`docs/REBASE_RESOLUTION_GUIDE.md`](docs/REBASE_RESOLUTION_GUIDE.md) — Complete manual and automated resolution procedures
 - [`REBASE_VERIFICATION_REPORT.md`](REBASE_VERIFICATION_REPORT.md) — Repository state verification documentation
-
-## License
-
-MIT
