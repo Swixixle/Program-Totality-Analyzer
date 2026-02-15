@@ -26,6 +26,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <NavLink href="/projects" active={location.startsWith("/projects")}>
               Archives
             </NavLink>
+            <NavLink href="/ci" active={location.startsWith("/ci")}>
+              CI Feed
+            </NavLink>
             <div className="w-px h-6 bg-border mx-2" />
             <a 
               href="https://github.com" 

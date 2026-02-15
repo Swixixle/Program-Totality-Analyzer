@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { api } from "@shared/routes";
@@ -7,6 +7,8 @@ import { spawn } from "child_process";
 import path from "path";
 import fs from "fs/promises";
 import { existsSync, readFileSync, appendFileSync, mkdirSync } from "fs";
+import crypto from "crypto";
+import { processOneJob, startWorkerLoop } from "./ci-worker";
 
 const LOG_DIR = path.resolve(process.cwd(), "out", "_log");
 const LOG_FILE = path.join(LOG_DIR, "analyzer.ndjson");
@@ -184,7 +186,176 @@ export async function registerRoutes(
     }
   });
 
+  // ============== CI FEED ROUTES ==============
+
+  const webhookRateLimiter = createRateLimiter(30, 60_000);
+
+  app.post("/api/webhooks/github", async (req: Request, res: Response) => {
+    if (!webhookRateLimiter()) {
+      return res.status(429).json({ error: "rate_limited" });
+    }
+
+    const secret = process.env.GITHUB_WEBHOOK_SECRET;
+    if (!secret) {
+      console.error("[Webhook] GITHUB_WEBHOOK_SECRET not set");
+      return res.status(500).json({ error: "webhook_not_configured" });
+    }
+
+    const sigHeader = req.headers["x-hub-signature-256"] as string | undefined;
+    if (!sigHeader) {
+      return res.status(401).json({ error: "missing_signature" });
+    }
+
+    const rawBody = JSON.stringify(req.body);
+    const expected = "sha256=" + crypto.createHmac("sha256", secret).update(rawBody).digest("hex");
+    if (!crypto.timingSafeEqual(Buffer.from(sigHeader), Buffer.from(expected))) {
+      return res.status(401).json({ error: "invalid_signature" });
+    }
+
+    const event = req.headers["x-github-event"] as string;
+    const payload = req.body;
+
+    if (event === "push") {
+      const owner = payload.repository?.owner?.login || payload.repository?.owner?.name;
+      const repo = payload.repository?.name;
+      const refFull = payload.ref || "";
+      const ref = refFull.replace("refs/heads/", "");
+      const sha = payload.after;
+
+      if (!owner || !repo || !sha) {
+        return res.status(400).json({ error: "missing_fields" });
+      }
+
+      const existing = await storage.findExistingCiRun(owner, repo, sha);
+      if (existing) {
+        console.log(`[Webhook] Deduplicated push for ${owner}/${repo}@${sha}`);
+        return res.json({ ok: true, run_id: existing.id, deduplicated: true });
+      }
+
+      const run = await storage.createCiRun({ repoOwner: owner, repoName: repo, ref, commitSha: sha, eventType: "push", status: "QUEUED" });
+      await storage.createCiJob(run.id);
+      console.log(`[Webhook] Created run ${run.id} for push ${owner}/${repo}@${sha}`);
+      return res.json({ ok: true, run_id: run.id });
+
+    } else if (event === "pull_request") {
+      const action = payload.action;
+      if (!["opened", "synchronize", "reopened"].includes(action)) {
+        return res.status(202).json({ ok: true, ignored: true });
+      }
+
+      const owner = payload.repository?.owner?.login;
+      const repo = payload.repository?.name;
+      const ref = payload.pull_request?.head?.ref;
+      const sha = payload.pull_request?.head?.sha;
+
+      if (!owner || !repo || !ref || !sha) {
+        return res.status(400).json({ error: "missing_fields" });
+      }
+
+      const existing = await storage.findExistingCiRun(owner, repo, sha);
+      if (existing) {
+        return res.json({ ok: true, run_id: existing.id, deduplicated: true });
+      }
+
+      const run = await storage.createCiRun({ repoOwner: owner, repoName: repo, ref, commitSha: sha, eventType: "pull_request", status: "QUEUED" });
+      await storage.createCiJob(run.id);
+      console.log(`[Webhook] Created run ${run.id} for PR ${owner}/${repo}@${sha}`);
+      return res.json({ ok: true, run_id: run.id });
+
+    } else {
+      return res.status(202).json({ ok: true, ignored: true });
+    }
+  });
+
+  app.get("/api/ci/runs", async (req: Request, res: Response) => {
+    const owner = String(req.query.owner || "");
+    const repo = String(req.query.repo || "");
+    const limit = Math.min(Number(req.query.limit) || 50, 200);
+
+    if (!owner || !repo) {
+      return res.status(400).json({ error: "owner and repo query params required" });
+    }
+
+    const runs = await storage.getCiRuns(owner, repo, limit);
+    res.json({ ok: true, runs });
+  });
+
+  app.get("/api/ci/runs/:id", async (req: Request, res: Response) => {
+    const run = await storage.getCiRun(String(req.params.id));
+    if (!run) {
+      return res.status(404).json({ error: "run not found" });
+    }
+    res.json({ ok: true, run });
+  });
+
+  app.post("/api/ci/enqueue", async (req: Request, res: Response) => {
+    const { owner, repo, ref, commit_sha, event_type } = req.body || {};
+    if (!owner || !repo || !ref || !commit_sha) {
+      return res.status(400).json({ error: "missing required fields: owner, repo, ref, commit_sha" });
+    }
+
+    const existing = await storage.findExistingCiRun(owner, repo, commit_sha);
+    if (existing) {
+      return res.json({ ok: true, run_id: existing.id, deduplicated: true });
+    }
+
+    const run = await storage.createCiRun({
+      repoOwner: owner,
+      repoName: repo,
+      ref,
+      commitSha: commit_sha,
+      eventType: event_type || "manual",
+      status: "QUEUED",
+    });
+    await storage.createCiJob(run.id);
+    console.log(`[CI] Manual enqueue: run=${run.id} ${owner}/${repo}@${commit_sha}`);
+    res.json({ ok: true, run_id: run.id });
+  });
+
+  app.post("/api/ci/worker/tick", async (_req: Request, res: Response) => {
+    try {
+      const result = await processOneJob();
+      res.json({ ok: true, ...result });
+    } catch (err: any) {
+      res.status(500).json({ ok: false, error: String(err?.message || err) });
+    }
+  });
+
+  app.get("/api/ci/health", async (_req: Request, res: Response) => {
+    try {
+      const jobCounts = await storage.getCiJobCounts();
+      const lastRun = await storage.getLastCompletedRun();
+      res.json({
+        ok: true,
+        jobs: jobCounts,
+        last_completed: lastRun ? {
+          id: lastRun.id,
+          status: lastRun.status,
+          finished_at: lastRun.finishedAt,
+          repo: `${lastRun.repoOwner}/${lastRun.repoName}`,
+        } : null,
+      });
+    } catch (err: any) {
+      res.status(500).json({ ok: false, error: String(err?.message || err) });
+    }
+  });
+
+  startWorkerLoop();
+
   return httpServer;
+}
+
+function createRateLimiter(maxRequests: number, windowMs: number) {
+  const timestamps: number[] = [];
+  return () => {
+    const now = Date.now();
+    while (timestamps.length > 0 && timestamps[0] < now - windowMs) {
+      timestamps.shift();
+    }
+    if (timestamps.length >= maxRequests) return false;
+    timestamps.push(now);
+    return true;
+  };
 }
 
 async function runAnalysis(projectId: number, source: string, mode: string) {
