@@ -23,11 +23,28 @@ echo
 # 1) Remove any token-embedded origin URL (never keep secrets in remotes)
 echo "Step 1: Cleaning remote URL (removing any embedded tokens)..."
 CURRENT_URL=$(git remote get-url origin 2>/dev/null || echo "")
-if [[ "$CURRENT_URL" == *"@github.com"* ]]; then
+
+if [[ -z "$CURRENT_URL" ]]; then
+  echo "  Warning: No origin remote found, using default repository"
+  CLEAN_URL="https://github.com/Swixixle/Asset-Analyzer.git"
+  git remote add origin "$CLEAN_URL"
+elif [[ "$CURRENT_URL" == *"@github.com"* ]]; then
   echo "  Removing embedded credentials from remote URL"
+  # Extract repo path from URL like https://token@github.com/user/repo.git
+  CLEAN_URL=$(echo "$CURRENT_URL" | sed -E 's|https://[^@]+@github.com|https://github.com|')
+  git remote set-url origin "$CLEAN_URL"
+elif [[ "$CURRENT_URL" == https://github.com/* ]]; then
+  # URL is already clean
+  CLEAN_URL="$CURRENT_URL"
+  echo "  URL is already clean (no embedded credentials)"
+else
+  # Non-GitHub URL or unexpected format
+  echo "  Warning: URL is not a GitHub HTTPS URL: $CURRENT_URL"
+  echo "  Keeping current URL unchanged"
+  CLEAN_URL="$CURRENT_URL"
 fi
-git remote set-url origin https://github.com/Swixixle/Asset-Analyzer.git
-echo "✓ Remote URL set to: https://github.com/Swixixle/Asset-Analyzer.git"
+
+echo "✓ Remote URL: $CLEAN_URL"
 git remote -v
 echo
 

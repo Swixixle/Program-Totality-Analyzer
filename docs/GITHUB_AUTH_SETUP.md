@@ -2,6 +2,8 @@
 
 This guide explains how to configure Git authentication in Replit Shell so you can push and pull from GitHub **without** embedding your Personal Access Token (PAT) in the remote URL.
 
+> **Note:** This guide uses `Swixixle/Asset-Analyzer` as an example repository. Replace with your actual repository URL where applicable.
+
 ## Quick Setup (Automated)
 
 **Prerequisites:**
