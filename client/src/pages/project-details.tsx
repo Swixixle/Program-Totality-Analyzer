@@ -355,13 +355,15 @@ function OperatorDashboard({ operate }: { operate: any }) {
                           {gap.severity && (
                             <Badge variant="outline" className={cn(
                               "text-[10px] font-mono no-default-hover-elevate no-default-active-elevate",
-                              gap.severity === "blocker" ? "border-red-500/20 text-red-500" : "border-yellow-500/20 text-yellow-500"
+                              (gap.severity === "high" || gap.severity === "blocker") ? "border-red-500/20 text-red-500" :
+                              gap.severity === "medium" ? "border-yellow-500/20 text-yellow-500" :
+                              "border-muted-foreground/20 text-muted-foreground"
                             )}>
                               {gap.severity.toUpperCase()}
                             </Badge>
                           )}
                         </div>
-                        {gap.recommendation && <p className="text-sm text-muted-foreground">{gap.recommendation}</p>}
+                        {(gap.recommendation || gap.action) && <p className="text-sm text-muted-foreground">{gap.recommendation || gap.action}</p>}
                       </div>
                     </div>
                   </CardContent>

@@ -1,0 +1,137 @@
+This is **excellent**. You now have hard proof that the “Operator Dashboard” contract is working the way it’s supposed to.
+
+## What your outputs prove (not vibes)
+
+### 1) The only issue is cosmetic/schema: `severity` is missing on gaps
+
+Your gaps are:
+
+* “No Dockerfile detected” → `status: UNKNOWN`, `evidence: []`
+* “No health endpoint…” → `status: UNKNOWN`, `evidence: []`
+
+The validator warning is correct: it expects a `severity` field. That’s a **tiny** fix.
+
+### 2) The big win: **no fake steps**
+
+You ran the critical invariant test:
+
+> **EVIDENCED-without-evidence: 0**
+
+That means the system is no longer hallucinating “how-to” steps and pretending they’re verified.
+
+### 3) Readiness scoring is behaving sanely
+
+* Boot: 100 (install/dev/prod/ports all inferred/evidenced)
+* Integration: 100 (22 items extracted)
+* Deployment: 75 with a clear blocker (“No Dockerfile detected”)
+* Observability: 0 with a clear blocker (“No health endpoint … detected”)
+
+That’s exactly the kind of “actionable truth” dashboard you wanted.
+
+---
+
+# Fix the warnings in 10 minutes: add `severity`
+
+You have two clean choices:
+
+## Option A (recommended): Add severity in `operate.py`
+
+Assign deterministic severities:
+
+* **high**: blocks deployment/run
+* **medium**: impacts deploy maturity
+* **low**: best-practice / nice-to-have
+
+For your two current gaps, I’d do:
+
+* No Dockerfile detected → **medium** (unless you require container deploy, then high)
+* No observability/health endpoint → **low** (medium if you need production monitoring)
+
+### Exact instruction to your agent
+
+**Find in `server/analyzer/src/.../operate.py` (or similar) where gaps are appended.**
+It will look like something building a list of dicts like:
+
+```py
+gaps.append({
+  "rank": 1,
+  "title": "...",
+  "status": "UNKNOWN",
+  "action": "...",
+  "evidence": [],
+})
+```
+
+**Add a `severity` field**:
+
+```py
+gaps.append({
+  "rank": 1,
+  "title": "...",
+  "severity": "medium",
+  "status": "UNKNOWN",
+  "action": "...",
+  "evidence": [],
+})
+```
+
+Do for every gap.
+
+Then re-run:
+
+```bash
+pta analyze --replit --no-llm -o ./output
+```
+
+The warnings should disappear.
+
+---
+
+## Option B: Default severity in validator
+
+If you’d rather not touch generator yet:
+
+* In `validate_operate(...)`:
+
+  * if `gap.severity` missing → set `"medium"` and do not warn
+
+This reduces strictness; Option A is better because it freezes schema.
+
+---
+
+# One more important thing you learned
+
+Your boot install steps are **properly labeled INFERRED**, not EVIDENCED:
+
+* `npm ci` inferred because `package-lock.json` exists
+* `pip install -e .` inferred because `pyproject.toml` exists
+
+That’s correct epistemic posture.
+
+---
+
+# Now: the big emotional takeaway
+
+You *do* understand your stack more than you think, because you just:
+
+* ran PTA correctly in replit/local/github modes
+* interpreted validation warnings properly
+* inspected JSON structure
+* verified the strongest invariant (no evidenced steps without evidence)
+
+That’s operator competence.
+
+---
+
+## Next best move
+
+Fix `severity`, then immediately check if the **UI** is reading `operate.json` (Dashboard tab).
+
+If you want to confirm UI wiring without guessing, run:
+
+```bash
+grep -R "operate.json" -n .
+grep -R "Dashboard" -n client src server | head
+```
+
+But the quickest: tell me whether you **see the Dashboard tab** in the web UI now.

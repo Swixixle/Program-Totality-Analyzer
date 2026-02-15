@@ -104,10 +104,15 @@ class TestOperateContract(unittest.TestCase):
             self.assertIsInstance(data.get("reasons"), list, f"{category} missing reasons list")
 
     def test_gaps_structure(self):
-        """Each gap must have rank and title."""
+        """Each gap must have rank, title, severity, and action."""
+        valid_severities = {"high", "medium", "low"}
         for gap in self.operate.get("gaps", []):
             self.assertIn("rank", gap)
             self.assertIn("title", gap)
+            self.assertIn("severity", gap, f"Gap '{gap.get('title')}' missing severity")
+            self.assertIn(gap["severity"], valid_severities,
+                          f"Gap '{gap.get('title')}' has invalid severity '{gap['severity']}'")
+            self.assertIn("action", gap, f"Gap '{gap.get('title')}' missing action")
 
     def test_runbooks_structure(self):
         """Each runbook step must have step number and action."""

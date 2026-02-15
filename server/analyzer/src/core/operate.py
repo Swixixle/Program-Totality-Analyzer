@@ -646,6 +646,16 @@ def _compute_gaps(boot: dict, integrate: dict, deploy: dict,
     gaps = []
     rank = 1
 
+    severity_map = {
+        "Install": "high",
+        "Dev run": "high",
+        "Prod run": "high",
+        "Port binding": "medium",
+        "Authentication": "medium",
+        "Observability": "low",
+        "Database migrations": "low",
+    }
+
     def _check(items: List[dict], category: str):
         nonlocal rank
         for item in items:
@@ -654,6 +664,7 @@ def _compute_gaps(boot: dict, integrate: dict, deploy: dict,
                 gaps.append({
                     "rank": rank,
                     "title": reason or f"{category}: unknown",
+                    "severity": severity_map.get(category, "medium"),
                     "status": "UNKNOWN",
                     "evidence": [],
                     "action": f"Investigate and document {category}",
@@ -668,6 +679,7 @@ def _compute_gaps(boot: dict, integrate: dict, deploy: dict,
         gaps.append({
             "rank": rank,
             "title": "No Dockerfile detected",
+            "severity": "medium",
             "status": "UNKNOWN",
             "evidence": [],
             "action": "Add Dockerfile or document deploy method",
@@ -677,6 +689,7 @@ def _compute_gaps(boot: dict, integrate: dict, deploy: dict,
         gaps.append({
             "rank": rank,
             "title": "No deployment platform hints detected",
+            "severity": "medium",
             "status": "UNKNOWN",
             "evidence": [],
             "action": "Add platform config (Procfile, vercel.json, etc.)",

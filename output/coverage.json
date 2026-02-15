@@ -1,0 +1,18 @@
+{
+  "mode_requested": "local",
+  "mode": "local",
+  "run_id": "acdc46d1589e",
+  "scanned": 157,
+  "skipped": 26,
+  "replit_detected": false,
+  "replit_detection_evidence": [],
+  "is_replit": false,
+  "self_skip": {
+    "enabled": true,
+    "excluded_paths": [
+      "server/analyzer"
+    ],
+    "excluded_file_count": 26,
+    "reason": "Analyzer source files excluded to prevent false-positive pattern matches"
+  }
+}

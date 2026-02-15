@@ -1,0 +1,91 @@
+{
+  "prereqs": [
+    "Node.js",
+    "Python"
+  ],
+  "install_steps": [
+    {
+      "step": "Install Node dependencies",
+      "command": "npm ci",
+      "evidence": {
+        "kind": "file_exists",
+        "path": "package-lock.json",
+        "snippet_hash": "053150b640a7",
+        "display": "package-lock.json (file exists)"
+      }
+    },
+    {
+      "step": "Install Python dependencies",
+      "command": "pip install .",
+      "evidence": {
+        "kind": "file_exists",
+        "path": "pyproject.toml",
+        "snippet_hash": "50c86b7ed8ac",
+        "display": "pyproject.toml (file exists)"
+      }
+    }
+  ],
+  "config": [],
+  "run_dev": [
+    {
+      "step": "Start dev server",
+      "command": "npm run dev",
+      "evidence": {
+        "path": "package.json",
+        "line_start": 7,
+        "line_end": 7,
+        "snippet_hash": "fd240a9dc053",
+        "display": "package.json:7"
+      }
+    }
+  ],
+  "run_prod": [
+    {
+      "step": "Build for production",
+      "command": "npm run build",
+      "evidence": {
+        "path": "package.json",
+        "line_start": 8,
+        "line_end": 8,
+        "snippet_hash": "79d8bdf275d6",
+        "display": "package.json:8"
+      }
+    },
+    {
+      "step": "Start production",
+      "command": "npm start",
+      "evidence": {
+        "path": "package.json",
+        "line_start": 9,
+        "line_end": 9,
+        "snippet_hash": "020435ddf436",
+        "display": "package.json:9"
+      }
+    }
+  ],
+  "usage_examples": [],
+  "verification_steps": [],
+  "common_failures": [],
+  "unknowns": [
+    {
+      "what_is_missing": "Semantic analysis of code purpose and architecture",
+      "why_it_matters": "Cannot determine system intent, integration patterns, or risk factors without LLM analysis",
+      "what_evidence_needed": "Re-run without --no-llm flag for full analysis"
+    }
+  ],
+  "missing_evidence_requests": [],
+  "completeness": {
+    "score": 32,
+    "max": 100,
+    "missing": [
+      "config: no config item with name+purpose+verified evidence",
+      "port_behavior: no port evidence with verified snippet_hash",
+      "verification_steps: no step with both a runnable command and verified evidence",
+      "usage_examples: no examples with meaningful descriptions"
+    ],
+    "deductions": [
+      "-3 for 1 unknown(s)"
+    ],
+    "notes": "-3 for 1 unknown(s); No Dockerfile found; 1 unknown(s) reported"
+  }
+}
