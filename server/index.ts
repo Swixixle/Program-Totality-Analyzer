@@ -106,19 +106,27 @@ app.use((req, res, next) => {
   // Note: This is a balanced policy that allows the app to function while providing security
   const cspDirectives = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // unsafe-inline/eval needed for Vite dev and some React features
-    "style-src 'self' 'unsafe-inline'", // unsafe-inline needed for styled components
     "img-src 'self' data: https:",
     "font-src 'self' data:",
-    "connect-src 'self' https://api.github.com https://github.com", // Allow GitHub API calls
+    "connect-src 'self' https://api.github.com https://github.com",
     "frame-ancestors 'self'",
     "base-uri 'self'",
     "form-action 'self'",
   ];
 
-  // In development, be more permissive for hot reload
+  // In development, be more permissive for hot reload and Vite
   if (!isProduction) {
-    cspDirectives.push("connect-src 'self' ws: wss: https://api.github.com https://github.com");
+    cspDirectives.push(
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // Vite dev requires these
+      "style-src 'self' 'unsafe-inline'",
+      "connect-src 'self' ws: wss: https://api.github.com https://github.com"
+    );
+  } else {
+    // Production: More restrictive CSP
+    cspDirectives.push(
+      "script-src 'self'", // No unsafe-inline/eval in production
+      "style-src 'self' 'unsafe-inline'" // unsafe-inline needed for styled components
+    );
   }
 
   res.setHeader("Content-Security-Policy", cspDirectives.join("; "));

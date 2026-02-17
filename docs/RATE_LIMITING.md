@@ -86,13 +86,21 @@ import rateLimit from "express-rate-limit";
 import RedisStore from "rate-limit-redis";
 import { createClient } from "redis";
 
-// Create Redis client
+// Create Redis client with error handling
 const redisClient = createClient({
   url: process.env.REDIS_URL || "redis://localhost:6379",
 });
 
-redisClient.on("error", (err) => console.error("Redis error:", err));
-redisClient.connect();
+redisClient.on("error", (err) => {
+  console.error("Redis connection error:", err);
+  // Consider implementing reconnection logic or falling back to in-memory rate limiting
+});
+
+// Connect to Redis with error handling
+redisClient.connect().catch((err) => {
+  console.error("Failed to connect to Redis:", err);
+  // Application should handle this gracefully, possibly by using in-memory fallback
+});
 
 // API rate limiter - 100 requests per 15 minutes
 export const apiLimiter = rateLimit({
@@ -105,6 +113,8 @@ export const apiLimiter = rateLimit({
     client: redisClient,
     prefix: "rl:api:",
   }),
+  // Skip rate limiting if Redis is unavailable (optional: implement in-memory fallback)
+  skip: (req) => !redisClient.isReady,
 });
 
 // Webhook rate limiter - 1000 requests per hour (higher for CI webhooks)
