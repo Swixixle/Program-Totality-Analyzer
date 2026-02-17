@@ -24,7 +24,9 @@ function sanitizeGitUrl(url: string): string {
  * 
  * Exported for testing.
  */
-export function validateWorkdir(workDir: string): { valid: boolean; error?: string; errorCode?: string } {
+export function validateWorkdir(workDir: string): 
+  | { valid: true } 
+  | { valid: false; error: string; errorCode: string } {
   const tmpBase = getCiTmpDir();
   
   try {
@@ -91,18 +93,21 @@ async function validateRepoLimits(repoDir: string): Promise<{ valid: boolean; er
           fileCount++;
           
           if (fileCount > MAX_FILE_COUNT) {
+            console.warn(`[validateRepoLimits] Too many files: ${fileCount} > ${MAX_FILE_COUNT} in ${dir}`);
             return false;
           }
           
           const stats = await fs.stat(fullPath);
           
           if (stats.size > MAX_SINGLE_FILE_BYTES) {
+            console.warn(`[validateRepoLimits] File too large: ${fullPath} (${stats.size} bytes)`);
             return false;
           }
           
           totalBytes += stats.size;
           
           if (totalBytes > MAX_REPO_BYTES) {
+            console.warn(`[validateRepoLimits] Total size exceeded: ${totalBytes} > ${MAX_REPO_BYTES}`);
             return false;
           }
         }

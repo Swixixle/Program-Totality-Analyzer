@@ -107,7 +107,7 @@ describe('CI Worker Workdir Containment', () => {
       fs.mkdirSync(allowedDir, { recursive: true });
       fs.mkdirSync(forbiddenDir, { recursive: true });
       
-      // Create symlink that escapes allowed directory
+      // Create symlink that points to sibling directory
       fs.symlinkSync('../forbidden', symlinkPath);
       
       // validateWorkdir should use realpath and accept it since it's still under testTmpDir
@@ -115,6 +115,7 @@ describe('CI Worker Workdir Containment', () => {
       const result = validateWorkdir(symlinkPath);
       
       // This is actually valid because forbidden is still under testTmpDir (our CI_TMP_DIR)
+      // The security boundary is CI_TMP_DIR, not subdirectories within it
       expect(result.valid).toBe(true);
     });
     

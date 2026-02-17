@@ -1165,8 +1165,10 @@ RULES:
             # Clean up tmp file on error
             try:
                 os.unlink(tmp_path)
-            except Exception:
-                pass
+            except Exception as cleanup_error:
+                # Log cleanup failure for operational visibility
+                import sys
+                print(f"Warning: Failed to cleanup tmp file {tmp_path}: {cleanup_error}", file=sys.stderr)
             raise write_error
 
     def save_json_with_validation(self, filename: str, data: Any, validator_func):
