@@ -3,6 +3,7 @@ import { spawn } from "child_process";
 import path from "path";
 import fs from "fs/promises";
 import { existsSync, mkdirSync, statfsSync, realpathSync } from "fs";
+import { CI_ERROR_CODES, parseErrorCode } from "./ci-error-codes";
 
 const CI_OUT_BASE = path.resolve(process.cwd(), "out", "ci");
 
@@ -21,7 +22,7 @@ function sanitizeGitUrl(url: string): string {
  * - No symlinks in path
  * - No ".." escapes
  */
-function validateWorkdir(workDir: string): { valid: boolean; error?: string } {
+function validateWorkdir(workDir: string): { valid: boolean; error?: string; errorCode?: string } {
   const tmpBase = getCiTmpDir();
   
   try {
@@ -33,7 +34,8 @@ function validateWorkdir(workDir: string): { valid: boolean; error?: string } {
     if (!realWorkDir.startsWith(realTmpBase + path.sep) && realWorkDir !== realTmpBase) {
       return {
         valid: false,
-        error: `workdir_escape: ${workDir} is not under ${tmpBase}`
+        errorCode: CI_ERROR_CODES.WORKDIR_ESCAPE,
+        error: `${CI_ERROR_CODES.WORKDIR_ESCAPE}: ${workDir} is not under ${tmpBase}`
       };
     }
     
@@ -42,7 +44,8 @@ function validateWorkdir(workDir: string): { valid: boolean; error?: string } {
     if (relPath.includes("..")) {
       return {
         valid: false,
-        error: `workdir_escape: path contains ".." escape`
+        errorCode: CI_ERROR_CODES.WORKDIR_ESCAPE,
+        error: `${CI_ERROR_CODES.WORKDIR_ESCAPE}: path contains ".." escape`
       };
     }
     
@@ -50,7 +53,8 @@ function validateWorkdir(workDir: string): { valid: boolean; error?: string } {
   } catch (err) {
     return {
       valid: false,
-      error: `workdir_validation_error: ${err}`
+      errorCode: CI_ERROR_CODES.WORKDIR_INVALID,
+      error: `${CI_ERROR_CODES.WORKDIR_INVALID}: ${err}`
     };
   }
 }
@@ -59,7 +63,7 @@ function validateWorkdir(workDir: string): { valid: boolean; error?: string } {
  * Check repository size limits (DoS controls).
  * Returns error if limits exceeded.
  */
-async function validateRepoLimits(repoDir: string): Promise<{ valid: boolean; error?: string }> {
+async function validateRepoLimits(repoDir: string): Promise<{ valid: boolean; error?: string; errorCode?: string }> {
   try {
     let totalBytes = 0;
     let fileCount = 0;
@@ -110,18 +114,21 @@ async function validateRepoLimits(repoDir: string): Promise<{ valid: boolean; er
       if (fileCount > MAX_FILE_COUNT) {
         return {
           valid: false,
-          error: `repo_too_many_files: ${fileCount} files exceeds limit ${MAX_FILE_COUNT}`
+          errorCode: CI_ERROR_CODES.TOO_MANY_FILES,
+          error: `${CI_ERROR_CODES.TOO_MANY_FILES}: ${fileCount} files exceeds limit ${MAX_FILE_COUNT}`
         };
       }
       if (totalBytes > MAX_REPO_BYTES) {
         return {
           valid: false,
-          error: `repo_too_large: ${totalBytes} bytes exceeds limit ${MAX_REPO_BYTES}`
+          errorCode: CI_ERROR_CODES.REPO_TOO_LARGE,
+          error: `${CI_ERROR_CODES.REPO_TOO_LARGE}: ${totalBytes} bytes exceeds limit ${MAX_REPO_BYTES}`
         };
       }
       return {
         valid: false,
-        error: `repo_file_too_large: single file exceeds limit ${MAX_SINGLE_FILE_BYTES}`
+        errorCode: CI_ERROR_CODES.FILE_TOO_LARGE,
+        error: `${CI_ERROR_CODES.FILE_TOO_LARGE}: single file exceeds limit ${MAX_SINGLE_FILE_BYTES}`
       };
     }
     
@@ -130,7 +137,8 @@ async function validateRepoLimits(repoDir: string): Promise<{ valid: boolean; er
   } catch (err) {
     return {
       valid: false,
-      error: `repo_validation_error: ${err}`
+      errorCode: CI_ERROR_CODES.UNKNOWN_ERROR,
+      error: `${CI_ERROR_CODES.UNKNOWN_ERROR}: repo validation error: ${err}`
     };
   }
 }
@@ -182,7 +190,7 @@ export async function processOneJob(): Promise<{ processed: boolean; runId?: str
 
   const { lowDisk } = checkDiskSpace(tmpBase);
   if (lowDisk) {
-    const errMsg = "ci_tmp_dir_low_disk";
+    const errMsg = `${CI_ERROR_CODES.LOW_DISK_SPACE}: ci_tmp_dir_low_disk`;
     console.error(`[CI Worker] Low disk space in ${tmpBase}, failing job`);
     await storage.updateCiRun(run.id, {
       status: "FAILED",
@@ -259,7 +267,7 @@ export async function processOneJob(): Promise<{ processed: boolean; runId?: str
       await storage.updateCiRun(run.id, {
         status: "FAILED",
         finishedAt: new Date(),
-        error: `max_attempts: ${errMsg}`,
+        error: `${CI_ERROR_CODES.MAX_ATTEMPTS_EXCEEDED}: ${errMsg}`,
       });
       await storage.completeJob(job.id, "DEAD", errMsg);
     } else {
@@ -321,10 +329,14 @@ async function runAnalyzerOnDir(
   repoDir: string,
   outDir: string,
   runId: string
-): Promise<{ success: boolean; error?: string; summary?: any }> {
+): Promise<{ success: boolean; error?: string; errorCode?: string; summary?: any }> {
   const pythonBin = path.join(process.cwd(), ".pythonlibs/bin/python3");
   if (!existsSync(pythonBin)) {
-    return { success: false, error: "python_not_found" };
+    return { 
+      success: false, 
+      errorCode: CI_ERROR_CODES.PYTHON_NOT_FOUND,
+      error: `${CI_ERROR_CODES.PYTHON_NOT_FOUND}: python interpreter not found at ${pythonBin}` 
+    };
   }
 
   const args = ["-m", "server.analyzer.analyzer_cli", "analyze", repoDir, "--output-dir", outDir];
@@ -340,7 +352,11 @@ async function runAnalyzerOnDir(
 
     const timeout = setTimeout(() => {
       proc.kill("SIGKILL");
-      resolve({ success: false, error: "timeout_10m" });
+      resolve({ 
+        success: false, 
+        errorCode: CI_ERROR_CODES.ANALYZER_TIMEOUT,
+        error: `${CI_ERROR_CODES.ANALYZER_TIMEOUT}: exceeded ${Number(process.env.ANALYZER_TIMEOUT_MS) || 600000}ms` 
+      });
     }, Number(process.env.ANALYZER_TIMEOUT_MS) || 10 * 60 * 1000);
 
     proc.stdout.on("data", (d) => {
@@ -352,12 +368,20 @@ async function runAnalyzerOnDir(
     });
     proc.on("error", (err) => {
       clearTimeout(timeout);
-      resolve({ success: false, error: `spawn_error: ${err}` });
+      resolve({ 
+        success: false, 
+        errorCode: CI_ERROR_CODES.ANALYZER_SPAWN_ERROR,
+        error: `${CI_ERROR_CODES.ANALYZER_SPAWN_ERROR}: ${err}` 
+      });
     });
     proc.on("close", async (code) => {
       clearTimeout(timeout);
       if (code !== 0) {
-        resolve({ success: false, error: `exit_code_${code}: ${stderr.slice(-300)}` });
+        resolve({ 
+          success: false, 
+          errorCode: CI_ERROR_CODES.ANALYZER_EXIT_CODE,
+          error: `${CI_ERROR_CODES.ANALYZER_EXIT_CODE}: exit code ${code}: ${stderr.slice(-300)}` 
+        });
         return;
       }
 
