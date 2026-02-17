@@ -67,6 +67,14 @@ export async function registerRoutes(
       node_env: process.env.NODE_ENV || "development",
     };
 
+    // Version info
+    try {
+      const pkg = require("../package.json");
+      checks.version = pkg.version || "unknown";
+    } catch {
+      checks.version = "unknown";
+    }
+
     // Database check
     try {
       await storage.getProjects();

@@ -9,6 +9,51 @@ This guide covers deploying Asset-Analyzer (PTA) to production environments.
 - Domain with SSL/TLS certificate
 - Minimum 2GB RAM, 2 CPU cores, 20GB storage
 
+## Server Binding & Networking
+
+### Port Configuration
+
+PTA binds to a single port for all traffic (API + web UI):
+
+- **Default**: Port `5000`
+- **Configurable**: Set `PORT` environment variable
+- **Host**: Binds to `0.0.0.0` (all interfaces) by default
+- **Override**: Set `HOST` environment variable
+
+**Important**: In production, invalid `PORT` values cause fail-fast startup errors.
+
+### Startup Boot Report
+
+On successful startup, PTA emits a structured JSON log line:
+
+```json
+{
+  "timestamp": "2026-02-17T00:00:00.000Z",
+  "app_version": "1.0.0",
+  "node_env": "production",
+  "host": "0.0.0.0",
+  "port": 5000,
+  "db_configured": true,
+  "ci_enabled": true,
+  "semantic_enabled": false
+}
+```
+
+Use this for monitoring and observability.
+
+### Architecture
+
+```
+Internet → Reverse Proxy (nginx/caddy) → PTA Server (port 5000)
+             (TLS termination)              (HTTP only)
+```
+
+**Never expose port 5000 directly to the internet.** Always use a reverse proxy for:
+- TLS/SSL termination
+- Rate limiting
+- DDoS protection
+- Load balancing (if multiple instances)
+
 ## Deployment Options
 
 ### Option 1: Docker Compose (Recommended)

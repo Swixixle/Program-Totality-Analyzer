@@ -94,7 +94,12 @@
     "unknowns": {
       "type": "array",
       "description": "Unknown or unclear aspects",
-      "items": { "type": "string" }
+      "items": {
+        "oneOf": [
+          { "type": "string" },
+          { "type": "object" }
+        ]
+      }
     },
     "missing_evidence_requests": {
       "type": "array",

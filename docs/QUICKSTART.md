@@ -62,19 +62,44 @@ The application starts on `http://localhost:5000` (or the PORT you specified).
 
 ## Verify Installation
 
+### Run Smoke Test
+
+The smoke test validates that the analyzer is working correctly:
+
+```bash
+npm run smoke
+```
+
+Expected output:
+```
+==> PTA Smoke Test
+Running analyzer on fixture repo...
+✓ Both outputs exist
+✓ operate.json validates against schema
+✓ target_howto.json validates against schema
+✓ All required metadata fields present
+==> Smoke test PASSED ✅
+```
+
+If the smoke test passes, your installation is working correctly!
+
 ### Test the Health Endpoint
 
 ```bash
-curl http://localhost:5000/api/ci/health
+curl http://localhost:5000/api/health
 ```
 
 Expected response:
 ```json
 {
-  "ok": true,
-  "jobs": { "READY": 0, "LEASED": 0, "DONE": 0, "DEAD": 0 },
-  "last_completed": null,
-  "disk": { "used_gb": 0.5, "available_gb": 50 }
+  "status": "healthy",
+  "checks": {
+    "timestamp": "2026-02-17T00:00:00.000Z",
+    "version": "1.0.0",
+    "database": { "status": "ok" },
+    "worker": { "status": "ok" },
+    "disk": { "status": "ok" }
+  }
 }
 ```
 
