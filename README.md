@@ -1,8 +1,29 @@
 # Program Totality Analyzer
 
-A static-artifact-anchored analysis tool that generates technical dossiers for software projects. It extracts what a system is, how to run it, what it needs, and what it cannot determine — with every claim citing `file:line` evidence backed by SHA-256 snippet hashes.
+Evidence-first static analysis that generates operational dossiers and readiness assessments for software projects.
 
-**Scope limitation:** PTA analyzes static artifacts only (source files, config, lockfiles). It does not observe runtime behavior, prove correctness, or guarantee security. Claims labeled VERIFIED mean "anchored to a hash-verified source snippet," not "proven true at runtime."
+* **Audit-grade documentation** — every finding cites file:line evidence with cryptographic verification
+* **Operator-focused outputs** — boot commands, integration points, deployment config, readiness scores, and operational gaps
+* **CI/CD integration** — GitHub webhook-triggered analysis with searchable results feed
+
+**Read the full overview:** [PUBLIC.md](PUBLIC.md)  
+**Request a demo or pilot:** [CONTACT.md](CONTACT.md)
+
+**Note:** This repository contains public documentation and interface specifications. Core implementation methods and proprietary analysis strategies are not disclosed. This is not an open-source release of the core intellectual property.
+
+---
+
+## Quick Links
+
+* [Installation & Setup](docs/QUICKSTART.md)
+* [API Documentation](docs/API.md)
+* [Deployment Guide](docs/DEPLOYMENT.md)
+* [Security & Disclosure Policy](docs/SECURITY_AND_DISCLOSURE.md)
+
+---
+
+<details>
+<summary><strong>Detailed Documentation (Click to expand)</strong></summary>
 
 ## Supported Artifact Types
 
@@ -455,3 +476,5 @@ bash scripts/fix-rebase.sh --abort
 For detailed manual procedures, see:
 - [`docs/REBASE_RESOLUTION_GUIDE.md`](docs/REBASE_RESOLUTION_GUIDE.md) — Complete manual and automated resolution procedures
 - [`REBASE_VERIFICATION_REPORT.md`](REBASE_VERIFICATION_REPORT.md) — Repository state verification documentation
+
+</details>
