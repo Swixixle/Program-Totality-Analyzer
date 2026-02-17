@@ -21,8 +21,12 @@ function sanitizeGitUrl(url: string): string {
  * - Must be under CI_TMP_DIR
  * - No symlinks in path
  * - No ".." escapes
+ * 
+ * Exported for testing.
  */
-function validateWorkdir(workDir: string): { valid: boolean; error?: string; errorCode?: string } {
+export function validateWorkdir(workDir: string): 
+  | { valid: true } 
+  | { valid: false; error: string; errorCode: string } {
   const tmpBase = getCiTmpDir();
   
   try {
@@ -68,7 +72,7 @@ async function validateRepoLimits(repoDir: string): Promise<{ valid: boolean; er
     let totalBytes = 0;
     let fileCount = 0;
     
-    async function walk(dir: string) {
+    const walk = async (dir: string): Promise<boolean> => {
       const entries = await fs.readdir(dir, { withFileTypes: true });
       
       for (const entry of entries) {
@@ -77,36 +81,40 @@ async function validateRepoLimits(repoDir: string): Promise<{ valid: boolean; er
         
         const fullPath = path.join(dir, entry.name);
         
-        if (entry.isSymlink()) {
+        if (entry.isSymbolicLink()) {
           // Skip symlinks for security
           continue;
         }
         
         if (entry.isDirectory()) {
-          await walk(fullPath);
+          const result = await walk(fullPath);
+          if (!result) return false;
         } else if (entry.isFile()) {
           fileCount++;
           
           if (fileCount > MAX_FILE_COUNT) {
+            console.warn(`[validateRepoLimits] Too many files: ${fileCount} > ${MAX_FILE_COUNT} in ${dir}`);
             return false;
           }
           
           const stats = await fs.stat(fullPath);
           
           if (stats.size > MAX_SINGLE_FILE_BYTES) {
+            console.warn(`[validateRepoLimits] File too large: ${fullPath} (${stats.size} bytes)`);
             return false;
           }
           
           totalBytes += stats.size;
           
           if (totalBytes > MAX_REPO_BYTES) {
+            console.warn(`[validateRepoLimits] Total size exceeded: ${totalBytes} > ${MAX_REPO_BYTES}`);
             return false;
           }
         }
       }
       
       return true;
-    }
+    };
     
     const ok = await walk(repoDir);
     
@@ -191,11 +199,13 @@ export async function processOneJob(): Promise<{ processed: boolean; runId?: str
   const { lowDisk } = checkDiskSpace(tmpBase);
   if (lowDisk) {
     const errMsg = `${CI_ERROR_CODES.LOW_DISK_SPACE}: ci_tmp_dir_low_disk`;
+    const errorCode = CI_ERROR_CODES.LOW_DISK_SPACE;
     console.error(`[CI Worker] Low disk space in ${tmpBase}, failing job`);
     await storage.updateCiRun(run.id, {
       status: "FAILED",
       finishedAt: new Date(),
       error: errMsg,
+      errorCode,
     });
     await storage.completeJob(job.id, "DEAD", errMsg);
     return { processed: true, runId: run.id, status: "FAILED" };
@@ -210,11 +220,13 @@ export async function processOneJob(): Promise<{ processed: boolean; runId?: str
     const workdirCheck = validateWorkdir(runWorkDir);
     if (!workdirCheck.valid) {
       const errMsg = workdirCheck.error || "workdir_validation_failed";
+      const errorCode = workdirCheck.errorCode || CI_ERROR_CODES.WORKDIR_INVALID;
       console.error(`[CI Worker] Workdir validation failed: ${errMsg}`);
       await storage.updateCiRun(run.id, {
         status: "FAILED",
         finishedAt: new Date(),
         error: errMsg,
+        errorCode,
       });
       await storage.completeJob(job.id, "DEAD", errMsg);
       return { processed: true, runId: run.id, status: "FAILED" };
@@ -226,11 +238,13 @@ export async function processOneJob(): Promise<{ processed: boolean; runId?: str
     const limitsCheck = await validateRepoLimits(tmpDir);
     if (!limitsCheck.valid) {
       const errMsg = limitsCheck.error || "repo_limits_exceeded";
+      const errorCode = limitsCheck.errorCode || CI_ERROR_CODES.REPO_TOO_LARGE;
       console.error(`[CI Worker] Repo limits check failed: ${errMsg}`);
       await storage.updateCiRun(run.id, {
         status: "FAILED",
         finishedAt: new Date(),
         error: errMsg,
+        errorCode,
       });
       await storage.completeJob(job.id, "DEAD", errMsg);
       return { processed: true, runId: run.id, status: "FAILED" };
@@ -249,10 +263,13 @@ export async function processOneJob(): Promise<{ processed: boolean; runId?: str
       console.log(`[CI Worker] Run ${run.id} SUCCEEDED`);
       return { processed: true, runId: run.id, status: "SUCCEEDED" };
     } else {
+      const errorMsg = result.error || "unknown_error";
+      const errorCode = parseErrorCode(errorMsg);
       await storage.updateCiRun(run.id, {
         status: "FAILED",
         finishedAt: new Date(),
-        error: result.error || "unknown_error",
+        error: errorMsg,
+        errorCode,
         outDir: `out/ci/${run.id}`,
       });
       await storage.completeJob(job.id, "DONE", result.error);
@@ -261,6 +278,7 @@ export async function processOneJob(): Promise<{ processed: boolean; runId?: str
     }
   } catch (err: any) {
     const errMsg = sanitizeGitUrl(String(err?.message || err));
+    const errorCode = parseErrorCode(errMsg);
     console.error(`[CI Worker] Job ${job.id} exception:`, errMsg);
 
     if (job.attempts >= 3) {
@@ -268,6 +286,7 @@ export async function processOneJob(): Promise<{ processed: boolean; runId?: str
         status: "FAILED",
         finishedAt: new Date(),
         error: `${CI_ERROR_CODES.MAX_ATTEMPTS_EXCEEDED}: ${errMsg}`,
+        errorCode: CI_ERROR_CODES.MAX_ATTEMPTS_EXCEEDED,
       });
       await storage.completeJob(job.id, "DEAD", errMsg);
     } else {

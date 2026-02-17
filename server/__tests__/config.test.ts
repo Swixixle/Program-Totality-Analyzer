@@ -163,10 +163,12 @@ describe('getBootReport', () => {
     const report = getBootReport(config);
     
     expect(report).toHaveProperty('timestamp');
-    expect(report).toHaveProperty('app_version');
+    expect(report).toHaveProperty('tool_version');
+    expect(report.tool_version).toMatch(/^pta-/);
+    expect(report).not.toHaveProperty('app_version'); // Verify old field is removed
     expect(report.node_env).toBe('development');
-    expect(report.host).toBe('0.0.0.0');
-    expect(report.port).toBe(3000);
+    expect(report.bind_host).toBe('0.0.0.0');
+    expect(report.bind_port).toBe(3000);
     expect(report.db_configured).toBe(true);
     expect(report).toHaveProperty('ci_enabled');
     expect(report).toHaveProperty('semantic_enabled');

@@ -249,11 +249,13 @@ GitHub Actions workflow with multiple security scanners:
 - Blocks PRs with vulnerable dependencies
 - Alert level: moderate (configurable)
 
-#### 4. CodeQL Analysis
-- Static security analysis
+#### 4. CodeQL Analysis Configuration
+- Static security analysis capability configured
 - Languages: JavaScript, Python
-- Security-extended queries
-- Results in Security tab
+- Security-extended queries available
+- Results viewable in GitHub Security tab when enabled
+
+**Note**: CodeQL runs as part of GitHub's security scanning. Configure it via Security > Code scanning alerts in your repository settings.
 
 #### 5. Security Summary
 - Aggregates all scan results
@@ -269,7 +271,7 @@ GitHub Actions workflow with multiple security scanners:
 **Permissions:**
 - Least-privilege GITHUB_TOKEN
 - Explicit permissions per job
-- Security events write for CodeQL
+- Security events write permission for CodeQL integration (if enabled)
 
 ### Rate Limiting Documentation
 
@@ -309,10 +311,13 @@ Comprehensive guide with three implementation options:
 - Redis error handling added
 - Import validation confirmed
 
-### CodeQL Security Scan ✅
-- 5 alerts identified
-- 4 GitHub workflow permission alerts fixed
-- 1 rate-limiting alert (informational, addressed via documentation)
+### Security Scanning Capability ✅
+This repository is configured with comprehensive security scanning:
+- GitHub workflow permission checks
+- Static code analysis with CodeQL
+- Rate-limiting guidance documented
+
+**To verify**: Enable GitHub code scanning in repository settings and review Security > Code scanning alerts.
 
 ## Testing & Verification
 
@@ -388,9 +393,11 @@ These items were identified but deferred to maintain minimal changes:
 ### Security Improvements
 - 7 security headers added
 - Strict CSP in production
-- 4 automated security scanners
-- Weekly vulnerability scanning
-- CodeQL static analysis
+- 4 automated security scanners configured
+- Weekly vulnerability scanning capability
+- CodeQL static analysis configured
+
+**Note**: These capabilities are available when CI/CD is fully configured. See DEPLOYMENT.md for setup instructions.
 
 ## Success Criteria Met
 

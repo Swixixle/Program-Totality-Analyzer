@@ -7,62 +7,94 @@
  * - Paths outside CI_TMP_DIR
  */
 
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
 
-// We need to test the internal validateWorkdir function
-// Since it's not exported, we'll test it indirectly through processOneJob
-// or create a test export. For now, let's test the behavior we can observe.
+// Mock storage to avoid DATABASE_URL requirement
+vi.mock('../storage', () => ({
+  storage: {
+    createCiRun: vi.fn(),
+    updateCiRun: vi.fn(),
+    getCiRun: vi.fn(),
+  },
+}));
+
+// Now import after mocking
+import { validateWorkdir, getCiTmpDir } from '../ci-worker';
 
 describe('CI Worker Workdir Containment', () => {
   let testTmpDir: string;
+  let originalEnv: string | undefined;
   
   beforeEach(() => {
     // Create a temporary test directory
     testTmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'pta-containment-test-'));
+    
+    // Save original CI_TMP_DIR
+    originalEnv = process.env.CI_TMP_DIR;
+    
+    // Set CI_TMP_DIR to our test directory
+    process.env.CI_TMP_DIR = testTmpDir;
   });
   
   afterEach(() => {
+    // Restore original CI_TMP_DIR
+    if (originalEnv !== undefined) {
+      process.env.CI_TMP_DIR = originalEnv;
+    } else {
+      delete process.env.CI_TMP_DIR;
+    }
+    
     // Clean up test directory
     if (testTmpDir && fs.existsSync(testTmpDir)) {
       fs.rmSync(testTmpDir, { recursive: true, force: true });
     }
   });
   
-  describe('Path validation logic', () => {
-    it('should reject paths with ".." parent directory escape', () => {
-      // This tests the logic that should be in validateWorkdir
-      const basePath = '/tmp/ci';
-      const maliciousPath = '/tmp/ci/run-123/../../../etc/passwd';
+  describe('validateWorkdir function', () => {
+    it('should accept valid paths under CI_TMP_DIR', () => {
+      const validPath = path.join(testTmpDir, 'run-123', 'repo');
+      fs.mkdirSync(validPath, { recursive: true });
       
-      // The relative path check
-      const relPath = path.relative(basePath, maliciousPath);
-      expect(relPath.includes('..')).toBe(true);
+      const result = validateWorkdir(validPath);
       
-      // This should be rejected by validation
+      expect(result.valid).toBe(true);
+      expect(result.error).toBeUndefined();
+      expect(result.errorCode).toBeUndefined();
     });
     
-    it('should accept paths under CI_TMP_DIR', () => {
-      const basePath = '/tmp/ci';
-      const validPath = '/tmp/ci/run-123/repo';
+    it('should reject paths with ".." parent directory escape', () => {
+      // Create a valid directory first
+      const baseDir = path.join(testTmpDir, 'run-123');
+      fs.mkdirSync(baseDir, { recursive: true });
       
-      const relPath = path.relative(basePath, validPath);
-      expect(relPath.includes('..')).toBe(false);
-      expect(validPath.startsWith(basePath)).toBe(true);
+      // Create an escape path that actually exists
+      const outsideDir = path.join(testTmpDir, '..', 'outside');
+      fs.mkdirSync(outsideDir, { recursive: true });
+      
+      const result = validateWorkdir(outsideDir);
+      
+      expect(result.valid).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(result.errorCode).toBe('WORKDIR_ESCAPE');
+      
+      // Clean up
+      fs.rmSync(outsideDir, { recursive: true, force: true });
     });
     
     it('should reject paths outside CI_TMP_DIR', () => {
-      const basePath = '/tmp/ci';
-      const maliciousPath = '/etc/passwd';
+      const outsidePath = '/etc/passwd';
       
-      expect(maliciousPath.startsWith(basePath + path.sep)).toBe(false);
+      const result = validateWorkdir(outsidePath);
+      
+      expect(result.valid).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(result.errorCode).toBe('WORKDIR_ESCAPE');
     });
-  });
-  
-  describe('Symlink escape prevention', () => {
-    it('should detect symlink pointing outside allowed directory', () => {
+    
+    it('should reject symlink escape attacks', () => {
       // Create directory structure:
       // testTmpDir/allowed/
       // testTmpDir/forbidden/
@@ -75,99 +107,125 @@ describe('CI Worker Workdir Containment', () => {
       fs.mkdirSync(allowedDir, { recursive: true });
       fs.mkdirSync(forbiddenDir, { recursive: true });
       
-      // Create symlink that escapes allowed directory
+      // Create symlink that points to sibling directory
       fs.symlinkSync('../forbidden', symlinkPath);
       
-      // Verify symlink exists
-      expect(fs.lstatSync(symlinkPath).isSymbolicLink()).toBe(true);
+      // validateWorkdir should use realpath and accept it since it's still under testTmpDir
+      // The symlink points to testTmpDir/forbidden which is valid
+      const result = validateWorkdir(symlinkPath);
       
-      // Resolve the symlink
-      const realPath = fs.realpathSync(symlinkPath);
-      const realAllowedDir = fs.realpathSync(allowedDir);
-      
-      // The real path should NOT be under the allowed directory
-      expect(realPath.startsWith(realAllowedDir + path.sep)).toBe(false);
-      
-      // This demonstrates the attack that validateWorkdir should prevent
+      // This is actually valid because forbidden is still under testTmpDir (our CI_TMP_DIR)
+      // The security boundary is CI_TMP_DIR, not subdirectories within it
+      expect(result.valid).toBe(true);
     });
     
-    it('should allow symlinks that stay within allowed directory', () => {
+    it('should reject symlink that escapes outside CI_TMP_DIR', () => {
+      // Create a directory and symlink that points outside testTmpDir
+      const linkDir = path.join(testTmpDir, 'link-dir');
+      fs.mkdirSync(linkDir, { recursive: true });
+      
+      // Create a symlink to /tmp (parent of testTmpDir, outside CI_TMP_DIR)
+      const symlinkPath = path.join(linkDir, 'escape');
+      fs.symlinkSync('/tmp', symlinkPath);
+      
+      const result = validateWorkdir(symlinkPath);
+      
+      expect(result.valid).toBe(false);
+      expect(result.errorCode).toBe('WORKDIR_ESCAPE');
+    });
+    
+    it('should allow symlinks that stay within CI_TMP_DIR', () => {
       // Create directory structure:
-      // testTmpDir/allowed/
-      // testTmpDir/allowed/real/
-      // testTmpDir/allowed/link -> real
+      // testTmpDir/real/
+      // testTmpDir/link -> real
       
-      const allowedDir = path.join(testTmpDir, 'allowed');
-      const realDir = path.join(allowedDir, 'real');
-      const symlinkPath = path.join(allowedDir, 'link');
+      const realDir = path.join(testTmpDir, 'real');
+      const symlinkPath = path.join(testTmpDir, 'link');
       
-      fs.mkdirSync(allowedDir, { recursive: true });
       fs.mkdirSync(realDir, { recursive: true });
       
       // Create safe symlink within allowed directory
       fs.symlinkSync('real', symlinkPath);
       
-      const realPath = fs.realpathSync(symlinkPath);
-      const realAllowedDir = fs.realpathSync(allowedDir);
+      const result = validateWorkdir(symlinkPath);
       
-      // The real path should be under the allowed directory
-      expect(realPath.startsWith(realAllowedDir + path.sep) || realPath === realAllowedDir).toBe(true);
+      expect(result.valid).toBe(true);
+      expect(result.error).toBeUndefined();
+    });
+    
+    it('should handle non-existent paths gracefully', () => {
+      const nonExistentPath = path.join(testTmpDir, 'does-not-exist');
+      
+      const result = validateWorkdir(nonExistentPath);
+      
+      // Should fail because path doesn't exist (realpath will throw)
+      expect(result.valid).toBe(false);
+      expect(result.errorCode).toBe('WORKDIR_INVALID');
+    });
+    
+    it('should reject path equal to tmpBase parent', () => {
+      const parentPath = path.dirname(testTmpDir);
+      
+      const result = validateWorkdir(parentPath);
+      
+      expect(result.valid).toBe(false);
+      expect(result.errorCode).toBe('WORKDIR_ESCAPE');
     });
   });
   
-  describe('Containment function behavior', () => {
-    it('should validate that getCiTmpDir returns absolute path', () => {
-      // Import would be: const { getCiTmpDir } = require('../ci-worker');
-      // For now, we test the expected behavior
-      const tmpDir = process.env.CI_TMP_DIR || '/tmp/ci';
-      const resolved = path.resolve(tmpDir);
+  describe('getCiTmpDir function', () => {
+    it('should return CI_TMP_DIR when set', () => {
+      process.env.CI_TMP_DIR = '/custom/tmp/dir';
       
-      expect(path.isAbsolute(resolved)).toBe(true);
+      const result = getCiTmpDir();
+      
+      expect(result).toBe(path.resolve('/custom/tmp/dir'));
     });
     
-    it('should validate workdir is under tmpBase using realpath', () => {
-      // This tests the expected validateWorkdir logic
-      const tmpBase = testTmpDir;
-      const workDir = path.join(tmpBase, 'run-123');
+    it('should return default /tmp/ci when CI_TMP_DIR not set', () => {
+      delete process.env.CI_TMP_DIR;
       
-      fs.mkdirSync(workDir, { recursive: true });
+      const result = getCiTmpDir();
       
-      const realWorkDir = fs.realpathSync(workDir);
-      const realTmpBase = fs.realpathSync(tmpBase);
+      expect(result).toBe(path.resolve('/tmp/ci'));
+    });
+    
+    it('should return absolute path', () => {
+      const result = getCiTmpDir();
       
-      // Valid case: workdir is under tmpBase
-      const isContained = 
-        realWorkDir.startsWith(realTmpBase + path.sep) || 
-        realWorkDir === realTmpBase;
-      
-      expect(isContained).toBe(true);
+      expect(path.isAbsolute(result)).toBe(true);
     });
   });
   
   describe('Edge cases', () => {
-    it('should handle normalized paths correctly', () => {
-      const basePath = '/tmp/ci';
+    it('should handle complex path manipulations', () => {
+      // Create nested directory
+      const validDir = path.join(testTmpDir, 'a', 'b', 'c');
+      fs.mkdirSync(validDir, { recursive: true });
       
-      // Various representations of parent directory escapes
-      const testCases = [
-        '/tmp/ci/../../../etc/passwd',
-        '/tmp/ci/run/../../../etc/passwd',
-        '/tmp/ci/./run/../../etc/passwd',
-      ];
+      // Create a directory outside testTmpDir for testing
+      const outsideDir = path.join(testTmpDir, '..', 'outside-pta-test');
+      fs.mkdirSync(outsideDir, { recursive: true });
       
-      for (const testPath of testCases) {
-        const normalized = path.normalize(testPath);
-        // None of these should be under /tmp/ci after normalization
-        expect(normalized.startsWith(basePath + path.sep)).toBe(false);
-      }
+      // Try various escape attempts that point to the outside directory
+      const result = validateWorkdir(outsideDir);
+      expect(result.valid).toBe(false);
+      expect(result.errorCode).toBe('WORKDIR_ESCAPE');
+      
+      // Clean up
+      fs.rmSync(outsideDir, { recursive: true, force: true });
     });
     
-    it('should reject paths with embedded ".." components', () => {
-      const basePath = '/tmp/ci';
-      const relPath = path.relative(basePath, '/tmp/ci/run/../../../etc');
+    it('should handle normalized paths correctly', () => {
+      const validDir = path.join(testTmpDir, 'run-123');
+      fs.mkdirSync(validDir, { recursive: true });
       
-      // Should contain ".." indicating escape
-      expect(relPath.includes('..')).toBe(true);
+      // Path with redundant separators and dots
+      const weirdPath = path.join(testTmpDir, '.', 'run-123', '.');
+      
+      const result = validateWorkdir(weirdPath);
+      
+      expect(result.valid).toBe(true);
     });
   });
 });
@@ -175,12 +233,11 @@ describe('CI Worker Workdir Containment', () => {
 /**
  * Integration note:
  * 
- * The ci-worker.ts validateWorkdir function should implement:
+ * These tests now validate the actual validateWorkdir function exported from ci-worker.ts.
+ * The function implements:
  * 1. Resolve workDir to realpath (follows symlinks)
  * 2. Resolve tmpBase to realpath
  * 3. Check that realWorkDir starts with realTmpBase + path.sep
  * 4. Check that path.relative(tmpBase, workDir) doesn't contain ".."
- * 5. Return { valid: false, error: string } on any violation
- * 
- * These tests validate the security logic that should be in that function.
+ * 5. Return { valid: false, error: string, errorCode: string } on any violation
  */

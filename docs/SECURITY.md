@@ -186,7 +186,7 @@ These threats are **not** mitigated by PTA and must be addressed at deployment l
 
 - `npm audit` for Node.js dependencies
 - `pip-audit` for Python dependencies (when available)
-- CodeQL for code analysis
+- CodeQL for static code analysis (configure in repository settings)
 - GitHub Dependabot alerts
 
 ## Incident Response

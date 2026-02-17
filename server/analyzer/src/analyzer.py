@@ -1143,29 +1143,32 @@ RULES:
     def save_json(self, filename: str, data: Any):
         """Save JSON atomically using tmp file + rename."""
         import tempfile
-        import shutil
         
         final_path = self.output_dir / filename
+        # Create parent directory if needed
+        final_path.parent.mkdir(parents=True, exist_ok=True)
+        
         tmp_fd, tmp_path = tempfile.mkstemp(
             suffix='.tmp',
             prefix=f'.{filename}.',
-            dir=self.output_dir
+            dir=str(final_path.parent)
         )
         
         try:
             with os.fdopen(tmp_fd, 'w') as f:
                 json.dump(data, f, indent=2, default=str)
-            # Atomic rename
-            shutil.move(tmp_path, final_path)
+                f.flush()
+                os.fsync(f.fileno())
+            # Atomic rename (requires same filesystem)
+            os.replace(tmp_path, final_path)
         except Exception as write_error:
             # Clean up tmp file on error
             try:
                 os.unlink(tmp_path)
             except Exception as cleanup_error:
-                # Log cleanup failure but don't suppress original error
-                self.console.print(
-                    f"[yellow]Warning: Failed to cleanup tmp file {tmp_path}: {cleanup_error}[/yellow]"
-                )
+                # Log cleanup failure for operational visibility
+                import sys
+                print(f"Warning: Failed to cleanup tmp file {tmp_path}: {cleanup_error}", file=sys.stderr)
             raise write_error
 
     def save_json_with_validation(self, filename: str, data: Any, validator_func):

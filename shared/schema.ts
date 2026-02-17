@@ -36,6 +36,7 @@ export const ciRuns = pgTable("ci_runs", {
   startedAt: timestamp("started_at"),
   finishedAt: timestamp("finished_at"),
   error: text("error"),
+  errorCode: text("error_code"),
   outDir: text("out_dir"),
   summaryJson: jsonb("summary_json"),
 }, (table) => [
