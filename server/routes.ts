@@ -68,11 +68,18 @@ function requireDevAdmin(req: any, res: any): boolean {
   }
 
   const provided = String(req.headers["x-admin-key"] || "");
-  // Use timing-safe comparison to prevent timing attacks
-  const providedBuf = Buffer.from(provided);
-  const requiredBuf = Buffer.from(required);
   
-  if (providedBuf.length !== requiredBuf.length || !crypto.timingSafeEqual(providedBuf, requiredBuf)) {
+  // Use timing-safe comparison to prevent timing attacks
+  // Pad both to same length to prevent length-based timing attacks
+  const maxLen = Math.max(provided.length, required.length);
+  const providedPadded = provided.padEnd(maxLen, '\0');
+  const requiredPadded = required.padEnd(maxLen, '\0');
+  const providedBuf = Buffer.from(providedPadded);
+  const requiredBuf = Buffer.from(requiredPadded);
+  
+  const isValid = crypto.timingSafeEqual(providedBuf, requiredBuf) && provided.length === required.length;
+  
+  if (!isValid) {
     logAdminEvent("admin_auth_failed", {
       path: req.path,
       ip: req.ip,
@@ -106,11 +113,18 @@ function requireAuth(req: any, res: any): boolean {
   }
 
   const provided = String(req.headers["x-api-key"] || "");
-  // Use timing-safe comparison to prevent timing attacks
-  const providedBuf = Buffer.from(provided);
-  const apiKeyBuf = Buffer.from(apiKey);
   
-  if (providedBuf.length !== apiKeyBuf.length || !crypto.timingSafeEqual(providedBuf, apiKeyBuf)) {
+  // Use timing-safe comparison to prevent timing attacks
+  // Pad both to same length to prevent length-based timing attacks
+  const maxLen = Math.max(provided.length, apiKey.length);
+  const providedPadded = provided.padEnd(maxLen, '\0');
+  const apiKeyPadded = apiKey.padEnd(maxLen, '\0');
+  const providedBuf = Buffer.from(providedPadded);
+  const apiKeyBuf = Buffer.from(apiKeyPadded);
+  
+  const isValid = crypto.timingSafeEqual(providedBuf, apiKeyBuf) && provided.length === apiKey.length;
+  
+  if (!isValid) {
     logEvent(0, "api_auth_failed", {
       path: req.path,
       ip: req.ip,
@@ -142,8 +156,21 @@ export async function registerRoutes(
     }
     
     // Basic health check is public, but detailed checks require auth in production
-    const isAuthenticated = process.env.NODE_ENV !== "production" || 
-                            (process.env.API_KEY ? req.headers["x-api-key"] === process.env.API_KEY : true);
+    let isAuthenticated = false;
+    if (process.env.NODE_ENV === "production" && process.env.API_KEY) {
+      const provided = String(req.headers["x-api-key"] || "");
+      const apiKey = process.env.API_KEY;
+      // Use timing-safe comparison
+      const maxLen = Math.max(provided.length, apiKey.length);
+      const providedPadded = provided.padEnd(maxLen, '\0');
+      const apiKeyPadded = apiKey.padEnd(maxLen, '\0');
+      const providedBuf = Buffer.from(providedPadded);
+      const apiKeyBuf = Buffer.from(apiKeyPadded);
+      isAuthenticated = crypto.timingSafeEqual(providedBuf, apiKeyBuf) && provided.length === apiKey.length;
+    } else {
+      // In dev or when API_KEY is not set, allow access
+      isAuthenticated = true;
+    }
     
     const checks: Record<string, any> = {
       timestamp: new Date().toISOString(),
@@ -612,6 +639,7 @@ function isValidRepositoryUrl(url: string, mode: string): boolean {
   // For replit mode, validate as a file path
   if (mode === "replit") {
     // Must be an absolute path and should not contain suspicious characters
+    // Escape special regex characters properly
     const suspiciousPatterns = /[;&|`$(){}[\]<>]/;
     return path.isAbsolute(url) && !suspiciousPatterns.test(url);
   }
@@ -633,6 +661,7 @@ function isValidRepositoryUrl(url: string, mode: string): boolean {
       return false;
     }
     // Check for suspicious characters in owner/repo names
+    // Escape special regex characters properly
     const suspiciousPatterns = /[;&|`$(){}[\]<>]/;
     return !pathParts.some(part => suspiciousPatterns.test(part));
   } catch {
