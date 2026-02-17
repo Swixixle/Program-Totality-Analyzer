@@ -28,25 +28,88 @@ function logAdminEvent(event: string, detail?: Record<string, unknown>) {
   logEvent(0, event, detail);
 }
 
+// Rate limiters for different endpoints
+const adminAuthRateLimiter = createRateLimiter(5, 60_000); // 5 attempts per minute
+const projectApiRateLimiter = createRateLimiter(100, 60_000); // 100 requests per minute
+const ciApiRateLimiter = createRateLimiter(50, 60_000); // 50 requests per minute
+
 function requireDevAdmin(req: any, res: any): boolean {
-  if (process.env.NODE_ENV === "production") {
-    res.status(403).json({ error: "Forbidden" });
+  // Rate limit authentication attempts
+  if (!adminAuthRateLimiter()) {
+    logAdminEvent("admin_rate_limited", {
+      path: req.path,
+      ip: req.ip,
+      ua: String(req.headers["user-agent"] || ""),
+    });
+    res.status(429).json({ error: "Too many authentication attempts" });
     return false;
   }
+
   const required = process.env.ADMIN_KEY;
-  if (required && required.length > 0) {
-    const provided = String(req.headers["x-admin-key"] || "");
-    if (provided !== required) {
-      res.status(401).json({ error: "Unauthorized" });
+  if (!required || required.length === 0) {
+    // In production, admin key is required
+    if (process.env.NODE_ENV === "production") {
+      logAdminEvent("admin_key_not_configured", {
+        path: req.path,
+        ip: req.ip,
+      });
+      res.status(500).json({ error: "Admin authentication not configured" });
       return false;
     }
-  } else {
+    // In development without key, log warning
     logAdminEvent("admin_unguarded", {
       path: req.path,
       ip: req.ip,
       ua: String(req.headers["user-agent"] || ""),
     });
+    return true;
   }
+
+  const provided = String(req.headers["x-admin-key"] || "");
+  if (provided !== required) {
+    logAdminEvent("admin_auth_failed", {
+      path: req.path,
+      ip: req.ip,
+      ua: String(req.headers["user-agent"] || ""),
+      provided_length: provided.length,
+    });
+    res.status(401).json({ error: "Unauthorized" });
+    return false;
+  }
+
+  logAdminEvent("admin_auth_success", {
+    path: req.path,
+    ip: req.ip,
+  });
+  return true;
+}
+
+// Middleware to require authentication for API endpoints
+function requireAuth(req: any, res: any): boolean {
+  const apiKey = process.env.API_KEY;
+  
+  // If API_KEY is not set in production, require it
+  if (process.env.NODE_ENV === "production" && (!apiKey || apiKey.length === 0)) {
+    res.status(500).json({ error: "API authentication not configured" });
+    return false;
+  }
+
+  // In development without API_KEY, allow access
+  if (!apiKey || apiKey.length === 0) {
+    return true;
+  }
+
+  const provided = String(req.headers["x-api-key"] || "");
+  if (provided !== apiKey) {
+    logEvent(0, "api_auth_failed", {
+      path: req.path,
+      ip: req.ip,
+      ua: String(req.headers["user-agent"] || ""),
+    });
+    res.status(401).json({ error: "Unauthorized" });
+    return false;
+  }
+
   return true;
 }
 
@@ -144,12 +207,20 @@ export async function registerRoutes(
     });
   });
 
-  app.get(api.projects.list.path, async (_req, res) => {
+  app.get(api.projects.list.path, async (req, res) => {
+    if (!projectApiRateLimiter()) {
+      return res.status(429).json({ error: "Rate limit exceeded" });
+    }
+    if (!requireAuth(req, res)) return;
     const projects = await storage.getProjects();
     res.json(projects);
   });
 
   app.post(api.projects.create.path, async (req, res) => {
+    if (!projectApiRateLimiter()) {
+      return res.status(429).json({ error: "Rate limit exceeded" });
+    }
+    if (!requireAuth(req, res)) return;
     try {
       const input = api.projects.create.input.parse(req.body);
       const { mode, ...projectData } = input;
@@ -168,6 +239,10 @@ export async function registerRoutes(
   });
 
   app.get(api.projects.get.path, async (req, res) => {
+    if (!projectApiRateLimiter()) {
+      return res.status(429).json({ error: "Rate limit exceeded" });
+    }
+    if (!requireAuth(req, res)) return;
     const project = await storage.getProject(Number(req.params.id));
     if (!project) {
       return res.status(404).json({ message: 'Project not found' });
@@ -176,6 +251,10 @@ export async function registerRoutes(
   });
 
   app.get(api.projects.getAnalysis.path, async (req, res) => {
+    if (!projectApiRateLimiter()) {
+      return res.status(429).json({ error: "Rate limit exceeded" });
+    }
+    if (!requireAuth(req, res)) return;
     const analysis = await storage.getAnalysisByProjectId(Number(req.params.id));
     if (!analysis) {
       return res.status(404).json({ message: 'Analysis not found' });
@@ -184,11 +263,21 @@ export async function registerRoutes(
   });
 
   app.post(api.projects.analyze.path, async (req, res) => {
+    if (!projectApiRateLimiter()) {
+      return res.status(429).json({ error: "Rate limit exceeded" });
+    }
+    if (!requireAuth(req, res)) return;
     const projectId = Number(req.params.id);
     const project = await storage.getProject(projectId);
 
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
+    }
+
+    // Validate URL format to prevent injection
+    if (!isValidRepositoryUrl(project.url, project.mode || "github")) {
+      logEvent(projectId, "invalid_url", { url: project.url, mode: project.mode });
+      return res.status(400).json({ message: "Invalid repository URL" });
     }
 
     runAnalysis(project.id, project.url, project.mode || "github");
@@ -197,6 +286,10 @@ export async function registerRoutes(
   });
 
   app.post(api.projects.analyzeReplit.path, async (req, res) => {
+    if (!projectApiRateLimiter()) {
+      return res.status(429).json({ error: "Rate limit exceeded" });
+    }
+    if (!requireAuth(req, res)) return;
     try {
       const workspaceRoot = process.cwd();
       const folderName = path.basename(workspaceRoot);
@@ -369,6 +462,10 @@ export async function registerRoutes(
   });
 
   app.get("/api/ci/runs", async (req: Request, res: Response) => {
+    if (!ciApiRateLimiter()) {
+      return res.status(429).json({ error: "Rate limit exceeded" });
+    }
+    if (!requireAuth(req, res)) return;
     const owner = String(req.query.owner || "");
     const repo = String(req.query.repo || "");
     const limit = Math.min(Number(req.query.limit) || 50, 200);
@@ -382,6 +479,10 @@ export async function registerRoutes(
   });
 
   app.get("/api/ci/runs/:id", async (req: Request, res: Response) => {
+    if (!ciApiRateLimiter()) {
+      return res.status(429).json({ error: "Rate limit exceeded" });
+    }
+    if (!requireAuth(req, res)) return;
     const run = await storage.getCiRun(String(req.params.id));
     if (!run) {
       return res.status(404).json({ error: "run not found" });
@@ -390,6 +491,10 @@ export async function registerRoutes(
   });
 
   app.post("/api/ci/enqueue", async (req: Request, res: Response) => {
+    if (!ciApiRateLimiter()) {
+      return res.status(429).json({ error: "Rate limit exceeded" });
+    }
+    if (!requireAuth(req, res)) return;
     const { owner, repo, ref, commit_sha, event_type } = req.body || {};
     if (!owner || !repo || !ref || !commit_sha) {
       return res.status(400).json({ error: "missing required fields: owner, repo, ref, commit_sha" });
@@ -413,7 +518,11 @@ export async function registerRoutes(
     res.json({ ok: true, run_id: run.id });
   });
 
-  app.post("/api/ci/worker/tick", async (_req: Request, res: Response) => {
+  app.post("/api/ci/worker/tick", async (req: Request, res: Response) => {
+    if (!ciApiRateLimiter()) {
+      return res.status(429).json({ error: "Rate limit exceeded" });
+    }
+    if (!requireAuth(req, res)) return;
     try {
       const result = await processOneJob();
       res.json({ ok: true, ...result });
@@ -422,7 +531,11 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/ci/health", async (_req: Request, res: Response) => {
+  app.get("/api/ci/health", async (req: Request, res: Response) => {
+    if (!ciApiRateLimiter()) {
+      return res.status(429).json({ error: "Rate limit exceeded" });
+    }
+    if (!requireAuth(req, res)) return;
     try {
       const jobCounts = await storage.getCiJobCounts();
       const lastRun = await storage.getLastCompletedRun();
@@ -448,6 +561,43 @@ export async function registerRoutes(
   startWorkerLoop();
 
   return httpServer;
+}
+
+// Validate repository URL to prevent injection attacks
+function isValidRepositoryUrl(url: string, mode: string): boolean {
+  if (!url || typeof url !== "string") {
+    return false;
+  }
+
+  // For replit mode, validate as a file path
+  if (mode === "replit") {
+    // Must be an absolute path and should not contain suspicious characters
+    const suspiciousPatterns = /[;&|`$(){}[\]<>]/;
+    return path.isAbsolute(url) && !suspiciousPatterns.test(url);
+  }
+
+  // For github mode, validate as a GitHub URL
+  try {
+    const parsed = new URL(url);
+    // Only allow https protocol
+    if (parsed.protocol !== "https:") {
+      return false;
+    }
+    // Only allow github.com domain
+    if (parsed.hostname !== "github.com") {
+      return false;
+    }
+    // Validate format: https://github.com/owner/repo
+    const pathParts = parsed.pathname.split("/").filter(Boolean);
+    if (pathParts.length < 2) {
+      return false;
+    }
+    // Check for suspicious characters in owner/repo names
+    const suspiciousPatterns = /[;&|`$(){}[\]<>]/;
+    return !pathParts.some(part => suspiciousPatterns.test(part));
+  } catch {
+    return false;
+  }
 }
 
 function createRateLimiter(maxRequests: number, windowMs: number) {

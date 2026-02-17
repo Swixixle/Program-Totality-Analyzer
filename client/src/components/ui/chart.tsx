@@ -76,28 +76,51 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
     return null
   }
 
+  // Generate CSS safely without dangerouslySetInnerHTML
+  const cssRules = Object.entries(THEMES)
+    .map(([theme, prefix]) => {
+      const themeVars = colorConfig
+        .map(([key, itemConfig]) => {
+          const color =
+            itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
+            itemConfig.color
+          return color ? `  --color-${key}: ${sanitizeCssValue(color)};` : null
+        })
+        .filter(Boolean)
+        .join("\n")
+      
+      return `${prefix} [data-chart=${CSS.escape(id)}] {\n${themeVars}\n}`
+    })
+    .join("\n")
+
   return (
-    <style
-      dangerouslySetInnerHTML={{
-        __html: Object.entries(THEMES)
-          .map(
-            ([theme, prefix]) => `
-${prefix} [data-chart=${id}] {
-${colorConfig
-  .map(([key, itemConfig]) => {
-    const color =
-      itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
-      itemConfig.color
-    return color ? `  --color-${key}: ${color};` : null
-  })
-  .join("\n")}
-}
-`
-          )
-          .join("\n"),
-      }}
-    />
+    <style>
+      {cssRules}
+    </style>
   )
+}
+
+// Sanitize CSS color values to prevent XSS
+function sanitizeCssValue(value: string): string {
+  if (!value || typeof value !== "string") {
+    return ""
+  }
+  // Only allow valid CSS color formats
+  // Hex colors: #RGB or #RRGGBB or #RRGGBBAA
+  const hexPattern = /^#[0-9A-Fa-f]{3,8}$/
+  // RGB/RGBA: rgb(r, g, b) or rgba(r, g, b, a)
+  const rgbPattern = /^rgba?\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*(,\s*[\d.]+\s*)?\)$/
+  // HSL/HSLA: hsl(h, s%, l%) or hsla(h, s%, l%, a)
+  const hslPattern = /^hsla?\(\s*\d+\s*,\s*\d+%\s*,\s*\d+%\s*(,\s*[\d.]+\s*)?\)$/
+  // Named colors (basic list - can be expanded)
+  const namedColors = /^(red|blue|green|yellow|orange|purple|pink|black|white|gray|grey|transparent|currentColor)$/i
+  
+  if (hexPattern.test(value) || rgbPattern.test(value) || hslPattern.test(value) || namedColors.test(value)) {
+    return value
+  }
+  
+  // If not a valid color format, return empty string
+  return ""
 }
 
 const ChartTooltip = RechartsPrimitive.Tooltip
