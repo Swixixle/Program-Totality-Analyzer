@@ -28,6 +28,36 @@ app.use(
 
 app.use(express.urlencoded({ extended: false }));
 
+// CORS Configuration - secure cross-origin requests
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [];
+  
+  // In production, only allow explicitly listed origins
+  if (process.env.NODE_ENV === "production") {
+    if (origin && allowedOrigins.includes(origin)) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+    }
+  } else {
+    // In development, allow localhost origins
+    if (origin && (origin.includes('localhost') || origin.includes('127.0.0.1'))) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+    }
+  }
+  
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Admin-Key, X-Api-Key, X-Hub-Signature-256, X-GitHub-Delivery, X-GitHub-Event");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader("Access-Control-Max-Age", "86400"); // 24 hours
+  
+  // Handle preflight requests
+  if (req.method === "OPTIONS") {
+    return res.status(204).end();
+  }
+  
+  next();
+});
+
 // Security Headers Middleware
 app.use((req, res, next) => {
   const isProduction = process.env.NODE_ENV === "production";
@@ -132,9 +162,28 @@ app.use((req, res, next) => {
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
+    
+    // In production, don't leak error details to clients
+    let message: string;
+    if (process.env.NODE_ENV === "production") {
+      // Generic error messages in production
+      if (status >= 500) {
+        message = "Internal Server Error";
+      } else {
+        message = err.message || "Bad Request";
+      }
+    } else {
+      // Detailed errors in development
+      message = err.message || "Internal Server Error";
+    }
 
-    console.error("Internal Server Error:", err);
+    // Always log the full error server-side
+    console.error("Internal Server Error:", {
+      status,
+      message: err.message,
+      stack: err.stack,
+      path: _req.path,
+    });
 
     if (res.headersSent) {
       return next(err);

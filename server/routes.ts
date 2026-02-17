@@ -68,7 +68,11 @@ function requireDevAdmin(req: any, res: any): boolean {
   }
 
   const provided = String(req.headers["x-admin-key"] || "");
-  if (provided !== required) {
+  // Use timing-safe comparison to prevent timing attacks
+  const providedBuf = Buffer.from(provided);
+  const requiredBuf = Buffer.from(required);
+  
+  if (providedBuf.length !== requiredBuf.length || !crypto.timingSafeEqual(providedBuf, requiredBuf)) {
     logAdminEvent("admin_auth_failed", {
       path: req.path,
       ip: req.ip,
@@ -102,7 +106,11 @@ function requireAuth(req: any, res: any): boolean {
   }
 
   const provided = String(req.headers["x-api-key"] || "");
-  if (provided !== apiKey) {
+  // Use timing-safe comparison to prevent timing attacks
+  const providedBuf = Buffer.from(provided);
+  const apiKeyBuf = Buffer.from(apiKey);
+  
+  if (providedBuf.length !== apiKeyBuf.length || !crypto.timingSafeEqual(providedBuf, apiKeyBuf)) {
     logEvent(0, "api_auth_failed", {
       path: req.path,
       ip: req.ip,
@@ -156,7 +164,10 @@ export async function registerRoutes(
       await storage.getProjects();
       checks.database = { status: "ok", message: "Database connection successful" };
     } catch (err: any) {
-      checks.database = { status: "error", message: err.message || "Database connection failed" };
+      const message = isAuthenticated && process.env.NODE_ENV !== "production" 
+        ? (err.message || "Database connection failed")
+        : "Database connection failed";
+      checks.database = { status: "error", message };
     }
 
     // Only expose detailed internals to authenticated users
@@ -171,7 +182,10 @@ export async function registerRoutes(
           exists: analyzerExists,
         };
       } catch (err: any) {
-        checks.analyzer = { status: "error", message: err.message || "Analyzer check failed" };
+        const message = process.env.NODE_ENV !== "production"
+          ? (err.message || "Analyzer check failed")
+          : "Analyzer check failed";
+        checks.analyzer = { status: "error", message };
       }
 
       // Worker check (CI job processing)
@@ -190,7 +204,10 @@ export async function registerRoutes(
             : null,
         };
       } catch (err: any) {
-        checks.worker = { status: "error", message: err.message || "Worker check failed" };
+        const message = process.env.NODE_ENV !== "production"
+          ? (err.message || "Worker check failed")
+          : "Worker check failed";
+        checks.worker = { status: "error", message };
       }
 
       // Disk check
@@ -203,7 +220,10 @@ export async function registerRoutes(
           low_disk: disk.ciTmpDirLowDisk,
         };
       } catch (err: any) {
-        checks.disk = { status: "error", message: err.message || "Disk check failed" };
+        const message = process.env.NODE_ENV !== "production"
+          ? (err.message || "Disk check failed")
+          : "Disk check failed";
+        checks.disk = { status: "error", message };
       }
     }
 
@@ -732,15 +752,44 @@ async function runAnalysis(projectId: number, source: string, mode: string) {
         const coveragePath = path.join(outputDir, "coverage.json");
 
         const dossier = await fs.readFile(dossierPath, "utf-8").catch(() => "");
-        const claims = JSON.parse(await fs.readFile(claimsPath, "utf-8").catch(() => "{}"));
-        const howto = JSON.parse(await fs.readFile(howtoPath, "utf-8").catch(() => "{}"));
+        
+        // Safe JSON parsing with error handling
+        let claims = {};
+        try {
+          const claimsContent = await fs.readFile(claimsPath, "utf-8").catch(() => "{}");
+          claims = JSON.parse(claimsContent);
+        } catch (err) {
+          console.error(`[Analyzer ${projectId}] Failed to parse claims.json:`, err);
+          logEvent(projectId, "parse_error", { file: "claims.json" });
+        }
+        
+        let howto: any = {};
+        try {
+          const howtoContent = await fs.readFile(howtoPath, "utf-8").catch(() => "{}");
+          howto = JSON.parse(howtoContent);
+        } catch (err) {
+          console.error(`[Analyzer ${projectId}] Failed to parse target_howto.json:`, err);
+          logEvent(projectId, "parse_error", { file: "target_howto.json" });
+        }
+        
         let operate: any = null;
         try {
-          operate = JSON.parse(await fs.readFile(operatePath, "utf-8"));
-        } catch {
+          const operateContent = await fs.readFile(operatePath, "utf-8");
+          operate = JSON.parse(operateContent);
+        } catch (err) {
+          console.error(`[Analyzer ${projectId}] Failed to parse operate.json:`, err);
+          logEvent(projectId, "parse_error", { file: "operate.json" });
           operate = null;
         }
-        const coverage = JSON.parse(await fs.readFile(coveragePath, "utf-8").catch(() => "{}"));
+        
+        let coverage = {};
+        try {
+          const coverageContent = await fs.readFile(coveragePath, "utf-8").catch(() => "{}");
+          coverage = JSON.parse(coverageContent);
+        } catch (err) {
+          console.error(`[Analyzer ${projectId}] Failed to parse coverage.json:`, err);
+          logEvent(projectId, "parse_error", { file: "coverage.json" });
+        }
 
         await storage.createAnalysis({
           projectId,
