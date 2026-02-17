@@ -16,7 +16,8 @@ from .core.evidence import make_evidence, make_evidence_from_line, make_file_exi
 from .core.unknowns import compute_known_unknowns
 from .core.adapter import build_evidence_pack, save_evidence_pack
 from .core.render import render_report, save_report, assert_pack_written
-from .core.operate import build_operate, validate_operate, TOOL_VERSION, OPERATE_SCHEMA_VERSION
+from .core.operate import build_operate, validate_operate
+from .version import TOOL_VERSION, OPERATE_SCHEMA_VERSION, TARGET_HOWTO_SCHEMA_VERSION
 from .schema_validator import validate_operate_json, validate_target_howto_json
 
 load_dotenv()
@@ -1160,7 +1161,7 @@ RULES:
         """Add required metadata fields to target_howto.json for schema compliance."""
         # Create a new dict with metadata first
         result = {
-            "schema_version": "1.0",
+            "schema_version": TARGET_HOWTO_SCHEMA_VERSION,
             "tool_version": f"pta-{TOOL_VERSION}",
             "generated_at": datetime.now(timezone.utc).isoformat(),
             "target": {

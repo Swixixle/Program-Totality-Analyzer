@@ -16,10 +16,7 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional
 
 from .evidence import make_evidence_from_line, make_file_exists_evidence, make_evidence
-
-TOOL_VERSION = "0.1.0"
-
-OPERATE_SCHEMA_VERSION = "1.0"
+from ..version import TOOL_VERSION, OPERATE_SCHEMA_VERSION
 
 REQUIRED_COVERAGE_KEYS = {"analyzed_files", "total_files_seen"}
 

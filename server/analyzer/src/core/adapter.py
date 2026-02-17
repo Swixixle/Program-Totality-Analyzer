@@ -18,11 +18,7 @@ from typing import Dict, Any, List, Optional
 from datetime import datetime, timezone
 
 from .verify_policy import is_verified_claim, get_verified_evidence
-
-try:
-    from .. import __version__ as TOOL_VERSION
-except Exception:
-    TOOL_VERSION = "unknown"
+from ..version import TOOL_VERSION
 
 
 EVIDENCE_PACK_VERSION = "1.0"

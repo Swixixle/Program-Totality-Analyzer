@@ -6,7 +6,7 @@
  * - No exec() usage (always use spawn with args array)
  */
 
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect, beforeAll } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 
@@ -34,8 +34,8 @@ describe('CI Worker Security - Static Analysis', () => {
   });
   
   it('should have explicit shell: false in all spawn calls', () => {
-    // Find all spawn calls
-    const spawnPattern = /spawn\([^)]+,\s*\{[^}]+\}/g;
+    // Find all spawn calls (handle multi-line)
+    const spawnPattern = /spawn\([^)]+,\s*\{[\s\S]*?\}\)/g;
     const spawnCalls = ciWorkerSource.match(spawnPattern);
     
     expect(spawnCalls).not.toBeNull();
@@ -74,8 +74,9 @@ describe('CI Worker Security - Static Analysis', () => {
   });
   
   it('should use spawn with args array pattern', () => {
-    // Ensure spawn is called with separate args array
-    const goodSpawnPattern = /spawn\(\s*\w+\s*,\s*\[/g;
+    // Ensure spawn is called with separate args variable (not inline command strings)
+    // Pattern matches: spawn(cmd, args, ...) or spawn(pythonBin, args, ...)
+    const goodSpawnPattern = /spawn\(\s*\w+\s*,\s*[a-zA-Z_$][\w$]*/g;
     const matches = ciWorkerSource.match(goodSpawnPattern);
     
     expect(matches).not.toBeNull();

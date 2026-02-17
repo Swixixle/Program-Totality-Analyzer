@@ -7,61 +7,7 @@ import { getConfig, getBootReport } from "./config";
 // Load and validate configuration
 const config = getConfig();
 
-// Production startup validation (legacy - now handled by getConfig)
-function validateProductionConfig() {
-  const isProduction = process.env.NODE_ENV === "production";
-  
-  if (!isProduction) {
-    return; // Skip validation in development
-  }
-
-  const errors: string[] = [];
-
-  // Validate DATABASE_URL
-  if (!process.env.DATABASE_URL) {
-    errors.push("DATABASE_URL is required in production");
-  }
-
-  // Validate API_KEY
-  const apiKey = process.env.API_KEY;
-  if (!apiKey) {
-    errors.push("API_KEY is required in production");
-  } else if (apiKey.length < 32) {
-    errors.push(`API_KEY must be at least 32 characters (current: ${apiKey.length})`);
-  }
-
-  // Validate HTTPS enforcement (unless explicitly bypassed)
-  const forceHttp = process.env.FORCE_HTTP === "true";
-  if (!forceHttp) {
-    console.warn(
-      "[SECURITY] HTTPS enforcement is enabled. Service expects to run behind a reverse proxy with TLS termination."
-    );
-    console.warn(
-      "[SECURITY] If you are running without HTTPS, set FORCE_HTTP=true (NOT RECOMMENDED for production)"
-    );
-    // Note: Actual HTTPS enforcement would require X-Forwarded-Proto header checking in middleware
-    // For now, we just warn. The reverse proxy setup in DEPLOYMENT.md handles TLS.
-  } else {
-    console.warn(
-      "[WARNING] FORCE_HTTP=true detected. Service is running without HTTPS enforcement."
-    );
-    console.warn(
-      "[WARNING] This should ONLY be used behind a trusted reverse proxy that handles TLS."
-    );
-  }
-
-  if (errors.length > 0) {
-    console.error("\n❌ Production configuration validation failed:\n");
-    errors.forEach((error) => console.error(`  - ${error}`));
-    console.error("\nSee docs/QUICKSTART.md for configuration guide.\n");
-    process.exit(1);
-  }
-
-  console.log("✓ Production configuration validated");
-}
-
-// Run validation before starting the server
-validateProductionConfig();
+// Configuration is now validated in getConfig() - no legacy validator needed
 
 const app = express();
 const httpServer = createServer(app);
@@ -207,22 +153,10 @@ app.use((req, res, next) => {
     await setupVite(httpServer, app);
   }
 
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  httpServer.listen(
-    {
-      port: config.port,
-      host: config.host,
-      reusePort: true,
-    },
-    () => {
-      // Emit structured boot report on startup
-      const bootReport = getBootReport(config);
-      console.log(JSON.stringify(bootReport));
-      
-      log(`serving on port ${config.port}`);
-    },
-  );
+  // Single deterministic bind with boot report
+  const { host, port } = config;
+  httpServer.listen({ host, port, reusePort: true }, () => {
+    log(`serving on ${host}:${port}`);
+    log(JSON.stringify(getBootReport(config)));
+  });
 })();

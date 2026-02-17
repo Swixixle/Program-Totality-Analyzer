@@ -97,7 +97,30 @@
       "items": {
         "oneOf": [
           { "type": "string" },
-          { "type": "object" }
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["what_is_missing", "why_it_matters"],
+            "properties": {
+              "what_is_missing": { 
+                "type": "string",
+                "description": "Description of what information is missing or unclear"
+              },
+              "why_it_matters": { 
+                "type": "string",
+                "description": "Explanation of why this missing information is important"
+              },
+              "what_evidence_needed": { 
+                "type": "string",
+                "description": "Specific evidence or information needed to resolve this unknown"
+              },
+              "severity": { 
+                "type": "string", 
+                "enum": ["low", "medium", "high"],
+                "description": "Severity level of this unknown"
+              }
+            }
+          }
         ]
       }
     },

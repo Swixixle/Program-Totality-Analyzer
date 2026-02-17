@@ -4,7 +4,7 @@
  * Tests the deterministic bind configuration and environment loading.
  */
 
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 // Mock process.env before importing
 const originalEnv = process.env;
@@ -14,7 +14,7 @@ beforeEach(() => {
   process.env = { ...originalEnv };
   
   // Clear the module cache to get fresh imports
-  jest.resetModules();
+  vi.resetModules();
 });
 
 afterEach(() => {
@@ -59,7 +59,7 @@ describe('getBindConfig', () => {
     process.env.PORT = 'abc';
     process.env.NODE_ENV = 'development';
     
-    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     
     const { getBindConfig } = await import('../config');
     const config = getBindConfig();

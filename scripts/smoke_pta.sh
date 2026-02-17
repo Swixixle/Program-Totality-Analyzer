@@ -4,8 +4,7 @@
 #
 # This script:
 # 1. Runs analyzer on a tiny fixture repo
-# 2. Validates operate.json and target_howto.json against schemas
-# 3. Ensures outputs contain required metadata fields
+# 2. Validates operate.json and target_howto.json using Python validator
 #
 
 set -euo pipefail
@@ -19,7 +18,6 @@ echo
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 error() {
@@ -31,15 +29,10 @@ info() {
     echo -e "${GREEN}$*${NC}"
 }
 
-warn() {
-    echo -e "${YELLOW}$*${NC}"
-}
-
 # Check prerequisites
 command -v python3 >/dev/null 2>&1 || error "python3 not found"
-command -v node >/dev/null 2>&1 || error "node not found"
 
-# Create tiny fixture repo for testing
+# Create tiny fixture repo if it doesn't exist
 FIXTURE_DIR="$ROOT_DIR/server/analyzer/fixtures/tiny_repo"
 if [ ! -d "$FIXTURE_DIR" ]; then
     info "Creating tiny fixture repo..."
@@ -100,85 +93,9 @@ python3 -m server.analyzer.analyzer_cli analyze "$FIXTURE_DIR" \
     --no-llm \
     2>&1 | tee "$OUTPUT_DIR/analyzer.log" || error "Analyzer failed"
 
-# Check outputs exist
-info "Checking outputs exist..."
-[ -f "$OUTPUT_DIR/operate.json" ] || error "operate.json not found"
-[ -f "$OUTPUT_DIR/target_howto.json" ] || error "target_howto.json not found"
-info "✓ Both outputs exist"
-
-# Validate against schemas using Python
+# Validate outputs using Python validator
 info "Validating outputs against schemas..."
-
-python3 -c "
-import json
-import sys
-from pathlib import Path
-
-# Add project root to path
-sys.path.insert(0, str(Path.cwd()))
-
-from server.analyzer.src.schema_validator import (
-    validate_operate_json,
-    validate_target_howto_json
-)
-
-output_dir = Path('$OUTPUT_DIR')
-
-# Validate operate.json
-with open(output_dir / 'operate.json') as f:
-    operate = json.load(f)
-
-errors = validate_operate_json(operate)
-if errors:
-    print(f'❌ operate.json validation failed:')
-    for err in errors:
-        print(f'  - {err}')
-    sys.exit(1)
-
-print('✓ operate.json validates against schema')
-
-# Validate target_howto.json
-with open(output_dir / 'target_howto.json') as f:
-    howto = json.load(f)
-
-errors = validate_target_howto_json(howto)
-if errors:
-    print(f'❌ target_howto.json validation failed:')
-    for err in errors:
-        print(f'  - {err}')
-    sys.exit(1)
-
-print('✓ target_howto.json validates against schema')
-
-# Check required metadata fields
-required_fields = ['schema_version', 'tool_version', 'generated_at']
-
-for field in required_fields:
-    if field not in operate:
-        print(f'❌ operate.json missing required field: {field}')
-        sys.exit(1)
-    if field not in howto:
-        print(f'❌ target_howto.json missing required field: {field}')
-        sys.exit(1)
-
-print(f'✓ All required metadata fields present')
-
-# Check howto has target field
-if 'target' not in howto:
-    print(f'❌ target_howto.json missing target field')
-    sys.exit(1)
-
-if 'mode' not in howto['target'] or 'identifier' not in howto['target']:
-    print(f'❌ target_howto.json target must have mode and identifier')
-    sys.exit(1)
-
-print(f'✓ target_howto.json has proper target structure')
-
-print()
-print('✅ All validations passed!')
-" || error "Schema validation failed"
-
-info "✓ Schema validation passed"
+python3 -m server.analyzer.src.validate_outputs "$OUTPUT_DIR" || error "Validation failed"
 
 echo
 info "==> Smoke test PASSED ✅"
@@ -190,3 +107,4 @@ echo "  - $OUTPUT_DIR/target_howto.json"
 echo
 
 exit 0
+
