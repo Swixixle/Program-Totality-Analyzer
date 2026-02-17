@@ -14,7 +14,8 @@ Our projects focus on turning complex workflows and codebases into structured, d
 ## Systems
 
 **PTA (Program Totality Analyzer)**  
-Evidence-bound structural analysis for teams inheriting, auditing, or validating complex codebases.
+Evidence-bound structural analysis for teams inheriting, auditing, or validating complex codebases.  
+[Demo on Replit](https://replit.com/github/Swixixle/Program-Totality-Analyzer)
 
 **HALO-RECEIPTS**  
 Cryptographically chained transcript verification for AI and workflow integrity.
@@ -23,7 +24,8 @@ Cryptographically chained transcript verification for AI and workflow integrity.
 Audit-grade clinical documentation artifacts derived from imaging workflows.
 
 **Lantern**  
-Structured visibility systems for high-stakes operational environments.
+Structured visibility systems for high-stakes operational environments.  
+[Demo on Replit](https://replit.com/github/Swixixle/Lantern)
 
 ## Philosophy
 
