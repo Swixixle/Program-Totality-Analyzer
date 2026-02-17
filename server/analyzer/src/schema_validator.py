@@ -19,13 +19,18 @@ SCHEMAS_DIR = Path(__file__).resolve().parents[3] / "shared" / "schemas"
 
 # SECURITY CHECK: Fail-fast if deprecated schema directory exists
 # This prevents schema drift by ensuring there's only one canonical location
-_DEPRECATED_SCHEMA_DIR = Path(__file__).resolve().parent / "schemas"
-if _DEPRECATED_SCHEMA_DIR.exists():
-    raise RuntimeError(
-        f"SCHEMA DRIFT ERROR: Deprecated schema directory exists at {_DEPRECATED_SCHEMA_DIR}. "
-        f"All schemas must be in {SCHEMAS_DIR}. Remove the deprecated directory to proceed. "
-        f"This is intentional fail-fast behavior to prevent inconsistent outputs."
-    )
+# Check multiple possible deprecated locations
+DEPRECATED_1 = Path(__file__).resolve().parents[1] / "schemas"      # server/analyzer/src/../schemas
+DEPRECATED_2 = Path(__file__).resolve().parents[2] / "schemas"      # server/analyzer/../schemas
+DEPRECATED_3 = Path(__file__).resolve().parents[2] / "analyzer" / "schemas"  # server/analyzer/schemas
+
+for deprecated_dir in [DEPRECATED_1, DEPRECATED_2, DEPRECATED_3]:
+    if deprecated_dir.exists():
+        raise RuntimeError(
+            f"SCHEMA DRIFT ERROR: Deprecated schema directory exists at {deprecated_dir}. "
+            f"All schemas must be in {SCHEMAS_DIR}. Remove the deprecated directory to proceed. "
+            f"This is intentional fail-fast behavior to prevent inconsistent outputs."
+        )
 
 
 def load_schema(schema_name: str) -> Dict[str, Any]:
