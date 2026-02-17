@@ -28,25 +28,112 @@ function logAdminEvent(event: string, detail?: Record<string, unknown>) {
   logEvent(0, event, detail);
 }
 
+// Rate limiters for different endpoints
+const adminAuthRateLimiter = createRateLimiter(5, 60_000); // 5 attempts per minute
+const projectApiRateLimiter = createRateLimiter(100, 60_000); // 100 requests per minute
+const ciApiRateLimiter = createRateLimiter(50, 60_000); // 50 requests per minute
+const healthRateLimiter = createRateLimiter(30, 60_000); // 30 requests per minute
+const dossierRateLimiter = createRateLimiter(20, 60_000); // 20 requests per minute
+
 function requireDevAdmin(req: any, res: any): boolean {
-  if (process.env.NODE_ENV === "production") {
-    res.status(403).json({ error: "Forbidden" });
+  // Rate limit authentication attempts
+  if (!adminAuthRateLimiter()) {
+    logAdminEvent("admin_rate_limited", {
+      path: req.path,
+      ip: req.ip,
+      ua: String(req.headers["user-agent"] || ""),
+    });
+    res.status(429).json({ error: "Too many authentication attempts" });
     return false;
   }
+
   const required = process.env.ADMIN_KEY;
-  if (required && required.length > 0) {
-    const provided = String(req.headers["x-admin-key"] || "");
-    if (provided !== required) {
-      res.status(401).json({ error: "Unauthorized" });
+  if (!required || required.length === 0) {
+    // In production, admin key is required
+    if (process.env.NODE_ENV === "production") {
+      logAdminEvent("admin_key_not_configured", {
+        path: req.path,
+        ip: req.ip,
+      });
+      res.status(500).json({ error: "Admin authentication not configured" });
       return false;
     }
-  } else {
+    // In development without key, log warning
     logAdminEvent("admin_unguarded", {
       path: req.path,
       ip: req.ip,
       ua: String(req.headers["user-agent"] || ""),
     });
+    return true;
   }
+
+  const provided = String(req.headers["x-admin-key"] || "");
+  
+  // Use timing-safe comparison to prevent timing attacks
+  // Pad both to same length to prevent length-based timing attacks
+  const maxLen = Math.max(provided.length, required.length);
+  const providedPadded = provided.padEnd(maxLen, '\0');
+  const requiredPadded = required.padEnd(maxLen, '\0');
+  const providedBuf = Buffer.from(providedPadded);
+  const requiredBuf = Buffer.from(requiredPadded);
+  
+  const isValid = crypto.timingSafeEqual(providedBuf, requiredBuf) && provided.length === required.length;
+  
+  if (!isValid) {
+    logAdminEvent("admin_auth_failed", {
+      path: req.path,
+      ip: req.ip,
+      ua: String(req.headers["user-agent"] || ""),
+      provided_length: provided.length,
+    });
+    res.status(401).json({ error: "Unauthorized" });
+    return false;
+  }
+
+  logAdminEvent("admin_auth_success", {
+    path: req.path,
+    ip: req.ip,
+  });
+  return true;
+}
+
+// Middleware to require authentication for API endpoints
+function requireAuth(req: any, res: any): boolean {
+  const apiKey = process.env.API_KEY;
+  
+  // If API_KEY is not set in production, require it
+  if (process.env.NODE_ENV === "production" && (!apiKey || apiKey.length === 0)) {
+    res.status(500).json({ error: "API authentication not configured" });
+    return false;
+  }
+
+  // In development without API_KEY, allow access
+  if (!apiKey || apiKey.length === 0) {
+    return true;
+  }
+
+  const provided = String(req.headers["x-api-key"] || "");
+  
+  // Use timing-safe comparison to prevent timing attacks
+  // Pad both to same length to prevent length-based timing attacks
+  const maxLen = Math.max(provided.length, apiKey.length);
+  const providedPadded = provided.padEnd(maxLen, '\0');
+  const apiKeyPadded = apiKey.padEnd(maxLen, '\0');
+  const providedBuf = Buffer.from(providedPadded);
+  const apiKeyBuf = Buffer.from(apiKeyPadded);
+  
+  const isValid = crypto.timingSafeEqual(providedBuf, apiKeyBuf) && provided.length === apiKey.length;
+  
+  if (!isValid) {
+    logEvent(0, "api_auth_failed", {
+      path: req.path,
+      ip: req.ip,
+      ua: String(req.headers["user-agent"] || ""),
+    });
+    res.status(401).json({ error: "Unauthorized" });
+    return false;
+  }
+
   return true;
 }
 
@@ -55,12 +142,36 @@ export async function registerRoutes(
   app: Express
 ): Promise<Server> {
   app.get("/health", async (_req, res) => {
+    if (!healthRateLimiter()) {
+      return res.status(429).json({ error: "Rate limit exceeded" });
+    }
     const dbOk = await storage.getProjects().then(() => true).catch(() => false);
     res.json({ ok: true, db: dbOk, uptime: process.uptime() });
   });
 
   // Enhanced health endpoint with comprehensive checks
-  app.get("/api/health", async (_req: Request, res: Response) => {
+  app.get("/api/health", async (req: Request, res: Response) => {
+    if (!healthRateLimiter()) {
+      return res.status(429).json({ error: "Rate limit exceeded" });
+    }
+    
+    // Basic health check is public, but detailed checks require auth in production
+    let isAuthenticated = false;
+    if (process.env.NODE_ENV === "production" && process.env.API_KEY) {
+      const provided = String(req.headers["x-api-key"] || "");
+      const apiKey = process.env.API_KEY;
+      // Use timing-safe comparison
+      const maxLen = Math.max(provided.length, apiKey.length);
+      const providedPadded = provided.padEnd(maxLen, '\0');
+      const apiKeyPadded = apiKey.padEnd(maxLen, '\0');
+      const providedBuf = Buffer.from(providedPadded);
+      const apiKeyBuf = Buffer.from(apiKeyPadded);
+      isAuthenticated = crypto.timingSafeEqual(providedBuf, apiKeyBuf) && provided.length === apiKey.length;
+    } else {
+      // In dev or when API_KEY is not set, allow access
+      isAuthenticated = true;
+    }
+    
     const checks: Record<string, any> = {
       timestamp: new Date().toISOString(),
       uptime_seconds: process.uptime(),
@@ -80,52 +191,67 @@ export async function registerRoutes(
       await storage.getProjects();
       checks.database = { status: "ok", message: "Database connection successful" };
     } catch (err: any) {
-      checks.database = { status: "error", message: err.message || "Database connection failed" };
+      const message = isAuthenticated && process.env.NODE_ENV !== "production" 
+        ? (err.message || "Database connection failed")
+        : "Database connection failed";
+      checks.database = { status: "error", message };
     }
 
-    // Analyzer check (verify Python analyzer is accessible)
-    try {
-      const analyzerPath = path.join(process.cwd(), "server", "analyzer", "analyzer_cli.py");
-      const analyzerExists = existsSync(analyzerPath);
-      checks.analyzer = {
-        status: analyzerExists ? "ok" : "error",
-        path: analyzerPath,
-        exists: analyzerExists,
-      };
-    } catch (err: any) {
-      checks.analyzer = { status: "error", message: err.message || "Analyzer check failed" };
-    }
+    // Only expose detailed internals to authenticated users
+    if (isAuthenticated) {
+      // Analyzer check (verify Python analyzer is accessible)
+      try {
+        const analyzerPath = path.join(process.cwd(), "server", "analyzer", "analyzer_cli.py");
+        const analyzerExists = existsSync(analyzerPath);
+        checks.analyzer = {
+          status: analyzerExists ? "ok" : "error",
+          path: analyzerPath,
+          exists: analyzerExists,
+        };
+      } catch (err: any) {
+        const message = process.env.NODE_ENV !== "production"
+          ? (err.message || "Analyzer check failed")
+          : "Analyzer check failed";
+        checks.analyzer = { status: "error", message };
+      }
 
-    // Worker check (CI job processing)
-    try {
-      const jobCounts = await storage.getCiJobCounts();
-      const lastRun = await storage.getLastCompletedRun();
-      checks.worker = {
-        status: "ok",
-        jobs: jobCounts,
-        last_completed: lastRun
-          ? {
-              id: lastRun.id,
-              finished_at: lastRun.finishedAt,
-              repo: `${lastRun.repoOwner}/${lastRun.repoName}`,
-            }
-          : null,
-      };
-    } catch (err: any) {
-      checks.worker = { status: "error", message: err.message || "Worker check failed" };
-    }
+      // Worker check (CI job processing)
+      try {
+        const jobCounts = await storage.getCiJobCounts();
+        const lastRun = await storage.getLastCompletedRun();
+        checks.worker = {
+          status: "ok",
+          jobs: jobCounts,
+          last_completed: lastRun
+            ? {
+                id: lastRun.id,
+                finished_at: lastRun.finishedAt,
+                repo: `${lastRun.repoOwner}/${lastRun.repoName}`,
+              }
+            : null,
+        };
+      } catch (err: any) {
+        const message = process.env.NODE_ENV !== "production"
+          ? (err.message || "Worker check failed")
+          : "Worker check failed";
+        checks.worker = { status: "error", message };
+      }
 
-    // Disk check
-    try {
-      const disk = getDiskStatus();
-      checks.disk = {
-        status: disk.ciTmpDirLowDisk ? "warning" : "ok",
-        ci_tmp_dir: disk.ciTmpDir,
-        free_bytes: disk.ciTmpDirFreeBytes,
-        low_disk: disk.ciTmpDirLowDisk,
-      };
-    } catch (err: any) {
-      checks.disk = { status: "error", message: err.message || "Disk check failed" };
+      // Disk check
+      try {
+        const disk = getDiskStatus();
+        checks.disk = {
+          status: disk.ciTmpDirLowDisk ? "warning" : "ok",
+          ci_tmp_dir: disk.ciTmpDir,
+          free_bytes: disk.ciTmpDirFreeBytes,
+          low_disk: disk.ciTmpDirLowDisk,
+        };
+      } catch (err: any) {
+        const message = process.env.NODE_ENV !== "production"
+          ? (err.message || "Disk check failed")
+          : "Disk check failed";
+        checks.disk = { status: "error", message };
+      }
     }
 
     // Overall status
@@ -144,12 +270,20 @@ export async function registerRoutes(
     });
   });
 
-  app.get(api.projects.list.path, async (_req, res) => {
+  app.get(api.projects.list.path, async (req, res) => {
+    if (!projectApiRateLimiter()) {
+      return res.status(429).json({ error: "Rate limit exceeded" });
+    }
+    if (!requireAuth(req, res)) return;
     const projects = await storage.getProjects();
     res.json(projects);
   });
 
   app.post(api.projects.create.path, async (req, res) => {
+    if (!projectApiRateLimiter()) {
+      return res.status(429).json({ error: "Rate limit exceeded" });
+    }
+    if (!requireAuth(req, res)) return;
     try {
       const input = api.projects.create.input.parse(req.body);
       const { mode, ...projectData } = input;
@@ -168,6 +302,10 @@ export async function registerRoutes(
   });
 
   app.get(api.projects.get.path, async (req, res) => {
+    if (!projectApiRateLimiter()) {
+      return res.status(429).json({ error: "Rate limit exceeded" });
+    }
+    if (!requireAuth(req, res)) return;
     const project = await storage.getProject(Number(req.params.id));
     if (!project) {
       return res.status(404).json({ message: 'Project not found' });
@@ -176,6 +314,10 @@ export async function registerRoutes(
   });
 
   app.get(api.projects.getAnalysis.path, async (req, res) => {
+    if (!projectApiRateLimiter()) {
+      return res.status(429).json({ error: "Rate limit exceeded" });
+    }
+    if (!requireAuth(req, res)) return;
     const analysis = await storage.getAnalysisByProjectId(Number(req.params.id));
     if (!analysis) {
       return res.status(404).json({ message: 'Analysis not found' });
@@ -184,11 +326,21 @@ export async function registerRoutes(
   });
 
   app.post(api.projects.analyze.path, async (req, res) => {
+    if (!projectApiRateLimiter()) {
+      return res.status(429).json({ error: "Rate limit exceeded" });
+    }
+    if (!requireAuth(req, res)) return;
     const projectId = Number(req.params.id);
     const project = await storage.getProject(projectId);
 
     if (!project) {
       return res.status(404).json({ message: "Project not found" });
+    }
+
+    // Validate URL format to prevent injection
+    if (!isValidRepositoryUrl(project.url, project.mode || "github")) {
+      logEvent(projectId, "invalid_url", { url: project.url, mode: project.mode });
+      return res.status(400).json({ message: "Invalid repository URL" });
     }
 
     runAnalysis(project.id, project.url, project.mode || "github");
@@ -197,6 +349,10 @@ export async function registerRoutes(
   });
 
   app.post(api.projects.analyzeReplit.path, async (req, res) => {
+    if (!projectApiRateLimiter()) {
+      return res.status(429).json({ error: "Rate limit exceeded" });
+    }
+    if (!requireAuth(req, res)) return;
     try {
       const workspaceRoot = process.cwd();
       const folderName = path.basename(workspaceRoot);
@@ -215,7 +371,11 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/dossiers/lantern", (_req, res) => {
+  app.get("/api/dossiers/lantern", (req, res) => {
+    if (!dossierRateLimiter()) {
+      return res.status(429).json({ error: "Rate limit exceeded" });
+    }
+    // Public documentation endpoint - no auth required but rate limited
     const p = path.join(process.cwd(), "docs/dossiers/lantern_program_totality_dossier.md");
     if (!existsSync(p)) return res.status(404).json({ error: "Not found" });
     res.type("text/markdown").send(readFileSync(p, "utf8"));
@@ -369,6 +529,10 @@ export async function registerRoutes(
   });
 
   app.get("/api/ci/runs", async (req: Request, res: Response) => {
+    if (!ciApiRateLimiter()) {
+      return res.status(429).json({ error: "Rate limit exceeded" });
+    }
+    if (!requireAuth(req, res)) return;
     const owner = String(req.query.owner || "");
     const repo = String(req.query.repo || "");
     const limit = Math.min(Number(req.query.limit) || 50, 200);
@@ -382,6 +546,10 @@ export async function registerRoutes(
   });
 
   app.get("/api/ci/runs/:id", async (req: Request, res: Response) => {
+    if (!ciApiRateLimiter()) {
+      return res.status(429).json({ error: "Rate limit exceeded" });
+    }
+    if (!requireAuth(req, res)) return;
     const run = await storage.getCiRun(String(req.params.id));
     if (!run) {
       return res.status(404).json({ error: "run not found" });
@@ -390,6 +558,10 @@ export async function registerRoutes(
   });
 
   app.post("/api/ci/enqueue", async (req: Request, res: Response) => {
+    if (!ciApiRateLimiter()) {
+      return res.status(429).json({ error: "Rate limit exceeded" });
+    }
+    if (!requireAuth(req, res)) return;
     const { owner, repo, ref, commit_sha, event_type } = req.body || {};
     if (!owner || !repo || !ref || !commit_sha) {
       return res.status(400).json({ error: "missing required fields: owner, repo, ref, commit_sha" });
@@ -413,7 +585,11 @@ export async function registerRoutes(
     res.json({ ok: true, run_id: run.id });
   });
 
-  app.post("/api/ci/worker/tick", async (_req: Request, res: Response) => {
+  app.post("/api/ci/worker/tick", async (req: Request, res: Response) => {
+    if (!ciApiRateLimiter()) {
+      return res.status(429).json({ error: "Rate limit exceeded" });
+    }
+    if (!requireAuth(req, res)) return;
     try {
       const result = await processOneJob();
       res.json({ ok: true, ...result });
@@ -422,7 +598,11 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/ci/health", async (_req: Request, res: Response) => {
+  app.get("/api/ci/health", async (req: Request, res: Response) => {
+    if (!ciApiRateLimiter()) {
+      return res.status(429).json({ error: "Rate limit exceeded" });
+    }
+    if (!requireAuth(req, res)) return;
     try {
       const jobCounts = await storage.getCiJobCounts();
       const lastRun = await storage.getLastCompletedRun();
@@ -448,6 +628,45 @@ export async function registerRoutes(
   startWorkerLoop();
 
   return httpServer;
+}
+
+// Validate repository URL to prevent injection attacks
+function isValidRepositoryUrl(url: string, mode: string): boolean {
+  if (!url || typeof url !== "string") {
+    return false;
+  }
+
+  // For replit mode, validate as a file path
+  if (mode === "replit") {
+    // Must be an absolute path and should not contain suspicious characters
+    // Escape special regex characters properly
+    const suspiciousPatterns = /[;&|`$(){}[\]<>]/;
+    return path.isAbsolute(url) && !suspiciousPatterns.test(url);
+  }
+
+  // For github mode, validate as a GitHub URL
+  try {
+    const parsed = new URL(url);
+    // Only allow https protocol
+    if (parsed.protocol !== "https:") {
+      return false;
+    }
+    // Only allow github.com domain
+    if (parsed.hostname !== "github.com") {
+      return false;
+    }
+    // Validate format: https://github.com/owner/repo
+    const pathParts = parsed.pathname.split("/").filter(Boolean);
+    if (pathParts.length < 2) {
+      return false;
+    }
+    // Check for suspicious characters in owner/repo names
+    // Escape special regex characters properly
+    const suspiciousPatterns = /[;&|`$(){}[\]<>]/;
+    return !pathParts.some(part => suspiciousPatterns.test(part));
+  } catch {
+    return false;
+  }
 }
 
 function createRateLimiter(maxRequests: number, windowMs: number) {
@@ -562,15 +781,44 @@ async function runAnalysis(projectId: number, source: string, mode: string) {
         const coveragePath = path.join(outputDir, "coverage.json");
 
         const dossier = await fs.readFile(dossierPath, "utf-8").catch(() => "");
-        const claims = JSON.parse(await fs.readFile(claimsPath, "utf-8").catch(() => "{}"));
-        const howto = JSON.parse(await fs.readFile(howtoPath, "utf-8").catch(() => "{}"));
+        
+        // Safe JSON parsing with error handling
+        let claims = {};
+        try {
+          const claimsContent = await fs.readFile(claimsPath, "utf-8").catch(() => "{}");
+          claims = JSON.parse(claimsContent);
+        } catch (err) {
+          console.error(`[Analyzer ${projectId}] Failed to parse claims.json:`, err);
+          logEvent(projectId, "parse_error", { file: "claims.json" });
+        }
+        
+        let howto: any = {};
+        try {
+          const howtoContent = await fs.readFile(howtoPath, "utf-8").catch(() => "{}");
+          howto = JSON.parse(howtoContent);
+        } catch (err) {
+          console.error(`[Analyzer ${projectId}] Failed to parse target_howto.json:`, err);
+          logEvent(projectId, "parse_error", { file: "target_howto.json" });
+        }
+        
         let operate: any = null;
         try {
-          operate = JSON.parse(await fs.readFile(operatePath, "utf-8"));
-        } catch {
+          const operateContent = await fs.readFile(operatePath, "utf-8");
+          operate = JSON.parse(operateContent);
+        } catch (err) {
+          console.error(`[Analyzer ${projectId}] Failed to parse operate.json:`, err);
+          logEvent(projectId, "parse_error", { file: "operate.json" });
           operate = null;
         }
-        const coverage = JSON.parse(await fs.readFile(coveragePath, "utf-8").catch(() => "{}"));
+        
+        let coverage = {};
+        try {
+          const coverageContent = await fs.readFile(coveragePath, "utf-8").catch(() => "{}");
+          coverage = JSON.parse(coverageContent);
+        } catch (err) {
+          console.error(`[Analyzer ${projectId}] Failed to parse coverage.json:`, err);
+          logEvent(projectId, "parse_error", { file: "coverage.json" });
+        }
 
         await storage.createAnalysis({
           projectId,
