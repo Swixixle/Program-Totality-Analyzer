@@ -184,6 +184,10 @@ See [docs/QUICKSTART.md](docs/QUICKSTART.md) for complete configuration guide.
 
 ## Replit Demo (1-click Portal)
 
+[![Run on Replit](https://replit.com/badge/github/Swixixle/Program-Totality-Analyzer)](https://replit.com/github/Swixixle/Program-Totality-Analyzer)
+
+**Live Demo:** [Open Program Totality Analyzer in Replit](https://replit.com/github/Swixixle/Program-Totality-Analyzer)
+
 For quick access to the analyzer UI, use the **Replit Portal** link:
 
 ### Local Development

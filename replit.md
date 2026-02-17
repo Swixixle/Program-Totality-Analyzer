@@ -4,6 +4,10 @@
 
 ## Replit Demo (1-click Portal)
 
+[![Run on Replit](https://replit.com/badge/github/Swixixle/Program-Totality-Analyzer)](https://replit.com/github/Swixixle/Program-Totality-Analyzer)
+
+**Live Demo:** [Open Program Totality Analyzer in Replit](https://replit.com/github/Swixixle/Program-Totality-Analyzer)
+
 ### Quick Start
 
 **Portal URL (Stable Entry Point):**
