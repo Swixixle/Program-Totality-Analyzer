@@ -78,6 +78,60 @@ app.use(
 
 app.use(express.urlencoded({ extended: false }));
 
+// Security Headers Middleware
+app.use((req, res, next) => {
+  const isProduction = process.env.NODE_ENV === "production";
+  
+  // Strict-Transport-Security (HSTS) - only in production
+  if (isProduction && process.env.FORCE_HTTP !== "true") {
+    res.setHeader(
+      "Strict-Transport-Security",
+      "max-age=31536000; includeSubDomains"
+    );
+  }
+
+  // X-Frame-Options - prevent clickjacking
+  res.setHeader("X-Frame-Options", "SAMEORIGIN");
+
+  // X-Content-Type-Options - prevent MIME sniffing
+  res.setHeader("X-Content-Type-Options", "nosniff");
+
+  // X-XSS-Protection - legacy XSS protection
+  res.setHeader("X-XSS-Protection", "1; mode=block");
+
+  // Referrer-Policy - control referrer information
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+
+  // Content-Security-Policy (CSP)
+  // Note: This is a balanced policy that allows the app to function while providing security
+  const cspDirectives = [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // unsafe-inline/eval needed for Vite dev and some React features
+    "style-src 'self' 'unsafe-inline'", // unsafe-inline needed for styled components
+    "img-src 'self' data: https:",
+    "font-src 'self' data:",
+    "connect-src 'self' https://api.github.com https://github.com", // Allow GitHub API calls
+    "frame-ancestors 'self'",
+    "base-uri 'self'",
+    "form-action 'self'",
+  ];
+
+  // In development, be more permissive for hot reload
+  if (!isProduction) {
+    cspDirectives.push("connect-src 'self' ws: wss: https://api.github.com https://github.com");
+  }
+
+  res.setHeader("Content-Security-Policy", cspDirectives.join("; "));
+
+  // Permissions-Policy - control browser features
+  res.setHeader(
+    "Permissions-Policy",
+    "geolocation=(), microphone=(), camera=()"
+  );
+
+  next();
+});
+
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
     hour: "numeric",
