@@ -6,9 +6,15 @@ import { z } from "zod";
 import { spawn } from "child_process";
 import path from "path";
 import fs from "fs/promises";
-import { existsSync, readFileSync, appendFileSync, mkdirSync } from "fs";
+import { existsSync, readFileSync, appendFileSync, mkdirSync, createReadStream } from "fs";
 import crypto from "crypto";
 import { processOneJob, startWorkerLoop, getDiskStatus } from "./ci-worker";
+import { 
+  generateEvidenceBundle, 
+  generateTenantKeyPair, 
+  verifyEvidenceBundle,
+  type EvidenceBundleOptions 
+} from "./evidence-bundle";
 
 const LOG_DIR = path.resolve(process.cwd(), "out", "_log");
 const LOG_FILE = path.join(LOG_DIR, "analyzer.ndjson");
@@ -431,6 +437,217 @@ export async function registerRoutes(
     }
   });
 
+  // ============== EVIDENCE BUNDLE ROUTES (PHASE 1) ==============
+
+  const evidenceBundleRateLimiter = createRateLimiter(20, 60_000); // 20 requests per minute
+
+  // In-memory key store (in production, this would be a secure key management service)
+  // Each tenant gets their own key pair
+  const tenantKeys = new Map<string, { privateKey: string; publicKey: string }>();
+
+  function getTenantKeys(tenantId: string): { privateKey: string; publicKey: string } {
+    if (!tenantKeys.has(tenantId)) {
+      tenantKeys.set(tenantId, generateTenantKeyPair());
+    }
+    return tenantKeys.get(tenantId)!;
+  }
+
+  // POST /api/certificates - Create a new evidence bundle certificate
+  app.post("/api/certificates", async (req: Request, res: Response) => {
+    if (!evidenceBundleRateLimiter()) {
+      return res.status(429).json({ error: "Rate limit exceeded" });
+    }
+    if (!requireAuth(req, res)) return;
+
+    try {
+      const schema = z.object({
+        analysisId: z.number(),
+        tenantId: z.string().min(1),
+        modelVersion: z.string().optional(),
+        promptVersion: z.string().optional(),
+        governancePolicyVersion: z.string().optional(),
+        humanReviewed: z.boolean().optional(),
+        reviewerHash: z.string().optional(),
+        ehrReferencedAt: z.string().optional(),
+      });
+
+      const input = schema.parse(req.body);
+
+      // Fetch the analysis
+      const analysis = await storage.getAnalysisByProjectId(input.analysisId);
+      if (!analysis) {
+        return res.status(404).json({ error: "Analysis not found" });
+      }
+
+      // Get or generate tenant keys
+      const { privateKey, publicKey } = getTenantKeys(input.tenantId);
+
+      // Generate certificate ID
+      const certificateId = crypto.randomUUID();
+
+      // Generate evidence bundle
+      const bundleOptions: EvidenceBundleOptions = {
+        analysisId: input.analysisId,
+        tenantId: input.tenantId,
+        analysis,
+        modelVersion: input.modelVersion,
+        promptVersion: input.promptVersion,
+        governancePolicyVersion: input.governancePolicyVersion,
+        humanReviewed: input.humanReviewed,
+        reviewerHash: input.reviewerHash,
+        ehrReferencedAt: input.ehrReferencedAt,
+      };
+
+      const evidenceBundle = generateEvidenceBundle(
+        certificateId,
+        bundleOptions,
+        privateKey,
+        publicKey
+      );
+
+      // Store certificate in database
+      const certificate = await storage.createCertificate({
+        analysisId: input.analysisId,
+        tenantId: input.tenantId,
+        certificateData: evidenceBundle as any,
+        signature: evidenceBundle.signature.signature,
+        publicKey: publicKey,
+        noteHash: evidenceBundle.hashes.note_hash,
+        hashAlgorithm: evidenceBundle.hashes.hash_algorithm,
+      });
+
+      console.log(`[Evidence Bundle] Created certificate ${certificate.id} for analysis ${input.analysisId}`);
+      res.status(201).json({ ok: true, certificate_id: certificate.id });
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        res.status(400).json({
+          error: "validation_error",
+          details: err.errors,
+        });
+        return;
+      }
+      console.error("[Evidence Bundle] Creation failed:", err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // GET /api/certificates/:id/evidence-bundle.json - Get evidence bundle as JSON
+  app.get("/api/certificates/:id/evidence-bundle.json", async (req: Request, res: Response) => {
+    if (!evidenceBundleRateLimiter()) {
+      return res.status(429).json({ error: "Rate limit exceeded" });
+    }
+    if (!requireAuth(req, res)) return;
+
+    try {
+      const certificateId = req.params.id;
+      const certificate = await storage.getCertificate(certificateId);
+
+      if (!certificate) {
+        return res.status(404).json({ error: "Certificate not found" });
+      }
+
+      res.setHeader("Content-Type", "application/json");
+      res.setHeader("Content-Disposition", `attachment; filename="evidence-bundle-${certificateId}.json"`);
+      res.json(certificate.certificateData);
+    } catch (err) {
+      console.error("[Evidence Bundle] Retrieval failed:", err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // GET /api/certificates/:id - Get certificate metadata
+  app.get("/api/certificates/:id", async (req: Request, res: Response) => {
+    if (!evidenceBundleRateLimiter()) {
+      return res.status(429).json({ error: "Rate limit exceeded" });
+    }
+    if (!requireAuth(req, res)) return;
+
+    try {
+      const certificateId = req.params.id;
+      const certificate = await storage.getCertificate(certificateId);
+
+      if (!certificate) {
+        return res.status(404).json({ error: "Certificate not found" });
+      }
+
+      res.json({
+        ok: true,
+        certificate: {
+          id: certificate.id,
+          analysis_id: certificate.analysisId,
+          tenant_id: certificate.tenantId,
+          note_hash: certificate.noteHash,
+          hash_algorithm: certificate.hashAlgorithm,
+          issued_at: certificate.issuedAt,
+          created_at: certificate.createdAt,
+        },
+      });
+    } catch (err) {
+      console.error("[Evidence Bundle] Metadata retrieval failed:", err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // POST /api/certificates/verify - Verify an evidence bundle
+  app.post("/api/certificates/verify", async (req: Request, res: Response) => {
+    if (!evidenceBundleRateLimiter()) {
+      return res.status(429).json({ error: "Rate limit exceeded" });
+    }
+    // Verification endpoint is public but rate limited
+
+    try {
+      const bundle = req.body;
+
+      if (!bundle || typeof bundle !== "object") {
+        return res.status(400).json({ error: "Invalid bundle format" });
+      }
+
+      const result = verifyEvidenceBundle(bundle);
+      
+      res.json({
+        ok: true,
+        valid: result.valid,
+        errors: result.errors,
+      });
+    } catch (err) {
+      console.error("[Evidence Bundle] Verification failed:", err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // GET /api/certificates - List certificates by tenant
+  app.get("/api/certificates", async (req: Request, res: Response) => {
+    if (!evidenceBundleRateLimiter()) {
+      return res.status(429).json({ error: "Rate limit exceeded" });
+    }
+    if (!requireAuth(req, res)) return;
+
+    try {
+      const tenantId = String(req.query.tenant_id || "");
+      const limit = Math.min(Number(req.query.limit) || 50, 200);
+
+      if (!tenantId) {
+        return res.status(400).json({ error: "tenant_id query param required" });
+      }
+
+      const certificates = await storage.getCertificatesByTenantId(tenantId, limit);
+      
+      res.json({
+        ok: true,
+        certificates: certificates.map(cert => ({
+          id: cert.id,
+          analysis_id: cert.analysisId,
+          tenant_id: cert.tenantId,
+          note_hash: cert.noteHash,
+          issued_at: cert.issuedAt,
+        })),
+      });
+    } catch (err) {
+      console.error("[Evidence Bundle] List failed:", err);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   // ============== CI FEED ROUTES ==============
 
   const webhookRateLimiter = createRateLimiter(30, 60_000);
@@ -670,6 +887,16 @@ function isValidRepositoryUrl(url: string, mode: string): boolean {
 }
 
 function createRateLimiter(maxRequests: number, windowMs: number) {
+  // Check if rate limiting should be disabled for tests
+  const isTestMode = process.env.NODE_ENV === "test" || 
+                     process.env.ENV === "TEST" ||
+                     process.env.DISABLE_RATE_LIMITS === "1";
+  
+  if (isTestMode) {
+    // In test mode, always allow requests
+    return () => true;
+  }
+  
   const timestamps: number[] = [];
   return () => {
     const now = Date.now();
