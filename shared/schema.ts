@@ -71,8 +71,26 @@ export const webhookDeliveries = pgTable("webhook_deliveries", {
   index("webhook_deliveries_received_idx").on(table.receivedAt),
 ]);
 
+// Evidence Bundle Certificates table for Phase 1
+export const certificates = pgTable("certificates", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  analysisId: integer("analysis_id").notNull(),
+  tenantId: text("tenant_id").notNull(), // For multi-tenancy support
+  certificateData: jsonb("certificate_data").notNull(), // Full evidence bundle JSON
+  signature: text("signature").notNull(), // Cryptographic signature
+  publicKey: text("public_key").notNull(), // PEM-encoded public key for verification
+  noteHash: text("note_hash").notNull(), // Hash of the analysis content
+  hashAlgorithm: text("hash_algorithm").notNull().default("sha256"),
+  issuedAt: timestamp("issued_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (table) => [
+  index("certificates_analysis_idx").on(table.analysisId),
+  index("certificates_tenant_idx").on(table.tenantId, table.issuedAt),
+]);
+
 export const insertCiRunSchema = createInsertSchema(ciRuns).omit({ id: true, createdAt: true, startedAt: true, finishedAt: true, error: true, outDir: true, summaryJson: true });
 export const insertCiJobSchema = createInsertSchema(ciJobs).omit({ id: true, createdAt: true, attempts: true, leasedUntil: true, lastError: true });
+export const insertCertificateSchema = createInsertSchema(certificates).omit({ id: true, createdAt: true, issuedAt: true });
 
 export type Project = typeof projects.$inferSelect;
 export type InsertProject = z.infer<typeof insertProjectSchema>;
@@ -82,3 +100,5 @@ export type CiRun = typeof ciRuns.$inferSelect;
 export type InsertCiRun = z.infer<typeof insertCiRunSchema>;
 export type CiJob = typeof ciJobs.$inferSelect;
 export type InsertCiJob = z.infer<typeof insertCiJobSchema>;
+export type Certificate = typeof certificates.$inferSelect;
+export type InsertCertificate = z.infer<typeof insertCertificateSchema>;

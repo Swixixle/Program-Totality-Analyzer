@@ -1,9 +1,9 @@
 import { db } from "./db";
 import { pool } from "./db";
 import {
-  projects, analyses, ciRuns, ciJobs, webhookDeliveries,
+  projects, analyses, ciRuns, ciJobs, webhookDeliveries, certificates,
   type InsertProject, type InsertAnalysis, type Project, type Analysis,
-  type CiRun, type InsertCiRun, type CiJob,
+  type CiRun, type InsertCiRun, type CiJob, type Certificate, type InsertCertificate,
 } from "@shared/schema";
 import { eq, desc, and, or, lt, asc, sql } from "drizzle-orm";
 
@@ -27,6 +27,11 @@ export interface IStorage {
   completeJob(jobId: string, status: "DONE" | "DEAD", error?: string): Promise<void>;
   getCiJobCounts(): Promise<Record<string, number>>;
   getLastCompletedRun(): Promise<CiRun | undefined>;
+
+  createCertificate(certificate: InsertCertificate): Promise<Certificate>;
+  getCertificate(id: string): Promise<Certificate | undefined>;
+  getCertificatesByAnalysisId(analysisId: number): Promise<Certificate[]>;
+  getCertificatesByTenantId(tenantId: string, limit?: number): Promise<Certificate[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -202,6 +207,29 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(ciRuns.finishedAt))
       .limit(1);
     return results[0];
+  }
+
+  async createCertificate(insertCertificate: InsertCertificate): Promise<Certificate> {
+    const [certificate] = await db.insert(certificates).values(insertCertificate).returning();
+    return certificate;
+  }
+
+  async getCertificate(id: string): Promise<Certificate | undefined> {
+    const [certificate] = await db.select().from(certificates).where(eq(certificates.id, id));
+    return certificate;
+  }
+
+  async getCertificatesByAnalysisId(analysisId: number): Promise<Certificate[]> {
+    return await db.select().from(certificates)
+      .where(eq(certificates.analysisId, analysisId))
+      .orderBy(desc(certificates.issuedAt));
+  }
+
+  async getCertificatesByTenantId(tenantId: string, limit: number = 50): Promise<Certificate[]> {
+    return await db.select().from(certificates)
+      .where(eq(certificates.tenantId, tenantId))
+      .orderBy(desc(certificates.issuedAt))
+      .limit(limit);
   }
 }
 
