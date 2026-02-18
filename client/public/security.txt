@@ -1,0 +1,14 @@
+# Our security policy
+# https://securitytxt.org/
+
+Contact: https://github.com/Swixixle/Program-Totality-Analyzer/security/advisories/new
+Expires: 2027-12-31T23:59:59.000Z
+Preferred-Languages: en
+Canonical: https://github.com/Swixixle/Program-Totality-Analyzer/blob/main/client/public/security.txt
+
+# Please report security vulnerabilities through GitHub Security Advisories
+# or by opening a private security advisory at the Contact URL above.
+#
+# For more information about our security practices, see:
+# https://github.com/Swixixle/Program-Totality-Analyzer/blob/main/SECURITY_CONFIG.md
+# https://github.com/Swixixle/Program-Totality-Analyzer/blob/main/SECURITY_FIXES.md
