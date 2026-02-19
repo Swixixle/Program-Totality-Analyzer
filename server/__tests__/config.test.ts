@@ -164,7 +164,7 @@ describe('getBootReport', () => {
     
     expect(report).toHaveProperty('timestamp');
     expect(report).toHaveProperty('tool_version');
-    expect(report.tool_version).toMatch(/^pta-/);
+    expect(report.tool_version).toMatch(/^rr-/);
     expect(report).not.toHaveProperty('app_version'); // Verify old field is removed
     expect(report.node_env).toBe('development');
     expect(report.bind_host).toBe('0.0.0.0');
