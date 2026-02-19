@@ -41,7 +41,7 @@ We prioritize inquiries from teams with clear operational needs over general int
 We aim to respond to legitimate inquiries within 3-5 business days. Complex questions may require additional time for thorough responses.
 # Inquiries
 
-If you're exploring a pilot, integration, or evaluation of Program Totality Analyzer, send a note with:
+If you're exploring a pilot, integration, or evaluation of Repository Reconnaissance, send a note with:
 
 1. **Organization type** (enterprise tech team, consulting firm, security/compliance team, etc.)
 2. **What problem you're trying to solve** (1–2 sentences)

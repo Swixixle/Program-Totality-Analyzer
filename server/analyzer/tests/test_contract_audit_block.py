@@ -1,5 +1,5 @@
 """
-No-drift test for the PTA Contract Audit block in REPORT_ENGINEER.md.
+No-drift test for the Repository Reconnaissance Contract Audit block in REPORT_ENGINEER.md.
 
 Ensures the audit block contains all required headings, disclaimers,
 and structural guardrails. Prevents silent drift into marketing copy.
@@ -71,7 +71,7 @@ class TestContractAuditBlock(unittest.TestCase):
 
     def test_run_id_in_audit_heading(self):
         run_id = self.pack.get("run_id", "")
-        self.assertIn(f"## PTA Contract Audit — Run {run_id}", self.md)
+        self.assertIn(f"## Repository Reconnaissance Contract Audit — Run {run_id}", self.md)
 
     def test_structural_buckets_in_report(self):
         self.assertIn("Verified Structural", self.md)

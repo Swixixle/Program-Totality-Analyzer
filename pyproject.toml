@@ -1,5 +1,5 @@
 [project]
-name = "program-totality-analyzer"
+name = "repository-reconnaissance"
 version = "0.1.0"
 description = "Evidence-bound static analysis tool that generates comprehensive technical dossiers for software projects"
 requires-python = ">=3.11"
@@ -20,4 +20,4 @@ build-backend = "hatchling.build"
 packages = ["server"]
 
 [project.scripts]
-pta = "server.analyzer.src.analyzer_cli:app"
+rr = "server.analyzer.src.analyzer_cli:app"

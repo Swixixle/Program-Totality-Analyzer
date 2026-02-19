@@ -64,7 +64,7 @@ class TestSchemaValidation(unittest.TestCase):
     def test_operate_missing_required_field(self):
         """Test that missing required fields are caught."""
         data = {
-            "tool_version": "pta-0.1.0",
+            "tool_version": "rr-0.1.0",
             "generated_at": "2026-01-01T00:00:00Z",
             # Missing schema_version, mode, and other required fields
         }
@@ -75,7 +75,7 @@ class TestSchemaValidation(unittest.TestCase):
     def test_target_howto_missing_required_field(self):
         """Test that missing required fields are caught."""
         data = {
-            "tool_version": "pta-0.1.0",
+            "tool_version": "rr-0.1.0",
             "generated_at": "2026-01-01T00:00:00Z",
             # Missing schema_version, target, and other required fields
         }

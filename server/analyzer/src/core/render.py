@@ -87,7 +87,7 @@ def _get_dci_v2(pack: Dict[str, Any]) -> Dict[str, Any]:
 
 def _render_engineer(pack: Dict[str, Any]) -> str:
     lines = [
-        f"# Program Totality Report — Engineer View",
+        f"# Repository Reconnaissance Report — Engineer View",
         f"",
         f"**EvidencePack Version:** {pack.get('evidence_pack_version', '?')}",
         f"**Tool Version:** {pack.get('tool_version', '?')}",
@@ -105,7 +105,7 @@ def _render_engineer(pack: Dict[str, Any]) -> str:
     rci = _get_rci(pack)
     components = rci.get("components", {})
 
-    lines.append(f"## PTA Contract Audit — Run {pack.get('run_id', '?')}")
+    lines.append(f"## Repository Reconnaissance Contract Audit — Run {pack.get('run_id', '?')}")
     lines.append("")
     cov = pack.get("coverage", {})
 
@@ -162,7 +162,7 @@ def _render_engineer(pack: Dict[str, Any]) -> str:
 
     lines.append("### 5. Epistemic Posture")
     lines.append("")
-    lines.append("PTA explicitly reports:")
+    lines.append("Repository Reconnaissance explicitly reports:")
     lines.append("- What is deterministically verified.")
     lines.append("- What is unknown.")
     lines.append("- What is not implemented.")
@@ -236,7 +236,7 @@ def _render_engineer(pack: Dict[str, Any]) -> str:
 
 def _render_auditor(pack: Dict[str, Any]) -> str:
     lines = [
-        f"# Program Totality Report — Auditor View",
+        f"# Repository Reconnaissance Report — Auditor View",
         f"",
         f"**EvidencePack Version:** {pack.get('evidence_pack_version', '?')}",
         f"**Generated:** {pack.get('generated_at', '?')}",
@@ -304,7 +304,7 @@ def _render_executive(pack: Dict[str, Any]) -> str:
     dci_v2 = _get_dci_v2(pack)
 
     lines = [
-        f"# Program Totality Report — Executive Summary",
+        f"# Repository Reconnaissance Report — Executive Summary",
         f"",
         f"**Generated:** {pack.get('generated_at', '?')}",
         f"",

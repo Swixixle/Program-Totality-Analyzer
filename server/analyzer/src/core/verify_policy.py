@@ -1,7 +1,7 @@
 """
 Verification Policy — Single Source of Truth
 
-Defines what it means for a claim to be VERIFIED in PTA.
+Defines what it means for a claim to be VERIFIED in Repository Reconnaissance.
 All modules (adapter, render, diff) must use this module
 instead of implementing their own verification logic.
 
@@ -10,12 +10,12 @@ v1 Rule:
     1. snippet_hash is present (non-empty string)
     2. snippet_hash_verified == True
     3. the referenced file path is non-empty
-    4. the referenced file path is NOT a PTA-generated artifact
+    4. the referenced file path is NOT an RR-generated artifact
 
   This is the EVIDENCE_VERIFIED_HASH tier.
 
 Circular evidence rule:
-  Evidence refs pointing to PTA-generated output files are REJECTED.
+  Evidence refs pointing to RR-generated output files are REJECTED.
   Generated artifacts (dossier, claims, reports, evidence packs) are
   outputs, not source material. Citing them as evidence would create
   a self-referential loop that collapses the trust model.

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Output validator for PTA smoke tests.
+Output validator for Repository Reconnaissance smoke tests.
 
 Validates that analyzer outputs conform to schemas and contain required metadata.
 """

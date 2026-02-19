@@ -23,7 +23,7 @@
       },
       {
         "id": "claim_006",
-        "statement": "Python project named \"program-totality-analyzer\" (from pyproject.toml)",
+        "statement": "Python project named \"repository-reconnaissance\" (from pyproject.toml)",
         "section": "What the Target System Is",
         "evidence": [
           {
@@ -429,7 +429,7 @@
         "unknowns_coverage": 0.0,
         "howto_completeness": 0.62
       },
-      "interpretation": "Composite completeness of PTA reporting. NOT a security or structural visibility score."
+      "interpretation": "Composite completeness of Repository Reconnaissance reporting. NOT a security or structural visibility score."
     },
     "dci_v1_claim_visibility": {
       "score": 0.8824,

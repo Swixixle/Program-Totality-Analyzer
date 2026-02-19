@@ -57,7 +57,7 @@ class TestOperateContract(unittest.TestCase):
             self.assertIn(field, self.operate, f"Missing top-level field: {field}")
 
     def test_tool_version_format(self):
-        self.assertTrue(self.operate["tool_version"].startswith("pta-"))
+        self.assertTrue(self.operate["tool_version"].startswith("rr-"))
 
     def test_evidence_contract_evidenced(self):
         """EVIDENCED items must have evidence with path and snippet_hash."""
@@ -167,7 +167,7 @@ class TestValidateOperate(unittest.TestCase):
 
     def _make_minimal_operate(self):
         return {
-            "tool_version": "pta-0.1.0",
+            "tool_version": "rr-0.1.0",
             "mode": "replit",
             "boot": {
                 "install": [{"command": "npm install", "tier": "EVIDENCED",

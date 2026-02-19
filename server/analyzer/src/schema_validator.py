@@ -1,5 +1,5 @@
 """
-Schema validation module for PTA outputs.
+Schema validation module for Repository Reconnaissance outputs.
 
 Validates JSON outputs against their schemas before writing to ensure
 contract compliance.

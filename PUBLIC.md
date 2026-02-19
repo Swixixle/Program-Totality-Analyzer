@@ -1,8 +1,8 @@
-# Program Totality Analyzer — Public Overview
+# Repository Reconnaissance — Public Overview
 
 ## What this is
 
-Program Totality Analyzer (PTA) is a static-artifact analysis system that generates audit-grade technical dossiers for software projects. It extracts operational requirements, integration points, deployment configuration, and readiness posture from source code and configuration files—producing evidence-backed summaries that help operators, reviewers, and stakeholders understand *what a system is, how to run it, what it needs, and what remains unknown*—without requiring deep technical expertise or tribal knowledge.
+Repository Reconnaissance (RR) is a static-artifact analysis system that generates audit-grade technical dossiers for software projects. It extracts operational requirements, integration points, deployment configuration, and readiness posture from source code and configuration files—producing evidence-backed summaries that help operators, reviewers, and stakeholders understand *what a system is, how to run it, what it needs, and what remains unknown*—without requiring deep technical expertise or tribal knowledge.
 
 ## Who it's for
 
@@ -22,7 +22,7 @@ In complex software environments, understanding operational reality is fragile a
 * Compliance reviews lack structured evidence trails
 * Operational gaps remain invisible until production incidents
 
-PTA's job is to turn static code artifacts into **structured, evidence-backed operational documentation** that's usable by both technical operators and non-technical stakeholders.
+Repository Reconnaissance's job is to turn static code artifacts into **structured, evidence-backed operational documentation** that's usable by both technical operators and non-technical stakeholders.
 
 ## What you get
 
@@ -52,7 +52,7 @@ PTA's job is to turn static code artifacts into **structured, evidence-backed op
 
 ## Integration overview (high level)
 
-PTA integrates into existing workflows as a documentation and analysis layer:
+Repository Reconnaissance integrates into existing workflows as a documentation and analysis layer:
 
 * **CLI mode** — analyze local folders, GitHub repositories, or Replit workspaces with a single command
 * **Web UI** — browser-based interface for manual analysis and results visualization
@@ -64,10 +64,10 @@ Specific integration patterns, authentication requirements, and deployment archi
 
 ## Trust boundaries & limitations
 
-* **Static analysis only** — PTA analyzes source files, configuration, and lockfiles. It does not observe runtime behavior, network traffic, or live system state.
-* **Not a security scanner** — PTA reports structural observations and operational posture, not vulnerability assessments or exploit detection.
+* **Static analysis only** — Repository Reconnaissance analyzes source files, configuration, and lockfiles. It does not observe runtime behavior, network traffic, or live system state.
+* **Not a security scanner** — Repository Reconnaissance reports structural observations and operational posture, not vulnerability assessments or exploit detection.
 * **Evidence scope** — "EVIDENCED" means a claim is anchored to a hash-verified source snippet. It does not mean the code works correctly, is secure, or meets compliance standards.
-* **No runtime guarantees** — PTA cannot prove correctness, performance, or security properties at runtime.
+* **No runtime guarantees** — Repository Reconnaissance cannot prove correctness, performance, or security properties at runtime.
 * **LLM outputs are interpretive** — when using optional LLM mode, semantic analysis carries confidence scores and is labeled as AI-generated; not deterministic ground truth.
 
 ## Status & roadmap
@@ -78,7 +78,7 @@ Specific integration patterns, authentication requirements, and deployment archi
 
 ## Inquiries / pilots / demos
 
-Interested in evaluating PTA for your organization or exploring integration patterns?
+Interested in evaluating Repository Reconnaissance for your organization or exploring integration patterns?
 
 See **CONTACT.md** for inquiry details and demo requests.
 

@@ -13,9 +13,9 @@ Our projects focus on turning complex workflows and codebases into structured, d
 
 ## Systems
 
-**PTA (Program Totality Analyzer)**  
+**RR (Repository Reconnaissance)**  
 Evidence-bound structural analysis for teams inheriting, auditing, or validating complex codebases.  
-[Demo on Replit](https://replit.com/github/Swixixle/Program-Totality-Analyzer)
+[Demo on Replit](https://replit.com/github/Swixixle/Repository-Reconnaissance)
 
 **HALO-RECEIPTS**  
 Cryptographically chained transcript verification for AI and workflow integrity.

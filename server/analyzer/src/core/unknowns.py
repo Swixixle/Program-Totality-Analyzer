@@ -1,7 +1,7 @@
 """
 Phase 1: Known Unknowns — Epistemic Transparency Layer
 
-Declares categories of operational knowledge that PTA cannot verify
+Declares categories of operational knowledge that Repository Reconnaissance cannot verify
 from static analysis alone. Each category defaults to UNKNOWN and
 can only become VERIFIED via deterministic artifact detection.
 
