@@ -1,6 +1,6 @@
 # Configuration Guide
 
-This document describes all configuration options for the PTA (Program Totality Analyzer) system.
+This document describes all configuration options for the RR (Repository Reconnaissance) system.
 
 ## Environment Variable Precedence
 
@@ -152,7 +152,7 @@ On successful startup, the server emits a **single JSON log line** with boot inf
 ```
 
 **Fields:**
-- `tool_version`: PTA version with `pta-` prefix (matches Python analyzer)
+- `tool_version`: RR version with `rr-` prefix (matches Python analyzer)
 - `bind_host`, `bind_port`: Actual bind configuration (use these for health checks)
 - `db_configured`: `true` if `DATABASE_URL` is set
 - `ci_enabled`: `true` if CI worker or webhooks are enabled
@@ -177,7 +177,7 @@ Before deploying to production, ensure:
 1. Copy `.env.example` to `.env` (if provided)
 2. Set minimum required vars:
    ```bash
-   DATABASE_URL=postgresql://user:pass@localhost:5432/pta_dev
+   DATABASE_URL=postgresql://user:pass@localhost:5432/rr_dev
    API_KEY=dev_key_min_32_characters_long_abcdefgh
    ```
 3. Start server: `npm run dev`

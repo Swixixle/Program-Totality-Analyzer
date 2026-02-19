@@ -1,6 +1,6 @@
 # Production Deployment Guide
 
-This guide covers deploying Asset-Analyzer (PTA) to production environments.
+This guide covers deploying Repository Reconnaissance (RR) to production environments.
 
 ## Prerequisites
 
@@ -13,7 +13,7 @@ This guide covers deploying Asset-Analyzer (PTA) to production environments.
 
 ### Port Configuration
 
-PTA binds to a single port for all traffic (API + web UI):
+RR binds to a single port for all traffic (API + web UI):
 
 - **Default**: Port `5000`
 - **Configurable**: Set `PORT` environment variable
@@ -24,7 +24,7 @@ PTA binds to a single port for all traffic (API + web UI):
 
 ### Startup Boot Report
 
-On successful startup, PTA emits a structured JSON log line:
+On successful startup, RR emits a structured JSON log line:
 
 ```json
 {
@@ -44,7 +44,7 @@ Use this for monitoring and observability.
 ### Architecture
 
 ```
-Internet → Reverse Proxy (nginx/caddy) → PTA Server (port 5000)
+Internet → Reverse Proxy (nginx/caddy) → RR Server (port 5000)
              (TLS termination)              (HTTP only)
 ```
 
@@ -85,7 +85,7 @@ version: '3.8'
 
 services:
   app:
-    image: ghcr.io/swixixle/asset-analyzer:latest
+    image: ghcr.io/swixixle/repository-reconnaissance:latest
     # Or build locally:
     # build: .
     ports:
@@ -131,40 +131,40 @@ docker-compose logs -f app
 #### 1. Build the Application
 
 ```bash
-cd /opt/asset-analyzer
+cd /opt/repository-reconnaissance
 npm install --production
 npm run build
 ```
 
 #### 2. Create Systemd Service
 
-Create `/etc/systemd/system/asset-analyzer.service`:
+Create `/etc/systemd/system/repository-reconnaissance.service`:
 
 ```ini
 [Unit]
-Description=Asset Analyzer Service
+Description=Repository Reconnaissance Service
 After=network.target postgresql.service
 
 [Service]
 Type=simple
-User=pta
-WorkingDirectory=/opt/asset-analyzer
+User=rr
+WorkingDirectory=/opt/repository-reconnaissance
 Environment="NODE_ENV=production"
 Environment="PORT=5000"
-EnvironmentFile=/opt/asset-analyzer/.env.production
-ExecStart=/usr/bin/node /opt/asset-analyzer/dist/index.cjs
+EnvironmentFile=/opt/repository-reconnaissance/.env.production
+ExecStart=/usr/bin/node /opt/repository-reconnaissance/dist/index.cjs
 Restart=on-failure
 RestartSec=10
 StandardOutput=journal
 StandardError=journal
-SyslogIdentifier=asset-analyzer
+SyslogIdentifier=repository-reconnaissance
 
 # Security hardening
 NoNewPrivileges=true
 PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=true
-ReadWritePaths=/opt/asset-analyzer/out /tmp/ci
+ReadWritePaths=/opt/repository-reconnaissance/out /tmp/ci
 
 [Install]
 WantedBy=multi-user.target
@@ -174,17 +174,17 @@ WantedBy=multi-user.target
 
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable asset-analyzer
-sudo systemctl start asset-analyzer
-sudo systemctl status asset-analyzer
+sudo systemctl enable repository-reconnaissance
+sudo systemctl start repository-reconnaissance
+sudo systemctl status repository-reconnaissance
 ```
 
 #### 4. Configure Nginx Reverse Proxy
 
-Create `/etc/nginx/sites-available/asset-analyzer`:
+Create `/etc/nginx/sites-available/repository-reconnaissance`:
 
 ```nginx
-upstream asset_analyzer {
+upstream repository_reconnaissance {
     server 127.0.0.1:5000;
     keepalive 64;
 }
@@ -223,7 +223,7 @@ server {
     client_max_body_size 100M;
 
     location / {
-        proxy_pass http://asset_analyzer;
+        proxy_pass http://repository_reconnaissance;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -236,7 +236,7 @@ server {
 
     # WebSocket support for real-time updates
     location /ws {
-        proxy_pass http://asset_analyzer;
+        proxy_pass http://repository_reconnaissance;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "Upgrade";
@@ -248,7 +248,7 @@ server {
 #### 5. Enable Nginx Configuration
 
 ```bash
-sudo ln -s /etc/nginx/sites-available/asset-analyzer /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/repository-reconnaissance /etc/nginx/sites-enabled/
 sudo nginx -t
 sudo systemctl reload nginx
 ```
@@ -264,7 +264,7 @@ web: npm start
 
 2. Deploy:
 ```bash
-eb init -p node.js-18 asset-analyzer
+eb init -p node.js-18 repository-reconnaissance
 eb create prod-env
 eb deploy
 ```
@@ -272,7 +272,7 @@ eb deploy
 #### Google Cloud Run
 
 ```bash
-gcloud run deploy asset-analyzer \
+gcloud run deploy repository-reconnaissance \
   --source . \
   --platform managed \
   --region us-central1 \
@@ -282,7 +282,7 @@ gcloud run deploy asset-analyzer \
 #### Heroku
 
 ```bash
-heroku create asset-analyzer-prod
+heroku create repository-reconnaissance-prod
 heroku addons:create heroku-postgresql:mini
 heroku config:set NODE_ENV=production API_KEY=$(openssl rand -hex 32)
 git push heroku main
@@ -290,7 +290,7 @@ git push heroku main
 
 ## TLS/HTTPS Enforcement
 
-Asset-Analyzer includes production startup checks that enforce HTTPS by default.
+Repository Reconnaissance includes production startup checks that enforce HTTPS by default.
 
 ### Disable HTTPS Check (Not Recommended)
 
@@ -341,19 +341,19 @@ See [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md) for backup procedures.
 
 Configure log rotation for analyzer logs:
 
-Create `/etc/logrotate.d/asset-analyzer`:
+Create `/etc/logrotate.d/repository-reconnaissance`:
 
 ```
-/opt/asset-analyzer/out/_log/*.ndjson {
+/opt/repository-reconnaissance/out/_log/*.ndjson {
     daily
     rotate 30
     compress
     delaycompress
     notifempty
-    create 0640 pta pta
+    create 0640 rr rr
     sharedscripts
     postrotate
-        systemctl reload asset-analyzer > /dev/null 2>&1 || true
+        systemctl reload repository-reconnaissance > /dev/null 2>&1 || true
     endscript
 }
 ```
@@ -371,14 +371,14 @@ Monitor these metrics:
 
 ```bash
 # Remove CI runs older than 30 days
-find /opt/asset-analyzer/out/ci -type d -mtime +30 -exec rm -rf {} +
+find /opt/repository-reconnaissance/out/ci -type d -mtime +30 -exec rm -rf {} +
 ```
 
 ## Scaling Considerations
 
 ### Horizontal Scaling
 
-Asset-Analyzer can run multiple instances with shared PostgreSQL:
+Repository Reconnaissance can run multiple instances with shared PostgreSQL:
 
 1. Use a load balancer (nginx, HAProxy, AWS ALB)
 2. Ensure shared database is accessible from all instances
@@ -435,5 +435,5 @@ Either:
 ## Support
 
 For issues and questions:
-- GitHub Issues: https://github.com/Swixixle/Asset-Analyzer/issues
-- Documentation: https://github.com/Swixixle/Asset-Analyzer/tree/main/docs
+- GitHub Issues: https://github.com/Swixixle/Repository-Reconnaissance/issues
+- Documentation: https://github.com/Swixixle/Repository-Reconnaissance/tree/main/docs

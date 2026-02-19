@@ -2,9 +2,9 @@
 
 ## General
 
-### What is Program Totality Analyzer (PTA)?
+### What is Repository Reconnaissance (RR)?
 
-PTA is a static analysis system that generates operational documentation and readiness assessments for software projects. It analyzes source code, configuration files, and infrastructure-as-code to produce evidence-backed dossiers explaining what a system is, how to run it, what it needs, and what remains unknown.
+RR is a static analysis system that generates operational documentation and readiness assessments for software projects. It analyzes source code, configuration files, and infrastructure-as-code to produce evidence-backed dossiers explaining what a system is, how to run it, what it needs, and what remains unknown.
 
 ### Is this open source?
 
@@ -12,16 +12,16 @@ No. This repository contains public documentation and interface specifications, 
 
 ### How is this different from other static analysis tools?
 
-PTA focuses on **operational readiness** rather than security scanning or code quality metrics. Key differences:
+RR focuses on **operational readiness** rather than security scanning or code quality metrics. Key differences:
 
 * **Evidence-first** — every claim cites file:line references with cryptographic hashes
 * **Operator-focused** — outputs are designed for DevOps, SRE, and compliance teams, not just developers
 * **Multi-artifact** — analyzes application code, infrastructure, data pipelines, ML workflows, and policy files in a unified model
 * **Explicit uncertainty** — findings are labeled as EVIDENCED, INFERRED, or UNKNOWN with clear reasoning
 
-### What languages and frameworks does PTA support?
+### What languages and frameworks does RR support?
 
-PTA analyzes multiple artifact types:
+RR analyzes multiple artifact types:
 
 * **Application code**: TypeScript, JavaScript, Python, Go, Java, and more
 * **Infrastructure**: Terraform, Kubernetes, Docker
@@ -33,28 +33,28 @@ See [docs/artifact-types.md](artifact-types.md) for complete coverage.
 
 ## Capabilities
 
-### Does PTA replace manual code review?
+### Does RR replace manual code review?
 
-No. PTA provides **structured operational documentation** to accelerate reviews, but it does not replace human judgment. It's designed to augment reviewers by:
+No. RR provides **structured operational documentation** to accelerate reviews, but it does not replace human judgment. It's designed to augment reviewers by:
 
 * Extracting operational requirements automatically
 * Highlighting gaps and unknowns explicitly
 * Providing evidence trails for audit purposes
 * Standardizing documentation across projects
 
-### Can PTA find security vulnerabilities?
+### Can RR find security vulnerabilities?
 
-PTA is **not a security scanner**. It reports structural observations and operational posture, not vulnerability detection. For security scanning, use dedicated tools like:
+RR is **not a security scanner**. It reports structural observations and operational posture, not vulnerability detection. For security scanning, use dedicated tools like:
 
 * Snyk, Dependabot for dependency vulnerabilities
 * CodeQL, Semgrep for code pattern analysis
 * Cloud-native scanners for infrastructure misconfigurations
 
-PTA can help identify **operational security gaps** (missing auth config, exposed credentials in env vars), but this is secondary to its primary operational focus.
+RR can help identify **operational security gaps** (missing auth config, exposed credentials in env vars), but this is secondary to its primary operational focus.
 
-### Does PTA run my code?
+### Does RR run my code?
 
-No. PTA performs **static analysis only**—it reads source files, configuration, and lockfiles but never executes application code. This means:
+No. RR performs **static analysis only**—it reads source files, configuration, and lockfiles but never executes application code. This means:
 
 * No runtime behavior observation
 * No performance profiling
@@ -63,7 +63,7 @@ No. PTA performs **static analysis only**—it reads source files, configuration
 
 ### What does "evidence-backed" mean?
 
-Every PTA finding includes:
+Every RR finding includes:
 
 * **File path and line number** — where the evidence was found
 * **Snippet hash** — SHA-256 hash of the extracted code snippet
@@ -80,19 +80,19 @@ You can verify any claim by checking the cited file location and recomputing the
 3. **Try CLI mode** — analyze a test repository locally
 4. **Request a demo** — contact us via [CONTACT.md](../CONTACT.md) for pilot access
 
-### Can I run PTA on private repositories?
+### Can I run RR on private repositories?
 
-Yes. PTA supports:
+Yes. RR supports:
 
 * **Local analysis** — clone the repo locally and analyze without uploading
-* **Self-hosted deployment** — run PTA in your own infrastructure
+* **Self-hosted deployment** — run RR in your own infrastructure
 * **GitHub App integration** — webhook-triggered analysis with GitHub token authentication
 
 See [docs/DEPLOYMENT.md](DEPLOYMENT.md) for private repository setup.
 
-### Does PTA send my code to external services?
+### Does RR send my code to external services?
 
-**Not by default.** PTA operates in two modes:
+**Not by default.** RR operates in two modes:
 
 * **Deterministic mode** (`--no-llm`) — 100% local, no external API calls, reproducible outputs
 * **LLM-enhanced mode** — optional semantic analysis using OpenAI API (configurable endpoint)
@@ -101,18 +101,18 @@ You control which mode to use. For air-gapped or high-security environments, use
 
 ### How does CI/CD integration work?
 
-PTA integrates via **GitHub webhooks**:
+RR integrates via **GitHub webhooks**:
 
-1. Configure webhook pointing to your PTA instance
+1. Configure webhook pointing to your RR instance
 2. Push or open a PR in your repository
-3. PTA automatically clones at the commit SHA and runs analysis
+3. RR automatically clones at the commit SHA and runs analysis
 4. Results appear in the web UI at `/ci` with searchable feed
 
 See [docs/API.md](API.md) for webhook setup and endpoint documentation.
 
 ## Outputs & Results
 
-### What files does PTA generate?
+### What files does RR generate?
 
 * **`operate.json`** — operator dashboard with boot/integrate/deploy commands, readiness scores, operational gaps
 * **`DOSSIER.md`** — human-readable markdown summary
@@ -124,13 +124,13 @@ See [docs/OUTPUT_CONTRACTS.md](OUTPUT_CONTRACTS.md) for schema details.
 
 ### How accurate are the results?
 
-PTA provides **evidence scope**, not accuracy guarantees:
+RR provides **evidence scope**, not accuracy guarantees:
 
 * **EVIDENCED** findings are anchored to hash-verified source snippets
 * **INFERRED** findings are pattern-matched with confidence scores
 * **UNKNOWN** findings are explicitly labeled with reasoning
 
-PTA does not claim to be "correct" about what the code does at runtime—it reports what it can observe in static artifacts.
+RR does not claim to be "correct" about what the code does at runtime—it reports what it can observe in static artifacts.
 
 ### Can I customize the analysis?
 
@@ -145,7 +145,7 @@ For advanced customization (custom artifact types, specialized extraction), cont
 
 ## Pricing & Licensing
 
-### Is PTA free?
+### Is RR free?
 
 This public documentation and evaluation CLI are available for non-commercial evaluation. Production deployment and commercial use require a license. Contact us via [CONTACT.md](../CONTACT.md) for pricing.
 
@@ -179,7 +179,7 @@ If you encounter issues:
 3. For persistent issues, contact us via [CONTACT.md](../CONTACT.md) with:
    - Error message and logs
    - Repository characteristics (language, size, structure)
-   - PTA version and deployment environment
+   - RR version and deployment environment
 
 ### How do I request a feature?
 

@@ -20,7 +20,7 @@ This repository does **not** disclose:
 
 **This repository does not constitute an open-source release of the core intellectual property.**
 
-The Program Totality Analyzer's public documentation is provided to:
+The Repository Reconnaissance's public documentation is provided to:
 
 * Help potential users understand capabilities and value propositions
 * Enable integration planning and technical evaluation
