@@ -1,8 +1,8 @@
 """
 Tests for circular evidence rejection.
 
-Ensures that RR-generated artifacts cannot be cited as VERIFIED evidence.
-This prevents the self-referential trust collapse where RR output proves RR output.
+Ensures that PTA-generated artifacts cannot be cited as VERIFIED evidence.
+This prevents the self-referential trust collapse where PTA output proves PTA output.
 """
 import unittest
 import sys

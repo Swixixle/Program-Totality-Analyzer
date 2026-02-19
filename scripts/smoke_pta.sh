@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Smoke test for RR - validates analyzer output contracts
+# Smoke test for PTA - validates analyzer output contracts
 #
 # This script:
 # 1. Runs analyzer on a tiny fixture repo
@@ -12,7 +12,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(dirname "$SCRIPT_DIR")"
 
-echo "==> RR Smoke Test"
+echo "==> PTA Smoke Test"
 echo
 
 # Colors for output

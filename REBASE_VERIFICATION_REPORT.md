@@ -268,7 +268,7 @@ The repository is in a **stable, clean state** with:
 ## Additional Notes
 
 ### Repository Context:
-- **Project**: Repository Reconnaissance
+- **Project**: Program Totality Analyzer (Asset Analyzer)
 - **Purpose**: Static analysis tool for generating technical dossiers
 - **Technology Stack**: TypeScript/Node.js (server), Python (analyzer), React (client)
 - **Key Features**: CI Feed integration, webhook-driven analysis, evidence-based reporting

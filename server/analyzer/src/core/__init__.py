@@ -1,1 +1,1 @@
-# Core modules for Repository Reconnaissance
+# Core modules for the Program Totality Analyzer

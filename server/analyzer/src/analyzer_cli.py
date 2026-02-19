@@ -11,7 +11,7 @@ from .core.adapter import load_evidence_pack
 from .core.render import render_report, save_report
 
 app = typer.Typer(
-    help="Repository Reconnaissance - Generate static-artifact-anchored technical dossiers for software projects.",
+    help="Program Totality Analyzer - Generate static-artifact-anchored technical dossiers for software projects.",
     add_completion=False,
 )
 
@@ -24,7 +24,7 @@ class RenderMode(str, Enum):
 
 @app.callback(invoke_without_command=True)
 def main(ctx: typer.Context):
-    """Repository Reconnaissance CLI."""
+    """Program Totality Analyzer CLI."""
     if ctx.invoked_subcommand is None:
         typer.echo(ctx.get_help())
         raise typer.Exit(0)
@@ -98,7 +98,7 @@ def diff(
     - DIFF_REPORT.md (human-readable)
 
     Example:
-        rr diff out/run1/evidence_pack.v1.json out/run2/evidence_pack.v1.json -o ./diff_out
+        pta diff out/run1/evidence_pack.v1.json out/run2/evidence_pack.v1.json -o ./diff_out
     """
     console = Analyzer.get_console()
 
@@ -145,7 +145,7 @@ def render(
     Re-render a report from an existing EvidencePack without re-running analysis.
 
     Example:
-        rr render out/evidence_pack.v1.json --mode auditor -o ./reports
+        pta render out/evidence_pack.v1.json --mode auditor -o ./reports
     """
     console = Analyzer.get_console()
     from pathlib import Path

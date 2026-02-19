@@ -1,8 +1,8 @@
 """
-Version information for Repository Reconnaissance.
+Version information for PTA.
 
 Single source of truth for version numbers, read from pyproject.toml.
-All outputs emit tool_version as "rr-{version}" for consistency.
+All outputs emit tool_version as "pta-{version}" for consistency.
 """
 import re
 from pathlib import Path
@@ -33,12 +33,12 @@ def get_raw_version() -> str:
 
 def get_tool_version() -> str:
     """
-    Get the Repository Reconnaissance tool version with rr- prefix for all outputs.
+    Get the PTA tool version with pta- prefix for all outputs.
     
     Returns:
-        Version string with prefix (e.g., "rr-0.1.0")
+        Version string with prefix (e.g., "pta-0.1.0")
     """
-    return f"rr-{get_raw_version()}"
+    return f"pta-{get_raw_version()}"
 
 
 # Schema version constants - single source of truth

@@ -666,7 +666,7 @@ RULES:
     - Limitations (what could NOT be determined)
 """
 
-        prompt = f"""You are 'Repository Reconnaissance'. Write a Markdown DOSSIER about this target system based on static artifacts only.
+        prompt = f"""You are the 'Program Totality Analyzer'. Write a Markdown DOSSIER about this target system based on static artifacts only.
 
 SCOPE LIMITATION: This dossier is derived from static source artifacts (code, config, lockfiles). It does NOT observe runtime behavior, prove correctness, or certify security. Every claim must be labeled with its epistemic status.
 
@@ -689,7 +689,7 @@ RULES:
 - If no evidence exists for a claim, say "UNKNOWN — evidence needed: <describe>" and add to Unknowns section.
 - Label each claim: VERIFIED (hash-anchored to source), INFERRED (derived from context but not hash-verified), or UNKNOWN.
 - Do NOT hallucinate file paths or line numbers. Do NOT use vague adjectives. Be specific and operational.
-- Do NOT cite RR-generated output (dossier text, claims.json, evidence_pack) as evidence for claims. Evidence must reference the target system's own artifacts.
+- Do NOT cite PTA-generated output (dossier text, claims.json, evidence_pack) as evidence for claims. Evidence must reference the target system's own artifacts.
 - The "How to Use" section must read like an actual operator manual with concrete commands.
 - For Replit projects: the Replit Execution Profile section is MANDATORY.
 - All secrets must be referenced by NAME only, never expose values.
@@ -1098,7 +1098,7 @@ RULES:
         return None
 
     def _build_deterministic_dossier(self, howto: dict) -> str:
-        lines = ["# Repository Reconnaissance — Deterministic Dossier", ""]
+        lines = ["# Program Totality Analyzer — Deterministic Dossier", ""]
         lines.append("**Mode:** `--no-llm` (deterministic extraction only, no LLM calls)")
         lines.append("")
 

@@ -5,10 +5,10 @@ TMP="$(mktemp -d)"
 OUT="$TMP/out"
 trap 'rm -rf "$TMP"' EXIT
 
-echo "=== Smoke Test: Repository Reconnaissance ==="
+echo "=== Smoke Test: Program Totality Analyzer ==="
 
-echo "[1/6] rr --help"
-rr --help >/dev/null
+echo "[1/6] pta --help"
+pta --help >/dev/null
 echo "  PASS"
 
 echo "[2/6] python -m server.analyzer.src --help"
@@ -20,7 +20,7 @@ python server/analyzer/analyzer_cli.py --help >/dev/null
 echo "  PASS"
 
 echo "[4/6] Deterministic analysis (--no-llm)..."
-rr analyze --replit --no-llm -o "$OUT"
+pta analyze --replit --no-llm -o "$OUT"
 echo "  PASS"
 
 echo "[5/6] Checking output files..."

@@ -1,6 +1,6 @@
 # Operations Guide
 
-Quick reference for deploying, monitoring, and maintaining RR in production.
+Quick reference for deploying, monitoring, and maintaining PTA in production.
 
 ## Health Checks
 
@@ -51,7 +51,7 @@ On startup, the server logs a JSON boot report. Example:
 ```json
 {
   "timestamp": "2026-02-17T03:00:00.000Z",
-  "tool_version": "rr-1.0.0",
+  "tool_version": "pta-1.0.0",
   "node_env": "production",
   "bind_host": "0.0.0.0",
   "bind_port": 5000,
@@ -82,7 +82,7 @@ Run the included smoke test to validate analyzer functionality:
 ```bash
 npm run smoke
 # or
-bash scripts/smoke_rr.sh
+bash scripts/smoke_pta.sh
 ```
 
 **Expected**: Green checkmarks for all outputs (operate.json, target_howto.json, etc.)
@@ -93,11 +93,11 @@ bash scripts/smoke_rr.sh
 
 ```bash
 # Graceful restart (Docker/k8s)
-kubectl rollout restart deployment/rr-server
+kubectl rollout restart deployment/pta-server
 
 # Process manager (PM2/systemd)
-pm2 restart rr-server
-systemctl restart rr.service
+pm2 restart pta-server
+systemctl restart pta.service
 ```
 
 ### Clear CI Job Queue
@@ -174,7 +174,7 @@ See [CI Error Codes](../server/ci-error-codes.ts) for full list.
 1. **Backup database**: `pg_dump $DATABASE_URL > backup.sql`
 2. **Review changelog**: Check for breaking changes (should be none)
 3. **Update container image** or pull latest code
-4. **Restart server**: `kubectl rollout restart deployment/rr-server`
+4. **Restart server**: `kubectl rollout restart deployment/pta-server`
 5. **Verify boot report**: Check `tool_version` matches expected version
 6. **Run smoke test**: `npm run smoke`
 7. **Monitor logs**: Watch for errors in first 10 minutes

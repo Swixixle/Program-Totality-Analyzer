@@ -1,10 +1,10 @@
 # Output Contracts
 
-This document describes the stable output contracts for RR analyzer outputs, including JSON schemas and versioning strategy.
+This document describes the stable output contracts for PTA analyzer outputs, including JSON schemas and versioning strategy.
 
 ## Overview
 
-RR produces structured JSON outputs with **formal schema validation** to ensure predictable, parseable results for downstream tools and workflows.
+PTA produces structured JSON outputs with **formal schema validation** to ensure predictable, parseable results for downstream tools and workflows.
 
 ## Core Outputs
 
@@ -16,7 +16,7 @@ RR produces structured JSON outputs with **formal schema validation** to ensure 
 
 **Required Top-Level Fields**:
 - `schema_version` (string): Schema version (e.g., "1.0")
-- `tool_version` (string): RR version (e.g., "rr-0.1.0")
+- `tool_version` (string): PTA version (e.g., "pta-0.1.0")
 - `generated_at` (string): ISO 8601 timestamp
 - `mode` (string): Analysis mode (github, local, replit)
 - `boot`: Boot and startup information
@@ -31,7 +31,7 @@ RR produces structured JSON outputs with **formal schema validation** to ensure 
 ```json
 {
   "schema_version": "1.0",
-  "tool_version": "rr-0.1.0",
+  "tool_version": "pta-0.1.0",
   "generated_at": "2026-02-17T00:00:00Z",
   "mode": "local",
   "boot": {
@@ -80,7 +80,7 @@ RR produces structured JSON outputs with **formal schema validation** to ensure 
 
 **Required Top-Level Fields**:
 - `schema_version` (string): Schema version (e.g., "1.0")
-- `tool_version` (string): RR version
+- `tool_version` (string): PTA version
 - `generated_at` (string): ISO 8601 timestamp
 - `target` (object):
   - `mode` (string): Analysis mode
@@ -96,7 +96,7 @@ RR produces structured JSON outputs with **formal schema validation** to ensure 
 ```json
 {
   "schema_version": "1.0",
-  "tool_version": "rr-0.1.0",
+  "tool_version": "pta-0.1.0",
   "generated_at": "2026-02-17T00:00:00Z",
   "target": {
     "mode": "github",
@@ -125,7 +125,7 @@ RR produces structured JSON outputs with **formal schema validation** to ensure 
 
 ### At Generation Time
 
-RR validates outputs **before writing** to ensure contract compliance:
+PTA validates outputs **before writing** to ensure contract compliance:
 
 ```python
 # In analyzer
@@ -175,7 +175,7 @@ Current schema version: **1.0**
 
 Tool versions are independent and follow semantic versioning:
 
-- Format: `rr-<semver>` (e.g., `rr-0.1.0`, `rr-1.2.3`)
+- Format: `pta-<semver>` (e.g., `pta-0.1.0`, `pta-1.2.3`)
 - Embedded in every output via `tool_version` field
 - Used to track which analyzer version produced the output
 
@@ -183,7 +183,7 @@ Tool versions are independent and follow semantic versioning:
 
 | Schema Version | Min Tool Version | Max Tool Version | Status |
 |----------------|------------------|------------------|--------|
-| 1.0            | rr-0.1.0        | (current)        | ✅ Stable |
+| 1.0            | pta-0.1.0        | (current)        | ✅ Stable |
 
 ### Breaking Change Policy
 
@@ -306,7 +306,7 @@ If you have outputs from analyzer versions before schema validation:
 
 ## Testing Your Integration
 
-To test that your integration handles RR outputs correctly:
+To test that your integration handles PTA outputs correctly:
 
 1. **Use fixtures**: Start with known-good samples in `server/analyzer/fixtures/`
 2. **Run smoke test**: Validate against live analyzer output
@@ -342,7 +342,7 @@ Schema versions use a simple `MAJOR.MINOR` format (e.g., `1.0`, `2.0`):
 - **MAJOR**: Incremented for breaking changes (field removals, type changes, new required fields)
 - **MINOR**: Incremented for additive changes (new optional fields, new enum values)
 
-Tool version (`tool_version`) uses semantic versioning `rr-MAJOR.MINOR.PATCH` (e.g., `rr-0.1.0`):
+Tool version (`tool_version`) uses semantic versioning `pta-MAJOR.MINOR.PATCH` (e.g., `pta-0.1.0`):
 
 - **MAJOR**: Breaking API or contract changes
 - **MINOR**: New features, additive schema changes

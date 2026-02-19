@@ -1,11 +1,11 @@
 ---
-title: Lantern Repository Reconnaissance Dossier
-generated_by: RR / Lantern
+title: Lantern Program Totality Dossier
+generated_by: PTA / Lantern
 mode: deterministic+curated
 date: 2026-02-14
 ---
 
-# HALO-RECEIPTS: Repository Reconnaissance Dossier
+# HALO-RECEIPTS: Program Totality Analyzer Dossier
 
 ---
 

@@ -1,8 +1,8 @@
 # Artifact Type Key
 
-**Source of truth for all artifact domains and types that RR analyzes.**
+**Source of truth for all artifact domains and types that PTA analyzes.**
 
-RR performs static, evidence-bound analysis of software artifacts. Every finding is anchored to `file:line:hash` references. Epistemic labels reflect evidence quality, not runtime guarantees:
+PTA performs static, evidence-bound analysis of software artifacts. Every finding is anchored to `file:line:hash` references. Epistemic labels reflect evidence quality, not runtime guarantees:
 - In `operate.json`: EVIDENCED/INFERRED/UNKNOWN
 - In `claims.json`: VERIFIED/INFERRED/UNKNOWN (where VERIFIED means hash-verified source snippet)
 
@@ -30,11 +30,11 @@ RR performs static, evidence-bound analysis of software artifacts. Every finding
 
 ## Limitations
 
-- **Static analysis only**: RR reads source files and configs. It cannot observe runtime behavior, network traffic, database queries, or live application state.
-- **Heuristic folder conventions**: For domains like Data, ML, and Policy, RR relies on common folder patterns (`models/`, `ml/`, `prompts/`, `policy/`). If your project uses non-standard layouts, some artifacts may not be detected.
-- **Best-effort parsing**: RR extracts structure (functions, classes, resource blocks, SQL table names) but does not validate syntax correctness or semantic meaning.
-- **No security guarantees**: RR is not a security scanner, vulnerability detector, or compliance certification tool. It reports structural observations with file:line evidence, not security assessments.
-- **Framework-agnostic**: RR does not assume specific frameworks (e.g., TensorFlow vs PyTorch, Airflow vs Prefect). It detects files that match common ML/data patterns but cannot infer framework-specific behavior.
+- **Static analysis only**: PTA reads source files and configs. It cannot observe runtime behavior, network traffic, database queries, or live application state.
+- **Heuristic folder conventions**: For domains like Data, ML, and Policy, PTA relies on common folder patterns (`models/`, `ml/`, `prompts/`, `policy/`). If your project uses non-standard layouts, some artifacts may not be detected.
+- **Best-effort parsing**: PTA extracts structure (functions, classes, resource blocks, SQL table names) but does not validate syntax correctness or semantic meaning.
+- **No security guarantees**: PTA is not a security scanner, vulnerability detector, or compliance certification tool. It reports structural observations with file:line evidence, not security assessments.
+- **Framework-agnostic**: PTA does not assume specific frameworks (e.g., TensorFlow vs PyTorch, Airflow vs Prefect). It detects files that match common ML/data patterns but cannot infer framework-specific behavior.
 - **No runtime verification**: Labels like "VERIFIED" or "EVIDENCED" mean "anchored to a hash-verified source snippet," not "proven correct at runtime."
 
 ## Evidence Model
@@ -62,7 +62,7 @@ Example evidence object:
 
 ## Adding New Artifact Types
 
-To extend RR's artifact coverage:
+To extend PTA's artifact coverage:
 
 1. Add file patterns to the analyzer's scan rules
 2. Implement structural extractors (no LLM required for deterministic extraction)

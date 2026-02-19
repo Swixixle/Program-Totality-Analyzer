@@ -263,7 +263,7 @@ def _build_metrics(
                 "unknowns_coverage": round(unknowns_coverage, 4),
                 "howto_completeness": round(howto_coverage, 4),
             },
-            "interpretation": "Composite completeness of Repository Reconnaissance reporting. NOT a security or structural visibility score.",
+            "interpretation": "Composite completeness of PTA reporting. NOT a security or structural visibility score.",
         },
         "dci_v1_claim_visibility": {
             "score": round(claims_coverage, 4),

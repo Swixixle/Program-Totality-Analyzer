@@ -1,6 +1,6 @@
 # Quick Start Guide
 
-Get Repository Reconnaissance (RR) running in 5 minutes.
+Get Asset-Analyzer (PTA) running in 5 minutes.
 
 ## Prerequisites
 
@@ -13,8 +13,8 @@ Get Repository Reconnaissance (RR) running in 5 minutes.
 ### 1. Clone and Install Dependencies
 
 ```bash
-git clone https://github.com/Swixixle/Repository-Reconnaissance.git
-cd Repository-Reconnaissance
+git clone https://github.com/Swixixle/Asset-Analyzer.git
+cd Asset-Analyzer
 
 # Install Node.js dependencies
 npm install
@@ -29,7 +29,7 @@ Create a `.env` file or set environment variables:
 
 ```bash
 # Required
-DATABASE_URL=postgresql://user:password@localhost:5432/repository_reconnaissance
+DATABASE_URL=postgresql://user:password@localhost:5432/asset_analyzer
 API_KEY=your-secure-api-key-minimum-32-characters-long
 
 # Optional
@@ -72,7 +72,7 @@ npm run smoke
 
 Expected output:
 ```
-==> RR Smoke Test
+==> PTA Smoke Test
 Running analyzer on fixture repo...
 ✓ Both outputs exist
 ✓ operate.json validates against schema
@@ -107,7 +107,7 @@ Expected response:
 
 ```bash
 # Test with a sample project
-rr analyze https://github.com/octocat/Hello-World -o ./test-output
+pta analyze https://github.com/octocat/Hello-World -o ./test-output
 
 # Check the output
 ls -la test-output/

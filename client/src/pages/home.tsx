@@ -56,8 +56,8 @@ export default function Home() {
           </div>
 
           <h1 className="text-5xl md:text-7xl font-display font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-b from-white to-white/50 pb-2">
-            Repository <br />
-            <span className="text-primary text-glow">Reconnaissance</span>
+            Program Totality <br />
+            <span className="text-primary text-glow">Analyzer</span>
           </h1>
           
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">

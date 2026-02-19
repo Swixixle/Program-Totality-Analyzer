@@ -11,7 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "db:push": "drizzle-kit push",
-    "smoke": "bash scripts/smoke_rr.sh"
+    "smoke": "bash scripts/smoke_pta.sh"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

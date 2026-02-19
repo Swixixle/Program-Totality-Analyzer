@@ -1,12 +1,12 @@
 # Security Model & Threat Analysis
 
-This document describes the security architecture, threat model, and execution boundary guarantees of the RR (Repository Reconnaissance) system.
+This document describes the security architecture, threat model, and execution boundary guarantees of the PTA (Program Totality Analyzer) system.
 
 ## Security Architecture
 
 ### Defense in Depth
 
-RR implements multiple layers of security controls:
+PTA implements multiple layers of security controls:
 
 1. **Input Validation**: All external inputs validated and sanitized
 2. **Execution Isolation**: Analyzer runs in controlled subprocess with strict boundaries
@@ -19,7 +19,7 @@ RR implements multiple layers of security controls:
 
 ```
 ┌─────────────────────────────────────────────────┐
-│ Trusted: RR Server Process                     │
+│ Trusted: PTA Server Process                     │
 │  - Configuration validation                      │
 │  - Auth/API key checks                          │
 │  - Database access                              │
@@ -115,7 +115,7 @@ RR implements multiple layers of security controls:
 
 ### Out-of-Scope Threats
 
-These threats are **not** mitigated by RR and must be addressed at deployment level:
+These threats are **not** mitigated by PTA and must be addressed at deployment level:
 
 - **Network-level attacks**: DDoS, packet injection (use CDN, firewall)
 - **Compromised dependencies**: Supply chain attacks (use dependabot, audits)
@@ -276,7 +276,7 @@ Report security issues to:
 | Repository Content | Untrusted | Malformed files, symlinks, crafted patterns |
 | LLM API (optional) | External | Data leakage, model manipulation |
 
-**Deployment Recommendation**: Run RR in a containerized environment with resource limits, network policies, and separate user accounts for defense-in-depth.
+**Deployment Recommendation**: Run PTA in a containerized environment with resource limits, network policies, and separate user accounts for defense-in-depth.
 
 ## Future Enhancements
 

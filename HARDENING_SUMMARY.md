@@ -1,4 +1,4 @@
-# Repository Reconnaissance Hardening Pass - Implementation Summary
+# PTA Hardening Pass - Implementation Summary
 
 **Date**: 2026-02-17  
 **Branch**: copilot/address-security-alerts  
@@ -16,13 +16,13 @@ Comprehensive hardening pass implementing all requirements from the wrap-up dire
 **Solution**:
 - Consolidated all schemas to `shared/schemas/` (single source of truth)
 - Added runtime check to reject deprecated schema directories
-- Unified version format: `rr-X.Y.Z` emitted by both Python and Node
+- Unified version format: `pta-X.Y.Z` emitted by both Python and Node
 - Schema version constants centralized in `version.py`
 - Atomic output writes: JSON files written to `.tmp` then renamed
 
 **Files Changed**:
 - `server/analyzer/src/version.py` - Added `PTA_VERSION`, schema constants
-- `server/config.ts` - Boot report now uses `rr-` prefix
+- `server/config.ts` - Boot report now uses `pta-` prefix
 - `server/analyzer/src/schema_validator.py` - Enforces single schema directory
 - `server/analyzer/src/analyzer.py` - Atomic writes with cleanup logging
 - `server/analyzer/src/core/operate.py` - Uses `PTA_VERSION`

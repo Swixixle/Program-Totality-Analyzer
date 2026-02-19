@@ -1,6 +1,6 @@
 # Example Outputs
 
-These are sample outputs from Repository Reconnaissance running in `--no-llm` (deterministic) mode against its own workspace.
+These are sample outputs from the Program Totality Analyzer running in `--no-llm` (deterministic) mode against its own workspace.
 
 ## Files
 
@@ -11,17 +11,17 @@ These are sample outputs from Repository Reconnaissance running in `--no-llm` (d
 ## Generating Your Own
 
 ```bash
-rr analyze --replit --no-llm -o ./my_output
+pta analyze --replit --no-llm -o ./my_output
 ```
 
 Or for a GitHub repo:
 
 ```bash
-rr analyze https://github.com/user/repo -o ./my_output
+pta analyze https://github.com/user/repo -o ./my_output
 ```
 
 Or for a local folder:
 
 ```bash
-rr analyze ./path/to/project -o ./my_output
+pta analyze ./path/to/project -o ./my_output
 ```

@@ -28,7 +28,7 @@ The profile overview positions your GitHub presence as:
 
 ### Systems Covered
 
-* **RR (Repository Reconnaissance)** — This repository ([Demo on Replit](https://replit.com/github/Swixixle/Repository-Reconnaissance))
+* **PTA (Program Totality Analyzer)** — This repository ([Demo on Replit](https://replit.com/github/Swixixle/Program-Totality-Analyzer))
 * **HALO-RECEIPTS** — Cryptographic transcript verification
 * **ELI Imaging** — Clinical documentation artifacts
 * **Lantern** — Operational visibility systems ([Demo on Replit](https://replit.com/github/Swixixle/Lantern))

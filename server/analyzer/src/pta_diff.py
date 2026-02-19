@@ -186,7 +186,7 @@ def _extract_hashes_from_item(item: Dict) -> Set[str]:
 
 def render_diff_report(diff: Dict[str, Any]) -> str:
     lines = [
-        "# Repository Reconnaissance Diff Report",
+        "# PTA Diff Report",
         "",
         f"**Pack A:** run_id={diff.get('pack_a', {}).get('run_id', '?')} generated={diff.get('pack_a', {}).get('generated_at', '?')}",
         f"**Pack B:** run_id={diff.get('pack_b', {}).get('run_id', '?')} generated={diff.get('pack_b', {}).get('generated_at', '?')}",

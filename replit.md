@@ -1,12 +1,12 @@
 # Overview
 
-**Repository Reconnaissance** — a full-stack web application that ingests software projects (via GitHub URL, local path, or live Replit workspace) and produces evidence-cited technical dossiers. The dossier covers what a target system is, how it works, how to use it, and what risks/unknowns exist. It combines a React frontend for submitting analysis requests and viewing results with an Express backend that manages projects/analyses in PostgreSQL and spawns a Python-based analyzer CLI for the actual code analysis.
+**Program Totality Analyzer** — a full-stack web application that ingests software projects (via GitHub URL, local path, or live Replit workspace) and produces evidence-cited technical dossiers. The dossier covers what a target system is, how it works, how to use it, and what risks/unknowns exist. It combines a React frontend for submitting analysis requests and viewing results with an Express backend that manages projects/analyses in PostgreSQL and spawns a Python-based analyzer CLI for the actual code analysis.
 
 ## Replit Demo (1-click Portal)
 
-[![Run on Replit](https://replit.com/badge/github/Swixixle/Repository-Reconnaissance)](https://replit.com/github/Swixixle/Repository-Reconnaissance)
+[![Run on Replit](https://replit.com/badge/github/Swixixle/Program-Totality-Analyzer)](https://replit.com/github/Swixixle/Program-Totality-Analyzer)
 
-**Live Demo:** [Open Repository Reconnaissance in Replit](https://replit.com/github/Swixixle/Repository-Reconnaissance)
+**Live Demo:** [Open Program Totality Analyzer in Replit](https://replit.com/github/Swixixle/Program-Totality-Analyzer)
 
 ### Quick Start
 
@@ -45,7 +45,7 @@ The analyzer home page includes:
 
 ## Supported Artifact Types
 
-Repository Reconnaissance analyzes static artifacts across multiple domains without requiring additional Replit configuration:
+PTA analyzes static artifacts across multiple domains without requiring additional Replit configuration:
 
 - **Application**: Source code and configuration files (TypeScript, Python, Go, etc.)
 - **Infrastructure**: Terraform resources, Kubernetes manifests
@@ -53,7 +53,7 @@ Repository Reconnaissance analyzes static artifacts across multiple domains with
 - **Machine Learning**: Training pipelines, model configs, prompt templates
 - **Policy**: OPA/Rego policies
 
-These analyzers use **static file parsing only** — no new dependencies, runtime hooks, or platform integrations are required. Repository Reconnaissance reads files directly from the workspace/repository and extracts structural information.
+These analyzers use **static file parsing only** — no new dependencies, runtime hooks, or platform integrations are required. PTA reads files directly from the workspace/repository and extracts structural information.
 
 For complete artifact type coverage, file patterns, and limitations, see **[docs/artifact-types.md](docs/artifact-types.md)**.
 

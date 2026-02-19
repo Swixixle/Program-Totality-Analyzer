@@ -1,4 +1,4 @@
-# Repository Reconnaissance
+# Program Totality Analyzer
 
 Evidence-first static analysis that generates operational dossiers and readiness assessments for software projects.
 
@@ -27,7 +27,7 @@ Evidence-first static analysis that generates operational dossiers and readiness
 
 ## Supported Artifact Types
 
-Repository Reconnaissance analyzes static artifacts across multiple domains:
+PTA analyzes static artifacts across multiple domains:
 
 - **Application**: Source code (TypeScript, Python, Go, etc.) and configuration files
 - **Infrastructure**: Terraform resources, Kubernetes manifests
@@ -54,7 +54,7 @@ Given a software project (GitHub repo, local folder, or Replit workspace), the a
 
 ### Core Capabilities
 
-Repository Reconnaissance extracts and maps:
+PTA extracts and maps:
 
 - **Application structure**: Functions, classes, imports, dependencies, package scripts, lockfile analysis
 - **Configuration discovery**: Environment variables, ports, API endpoints, auth mechanisms, service integrations
@@ -66,7 +66,7 @@ Repository Reconnaissance extracts and maps:
 
 ## Live Static CI Feed
 
-Event-driven static analysis triggered by GitHub push and pull request events. When a webhook fires, Repository Reconnaissance creates a CI run, shallow-clones the repo at the exact commit SHA, runs the analyzer, and stores artifacts under `out/ci/<run_id>/`. A web UI at `/ci` shows run status and results.
+Event-driven static analysis triggered by GitHub push and pull request events. When a webhook fires, PTA creates a CI run, shallow-clones the repo at the exact commit SHA, runs the analyzer, and stores artifacts under `out/ci/<run_id>/`. A web UI at `/ci` shows run status and results.
 
 ### What it is
 
@@ -184,9 +184,9 @@ See [docs/QUICKSTART.md](docs/QUICKSTART.md) for complete configuration guide.
 
 ## Replit Demo (1-click Portal)
 
-[![Run on Replit](https://replit.com/badge/github/Swixixle/Repository-Reconnaissance)](https://replit.com/github/Swixixle/Repository-Reconnaissance)
+[![Run on Replit](https://replit.com/badge/github/Swixixle/Program-Totality-Analyzer)](https://replit.com/github/Swixixle/Program-Totality-Analyzer)
 
-**Live Demo:** [Open Repository Reconnaissance in Replit](https://replit.com/github/Swixixle/Repository-Reconnaissance)
+**Live Demo:** [Open Program Totality Analyzer in Replit](https://replit.com/github/Swixixle/Program-Totality-Analyzer)
 
 For quick access to the analyzer UI, use the **Replit Portal** link:
 
@@ -279,7 +279,7 @@ For a repository containing application code, infrastructure (Terraform), data m
 pta analyze https://github.com/example/platform -o ./output
 ```
 
-Repository Reconnaissance will scan and extract:
+PTA will scan and extract:
 - **App**: TypeScript/Python source, `package.json`, `pyproject.toml`
 - **Infra**: `terraform/*.tf` resources, `k8s/*.yaml` manifests
 - **Data**: `models/**/*.sql` dbt models, `dbt_project.yml`
@@ -329,7 +329,7 @@ Operational gaps in `operate.json` include a severity rating:
 
 Snippet hashes are re-checked against source files: the analyzer re-reads the cited line range, strips whitespace, hashes the result, and confirms it matches the claimed hash. Claims that fail hash verification are capped at confidence 0.20 and marked `"status": "unverified"`.
 
-**Important:** Hash verification confirms that a snippet exists at the cited location. It does not prove that the code behaves as described, is secure, or is free of bugs. Repository Reconnaissance is not a security scanner, compliance certification tool, or correctness prover.
+**Important:** Hash verification confirms that a snippet exists at the cited location. It does not prove that the code behaves as described, is secure, or is free of bugs. PTA is not a security scanner, compliance certification tool, or correctness prover.
 
 ### Whitespace Policy
 
@@ -337,8 +337,8 @@ Lines are stripped (trimmed) before hashing. This normalizes indentation differe
 
 ## Limitations
 
-- **Static only**: Repository Reconnaissance analyzes source files, config, and lockfiles. It cannot observe runtime behavior, network traffic, or live state.
-- **No security guarantees**: Repository Reconnaissance is not a security scanner, vulnerability detector, or SCA tool. It reports structural observations, not security assessments.
+- **Static only**: PTA analyzes source files, config, and lockfiles. It cannot observe runtime behavior, network traffic, or live state.
+- **No security guarantees**: PTA is not a security scanner, vulnerability detector, or SCA tool. It reports structural observations, not security assessments.
 - **Evidence scope**: "EVIDENCED" means a snippet hash matched a source location. It does not mean the code works correctly, is secure, or meets any compliance standard.
 - **LLM outputs are interpretive**: When using LLM mode, semantic analysis outputs carry confidence scores and are labeled as LLM-generated. They are not deterministic and should not be treated as ground truth.
 - **CI Feed is static analysis**: The CI Feed triggers static analysis on push/PR events. It does not run tests, build artifacts, or deploy code.
